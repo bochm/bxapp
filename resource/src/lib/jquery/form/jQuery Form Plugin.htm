@@ -1,0 +1,1165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0069)http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>jQuery Form Plugin</title>
+<link rel="stylesheet" type="text/css" media="screen" href="./jQuery Form Plugin_files/jq.css">
+<link rel="stylesheet" type="text/css" media="screen" href="./jQuery Form Plugin_files/form.css">
+<script type="text/javascript" async="" src="http://www.google-analytics.com/ga.js"></script><script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="./jQuery Form Plugin_files/jquery.tabs.pack.js"></script>
+<script type="text/javascript" src="./jQuery Form Plugin_files/jquery.history.pack.js"></script>
+<script type="text/javascript" src="./jQuery Form Plugin_files/jquery.form.js"></script>
+<script type="text/javascript" src="./jQuery Form Plugin_files/chili-1.7.pack.js"></script>
+
+<script type="text/javascript"><!--
+$().ajaxError(function(ev,xhr,o,err) {
+    alert(err);
+    if (window.console && window.console.log) console.log(err);
+});
+$(function() {
+    // initialize the tabs
+    var tab = location.hash == '#options-object' ? 2 : 1;
+    var main = $('#main').tabs(tab);
+    $('#samples').tabs( { selectedClass: 'sample-tab-selected', bookmarkable: false });
+
+    var options1 = {
+        target:        '#output1',   // target element to update
+        beforeSubmit:  showRequest,  // pre-submit callback
+        success:       showResponse  // post-submit callback
+    };
+
+    // bind form1 using 'ajaxForm'
+    $('#myForm1').ajaxForm(options1);
+
+    var options2 = {
+        target:        '#output2',   // target element to update
+        beforeSubmit:  showRequest,  // pre-submit callback
+        success:       showResponse  // post-submit callback
+    };
+
+    // bind form2 using ajaxSubmit
+    $('#myForm2').submit(function() {
+        // submit the form via ajax
+        $(this).ajaxSubmit(options2);
+        return false;
+    });
+
+    $('#test').submit(function() {
+        return false;
+    });
+
+    $('#inputForm').submit(function() {
+        var query = $('#query').val();
+        showIt(query);
+        return false;
+    });
+
+    $('<div id="busy">Loading...</div>')
+        .ajaxStart(function() {$(this).show();})
+        .ajaxStop(function() {$(this).hide();})
+        .appendTo('#main');
+
+    $('#jsonForm').ajaxForm({
+        dataType: 'json',
+        success:  processJson
+    });
+
+    $('#validateForm1').ajaxForm({ beforeSubmit: validate1 });
+    $('#validateForm2').ajaxForm({ beforeSubmit: validate2 });
+    $('#validateForm3').ajaxForm({ beforeSubmit: validate3 });
+
+    $('#xmlForm').ajaxForm({
+        // dataType identifies the expected content type of the server response
+        dataType:  'xml',
+
+        // success identifies the function to invoke when the server response
+        // has been received
+        success:   processXml
+    });
+
+    $('#htmlForm').ajaxForm({
+        // target identifies the element(s) to update with the server response
+        target: '#htmlExampleTarget',
+        success: function() {
+            $('#htmlExampleTarget').fadeIn('slow');
+        }
+    });
+
+    $('#uploadForm').ajaxForm({
+        beforeSubmit: function(a,f,o) {
+            o.dataType = $('#uploadResponseType')[0].value;
+            $('#uploadOutput').html('Submitting...');
+        },
+        success: function(data) {
+            var $out = $('#uploadOutput');
+            $out.html('Form success handler received: <strong>' + typeof data + '</strong>');
+            if (typeof data == 'object' && data.nodeType)
+                data = elementToString(data.documentElement, true);
+            else if (typeof data == 'object')
+                data = objToString(data);
+            $out.append('<div><pre>'+ data +'</pre></div>');
+        }
+    });
+});
+
+
+// pre-submit callback
+function showRequest(formData, jqForm) {
+    alert('About to submit: \n\n' + $.param(formData));
+    return true;
+}
+
+// post-submit callback
+function showResponse(responseText, statusText)  {
+    alert('this: ' + this.tagName +
+        '\nstatus: ' + statusText +
+        '\n\nresponseText: \n' +
+        responseText + '\n\nThe output div should have already been updated with the responseText.');
+}
+
+function showIt(query) {
+    var successful = $('#successful')[0].checked;
+    var val = $(query, '#test').fieldValue(successful);
+    var ser = $(query, '#test').fieldSerialize(successful);
+    alert('$("'+query+'").fieldValue(): ' + val + '\n\n$("'+query+'").fieldSerialize(): ' + ser);
+}
+
+function validate1(formData, jqForm, options) {
+    for (var i=0; i < formData.length; i++) {
+        if (!formData[i].value) {
+            alert('Please enter a value for both Username and Password');
+            return false;
+        }
+    }
+    alert('Both fields contain values.');
+}
+
+function validate2(formData, jqForm, options) {
+    var form = jqForm[0];
+    if (!form.username.value || !form.password.value) {
+        alert('Please enter a value for both Username and Password');
+        return false;
+    }
+    alert('Both fields contain values.');
+}
+
+function validate3(formData, jqForm, options) {
+    var usernameValue = $('#validateForm3 input[@name=username]').fieldValue();
+    var passwordValue = $('#validateForm3 input[@name=password]').fieldValue();
+
+    if (!usernameValue[0] || !passwordValue[0]) {
+        alert('Please enter a value for both Username and Password');
+        return false;
+    }
+    alert('Both fields contain values.');
+}
+
+function processJson(data) {
+    alert(data.message);
+}
+
+function processXml(responseXML) {
+    var message = $('message', responseXML).text();
+    alert(message);
+}
+
+// helper
+function objToString(o) {
+    var s = '{\n';
+    for (var p in o)
+        s += '    ' + p + ': ' + o[p] + '\n';
+    return s + '}';
+}
+
+// helper
+function elementToString(n, useRefs) {
+    var attr = "", nest = "", a = n.attributes;
+    for (var i=0; a && i < a.length; i++)
+        attr += ' ' + a[i].nodeName + '="' + a[i].nodeValue + '"';
+
+    if (n.hasChildNodes == false)
+        return "<" + n.nodeName + "\/>";
+
+    for (var i=0; i < n.childNodes.length; i++) {
+        var c = n.childNodes.item(i);
+        if (c.nodeType == 1)       nest += elementToString(c);
+        else if (c.nodeType == 2)  attr += " " + c.nodeName + "=\"" + c.nodeValue + "\" ";
+        else if (c.nodeType == 3)  nest += c.nodeValue;
+    }
+    var s = "<" + n.nodeName + attr + ">" + nest + "<\/" + n.nodeName + ">";
+    return useRefs ? s.replace(/</g,'&lt;').replace(/>/g,'&gt;') : s;
+};
+
+// -->
+</script>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2477810-17']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+<body>
+<div style="height:90px;width:100%"><span><a target="_blank" href="http://ihacker.taobao.com/"><img src="./jQuery Form Plugin_files/top-ad.jpg"></a></span>
+<span style="float:right"><script type="text/javascript"><!--
+google_ad_client = "ca-pub-9195052014444206";
+google_ad_slot = "3463000596";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></span></div>
+    <div><a id="logo" href="http://jquery.com/" title="Powered By jQuery"></a></div>
+<h1 id="banner"><a id="backnav" href="http://www.vaikan.com/">‹‹ 首页</a>jQuery Form Plugin</h1>
+<div id="main">
+    <ul id="nav" class="anchors">
+    <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#getting-started">入门</a></li>
+    <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#api">API</a></li>
+
+    <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#code-samples">代码示例</a></li>
+    <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#fields">处理表单域</a></li>
+    <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#faq">常见问题</a></li>
+    <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#download">下载 &amp; 支持</a></li>
+    </ul>
+    <div id="getting-started" class="tabContent">
+
+        <h1>概述</h1>
+        jQuery Form Plugin 能够让你简洁的将以HTML形式提交的表单升级成采用<abbr title="Asynchronous JavaScript and XML">AJAX</abbr>技术提交的表单。
+        插件里面主要的方法,
+        <code class="inline">ajaxForm</code> 和 <code class="inline">ajaxSubmit</code>,
+        能够从form组件里采集信息确定如何处理表单的提交过程。两个方法都支持众多的可选参数，能够让你对表单里数据的提交做到完全的控制。这让采用AJAX方式提交一个表单的过程简单的不能再简单了！
+
+        <h1>入门指导</h1>
+        <div class="step-one">在你的页面里写一个表单。一个普通的表单，不需要任何特殊的标记：</div>
+
+        <pre><code class="mix">&lt;form id="myForm" action="comment.php" method="post"&gt;
+    Name: &lt;input type="text" name="name" /&gt;
+    Comment: &lt;textarea name="comment"&gt;&lt;/textarea&gt;
+    &lt;input type="submit" value="Submit Comment" /&gt;
+&lt;/form&gt;</code></pre>
+
+        <div class="step-two">引入jQuery和Form Plugin Javascript脚本文件并且添加几句简单的代码让页面在<abbr title="Document Object Model">DOM</abbr>加载完成后初始化表单：</div>
+        <pre><code class="mix">&lt;head&gt;
+    &lt;script type="text/javascript" src="path/to/jquery.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="path/to/form.js"&gt;&lt;/script&gt;
+
+    &lt;script type="text/javascript"&gt;
+        // wait for the DOM to be loaded
+        $(document).ready(function() {
+            // bind 'myForm' and provide a simple callback function
+            $('#myForm').ajaxForm(function() {
+                alert("Thank you for your comment!");
+            });
+        });
+    &lt;/script&gt;
+&lt;/head&gt;</code></pre>
+
+    <strong>这就行了！</strong>  当表单提交后<em>name</em> 和 <em>comment</em>的值就会被提交给<em>comment.php</em>. 如果服务器端返回成功的状态，用户将会看到一句提示信息 "Thank you" 。
+    <p>
+
+    </p></div>
+
+    <div id="api" class="tabContent">
+        <h1>Form Plugin API</h1>
+         Form Plugin API 里提供了很多有用的方法可以让你轻松的处理表单里的数据和表单的提交过程。
+         <dl>
+        <dt><code class="method">ajaxForm</code></dt>
+        <dd>预处理将要使用<abbr title="Asynchronous JavaScript and XML">AJAX</abbr>方式提交的表单，将所有需要用到的事件监听器添加到其中。它<strong>不是</strong>提交这个表单。
+        在页面的<code class="inline">ready</code>函数里使用<code class="inline">ajaxForm</code>来给你页面上的表单做这些AJAX提交的准备工作。  <code class="inline">ajaxForm</code> 需要零个或一个参数。这唯一的一个参数可以是一个回调函数或者是一个<a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#options-object">可选参数对象</a>。<br>
+
+        是否可以连环调用: 是。
+        <p>例子:
+        </p><pre><code class="mix">$('#myFormId').ajaxForm();</code></pre>
+        </dd>
+        <dt><code class="method">ajaxSubmit</code></dt>
+        <dd>立即通过AJAX方式提交表单。最常见的用法是对用户提交表单的动作进行响应时调用它。
+         <code class="inline">ajaxForm</code> 需要零个或一个参数。唯一的一个参数可以是一个回调函数或者是一个<a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#options-object">可选参数对象</a>。<br>
+
+         是否可以连环调用: 是。
+        <p>例子:
+        </p><pre><code class="mix">// attach handler to form's submit event
+$('#myFormId').submit(function() {
+    // submit the form
+    $(this).ajaxSubmit();
+    // return false，这样可以阻止正常的浏览器表单提交和页面转向
+    return false;
+});</code></pre>
+        </dd>
+        <dt><code class="method">formSerialize</code></dt>
+        <dd>将表单序列化成查询串。这个方法将返回一个形如：
+        <code class="inline">name1=value1&amp;name2=value2</code>的字符串。<br>
+        是否可以连环调用: 否, 这个方法返回的是一个字符串。
+        <p>例子:
+        </p><pre><code class="mix">var queryString = $('#myFormId').formSerialize();
+
+// the data could now be submitted using $.get, $.post, $.ajax, etc
+$.post('myscript.php', queryString);
+        </code></pre>
+
+        </dd>
+        <dt><code class="method">fieldSerialize</code></dt>
+        <dd>将表单里的元素序列化成字符串。当你只需要将表单的部分元素序列化时可以用到这个方法。 这个方法将返回一个形如：
+        <code class="inline">name1=value1&amp;name2=value2</code>的字符串。<br>
+         是否可以连环调用: 否, 这个方法返回的是一个字符串。
+        <p>例子:
+        </p><pre><code class="mix">var queryString = $('#myFormId .specialFields').fieldSerialize();</code></pre>
+        </dd>
+
+        <dt><code class="method">fieldValue</code></dt>
+        <dd>取出所有匹配要求的域的值，以数组形式返回。  从 0.91 版本开始, 
+        这个方法 <strong>始终</strong> 返回一个数组。
+        如果没有符合条件的域，这个数组将会是个空数组，否则它将会包含至少一个值。<br>
+        是否可以连环调用: 否, 这个方法返回的是一个数组。
+        <p>例子:
+        </p><pre><code class="mix">// get the value of the password input
+var value = $('#myFormId :password').fieldValue();
+alert('The password is: ' + value[0]);
+</code></pre>
+        </dd>
+        <dt><code class="method">resetForm</code></dt>
+
+        <dd>通过调用表单元素的内在的<abbr title="Document Object Model">DOM</abbr> 上的方法把表单重置成最初的状态。<br>
+        是否可以连环调用: 是
+        <p>例子:
+        </p><pre><code class="mix">$('#myFormId').resetForm();</code></pre>
+        </dd>
+        <dt><code class="method">clearForm</code></dt>
+        <dd>清空表单所有元素的值。这个方法将会清空所有的文本框，密码框，文本域里的值，去掉下拉列表所有被选中的项，让所有复选框和单选框里被选中的项不再选中。<br>
+
+        是否可以连环调用: 否
+        <pre><code class="mix">$('#myFormId').clearForm();</code></pre>
+        </dd>
+        <dt><code class="method">clearFields</code></dt>
+        <dd>清空某个表单域的值。这个可以用在只需要清空表单里部分元素的值的情况。<br>
+        是否可以连环调用: 否
+        <pre><code class="mix">$('#myFormId .specialFields').clearFields();</code></pre>
+        </dd>
+
+        </dl>
+        <a id="options-object" name="options-object"></a>
+        <h1>可选参数项对象</h1>
+        <code class="inline">ajaxForm</code> 和 <code class="inline">ajaxSubmit</code> 都支持大量的可选参数，它们通过可选参数项对象传入。可选参数项对象只是一个简单的 JavaScript对象，里边包含了一些属性和一些值:
+        <dl class="options">
+        <dt>target</dt>
+
+        <dd>用server端返回的内容更换指定的页面元素的内容。
+            这个值可以用jQuery 选择器来表示, 或者是一个jQuery 对象，
+            一个 DOM 元素。<br> 缺省值： <code class="inline">null</code>
+        </dd>
+        <dt>url</dt>
+        <dd>表单提交的地址。<br>
+        缺省值： 表单的<code class="inline">action</code>的值
+        </dd>
+
+        <dt>type</dt>
+        <dd>表单提交的方式，'GET' 或 'POST'.<br>
+            缺省值： 表单的 <code class="inline">method</code> 的值 (如果没有指明则认为是 'GET')
+        </dd>
+        <dt>beforeSubmit</dt>
+        <dd>表单提交前执行的方法。这个可以用在表单提交前的预处理，或表单校验。如果'beforeSubmit'指定的函数返回false，则表单不会被提交。 'beforeSubmit'函数调用时需要3个参数：数组形式的表单数据，jQuery 对象形式的表单对象，可选的用来传递给ajaxForm/ajaxSubmit 的对象。
+          数组形式的表单数据是下面这样的格式：
+         <pre><code class="mix">[ { name: 'username', value: 'jresig' }, { name: 'password', value: 'secret' } ]</code></pre> 缺省值： <code class="inline">null</code>
+        </dd>
+        <dt>success</dt>
+        <dd>当表单提交后执行的函数。
+            如果'success' 回调函数被指定，当server端返回对表单提交的响应后，这个方法就会被执行。 responseText 和 responseXML 的值会被传进这个参数 (这个要依赖于dataType的类型).
+            <p> 缺省值： <code class="inline">null</code>
+        </p></dd>
+
+        <dt>dataType</dt>
+        <dd>指定服务器响应返回的数据类型。其中之一: null, 'xml', 'script', 或者 'json'.
+        这个 <code class="inline">dataType</code> 选项用来指示你如何去处理server端返回的数据。
+        这个和 <code class="inline">jQuery.httpData</code> 方法直接相对应。
+        下面就是可以用的选项：
+        <p>
+        <strong>'xml'</strong>: 如果 dataType == 'xml' 则 server 端返回的数据被当作是 XML 来处理， 这种情况下'success'指定的回调函数会被传进去 responseXML 数据
+        </p><p>
+        <strong>'json'</strong>: 如果 dataType == 'json' 则server端返回的数据将会被执行，并传进'success'回调函数
+        </p><p>
+
+        <strong>'script'</strong>: 如果 dataType == 'script' 则server端返回的数据将会在上下文的环境中被执行
+        </p><p> 缺省值： <code class="inline">null</code>
+        </p></dd>
+        <dt>semantic</dt>
+        <dd>一个布尔值，用来指示表单里提交的数据的顺序是否需要严格按照语义的顺序。一般表单的数据都是按语义顺序序列化的，除非表单里有一个<code class="inline">type="image"</code>元素.
+            所以只有当表单里必须要求有严格顺序<strong>并且</strong>表单里有<code class="inline">type="image"</code>时才需要指定这个。<br>
+
+            缺省值： <code class="inline">false</code>
+        </dd>
+        <dt>resetForm</dt>
+        <dd>布尔值，指示表单提交成功后是否需要重置。<br> 缺省值： <code class="inline">null</code>
+        </dd>
+
+        <dt>clearForm</dt>
+        <dd>布尔值，指示表单提交成功后是否需要清空。<br> 缺省值： <code class="inline">null</code>
+        </dd>
+        <dt>iframe</dt>
+        <dd>布尔值，用来指示表单是否需要提交到一个iframe里。
+            这个用在表单里有file域要上传文件时。更多信息请参考 <a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#code-samples">代码示例</a> 页面里的<em>File Uploads</em> 文档。
+        <br>
+
+            缺省值： <code class="inline">false</code>
+        </dd>
+        </dl>
+        <p>
+        例子:
+        </p><pre><code class="mix">// prepare Options Object
+var options = {
+    target:     '#divToUpdate',
+    url:        'comment.php',
+    success:    function() {
+        alert('Thanks for your comment!');
+    }
+};
+
+// pass options to ajaxForm
+$('#myForm').ajaxForm(options);
+</code></pre>
+
+    注意，这个参数对象也可以当作 jQuery's
+    <a class="external" href="http://docs.jquery.com/Ajax"><code class="inline">$.ajax</code></a>方法的参数。
+    如果你对 <code class="inline">$.ajax</code> 方法的参数使用很熟悉，你也可以把它当作<code class="inline">ajaxForm</code> 和
+    <code class="inline">ajaxSubmit</code> 的参数使用。
+
+    </div>
+
+    <div id="code-samples" class="tabContent">
+        <h1>代码示例</h1>
+
+        <div id="samples">
+
+            <ul class="sampleAnchors">
+                <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#sample1">ajaxForm</a></li>
+                <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#sample2">ajaxSubmit</a></li>
+                <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#sample3">表单校验</a></li>
+                <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#sample4">JSON</a></li>
+                <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#sample5">XML</a></li>
+
+                <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#sample6">HTML</a></li>
+                <li><a href="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#sample7">文件上传</a></li>
+            </ul>
+            <div id="sample1" class="sampleTabContent">
+            <p>
+            下面这个控制HTML表单的代码就是基于这个方法的。它使用<code class="inline">ajaxForm</code>
+                绑定这个表单，然后演示如何使用表单提交之前和之后的回调函数。
+                </p><pre><code class="mix">// prepare the form when the DOM is ready
+$(document).ready(function() {
+    var options = {
+        target:        '#output1',   // target element(s) to be updated with server response
+        beforeSubmit:  showRequest,  // pre-submit callback
+        success:       showResponse  // post-submit callback
+
+        // other available options:
+        //url:       url         // override for form's 'action' attribute
+        //type:      type        // 'get' or 'post', override for form's 'method' attribute
+        //dataType:  null        // 'xml', 'script', or 'json' (expected server response type)
+        //clearForm: true        // clear all form fields after successful submit
+        //resetForm: true        // reset the form after successful submit
+
+        // $.ajax options can be used here too, for example:
+        //timeout:   3000
+    };
+
+    // bind form using 'ajaxForm'
+    $('#myForm1').ajaxForm(options);
+});
+
+// pre-submit callback
+function showRequest(formData, jqForm, options) {
+    // formData is an array; here we use $.param to convert it to a string to display it
+    // but the form plugin does this for you automatically when it submits the data
+    var queryString = $.param(formData);
+
+    // jqForm is a jQuery object encapsulating the form element.  To access the
+    // DOM element for the form do this:
+    // var formElement = jqForm[0];
+
+    alert('About to submit: \n\n' + queryString);
+
+    // here we could return false to prevent the form from being submitted;
+    // returning anything other than false will allow the form submit to continue
+    return true;
+}
+
+// post-submit callback
+function showResponse(responseText, statusText)  {
+    // for normal html responses, the first argument to the success callback
+    // is the XMLHttpRequest object's responseText property
+
+    // if the ajaxForm method was passed an Options Object with the dataType
+    // property set to 'xml' then the first argument to the success callback
+    // is the XMLHttpRequest object's responseXML property
+
+    // if the ajaxForm method was passed an Options Object with the dataType
+    // property set to 'json' then the first argument to the success callback
+    // is the json data object returned by the server
+
+    alert('status: ' + statusText + '\n\nresponseText: \n' + responseText +
+        '\n\nThe output div should have already been updated with the responseText.');
+}
+
+</code></pre>
+                <form id="myForm1" action="http://www.malsup.com/jquery/form/dummy.php" method="post"><div>
+                        <input type="hidden" name="Hidden" value="hiddenValue">
+                        <table>
+                        <tbody><tr><td>Name:</td><td><input name="Name" type="text" value="MyName1"></td></tr>
+                        <tr><td>Password:</td><td><input name="Password" type="password"></td></tr>
+                        <tr><td>Multiple:</td><td><select name="Multiple" multiple="multiple">
+
+                            <optgroup label="Group 1">
+                                <option value="one" selected="selected">One</option>
+                                <option value="two">Two</option>
+                                <option value="three">Three</option>
+                            </optgroup>
+                            <optgroup label="Group 2">
+                                <option value="four">Four</option>
+
+                                <option value="five">Five</option>
+                                <option value="six">Six</option>
+                            </optgroup>
+                        </select></td></tr>
+                        <tr><td>Single:</td><td><select name="Single">
+                            <option value="one" selected="selected">One</option>
+
+                            <option value="two">Two</option>
+
+                            <option value="three">Three</option>
+                        </select></td></tr>
+                        <tr><td>Single2:</td><td><select name="Single2">
+                            <optgroup label="Group 1">
+                                <option value="A" selected="selected">A</option>
+
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                            </optgroup>
+                            <optgroup label="Group 2">
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                                <option value="F">F</option>
+
+                            </optgroup>
+                        </select></td></tr>
+
+                        <tr><td>Check:</td><td>
+                            <input type="checkbox" name="Check" value="1">
+                            <input type="checkbox" name="Check" value="2">
+                            <input type="checkbox" name="Check" value="3">
+                        </td></tr>
+                        <tr><td>Radio:</td><td>
+
+                            <input type="radio" name="Radio" value="1">
+                            <input type="radio" name="Radio" value="2">
+
+                            <input type="radio" name="Radio" value="3">
+                        </td></tr>
+                        <tr><td>Text:</td><td><textarea name="Text" rows="2" cols="20">This is Form1</textarea></td></tr>
+                        </tbody></table>
+                        <input type="reset" name="resetButton " value="Reset">
+
+                        <input type="submit" name="submitButton" value="Submit1">
+                        <input type="image" name="submitButton" value="Submit2" src="./jQuery Form Plugin_files/submit.gif">
+                </div></form>
+                <h1>输出 Div (#output1):</h1>
+                <div id="output1">用 AJAX 响应的数据替换Div的内容。</div>
+            </div>
+
+
+            <div id="sample2" class="sampleTabContent">
+
+            <p>
+            下面的用于控制HTML表单的代码就是基于这个用法的。它使用 <code class="inline">ajaxSubmit</code>
+                来提交这个表单。
+                </p><pre><code class="mix">// prepare the form when the DOM is ready
+$(document).ready(function() {
+    var options = {
+        target:        '#output2',   // target element(s) to be updated with server response
+        beforeSubmit:  showRequest,  // pre-submit callback
+        success:       showResponse  // post-submit callback
+
+        // other available options:
+        //url:       url         // override for form's 'action' attribute
+        //type:      type        // 'get' or 'post', override for form's 'method' attribute
+        //dataType:  null        // 'xml', 'script', or 'json' (expected server response type)
+        //clearForm: true        // clear all form fields after successful submit
+        //resetForm: true        // reset the form after successful submit
+
+        // $.ajax options can be used here too, for example:
+        //timeout:   3000
+    };
+
+    // bind to the form's submit event
+    $('#myForm2').submit(function() {
+        // inside event callbacks 'this' is the DOM element so we first
+        // wrap it in a jQuery object and then invoke ajaxSubmit
+        $(this).ajaxSubmit(options);
+
+        // !!! Important !!!
+        // always return false to prevent standard browser submit and page navigation
+        return false;
+    });
+});
+
+// pre-submit callback
+function showRequest(formData, jqForm, options) {
+    // formData is an array; here we use $.param to convert it to a string to display it
+    // but the form plugin does this for you automatically when it submits the data
+    var queryString = $.param(formData);
+
+    // jqForm is a jQuery object encapsulating the form element.  To access the
+    // DOM element for the form do this:
+    // var formElement = jqForm[0];
+
+    alert('About to submit: \n\n' + queryString);
+
+    // here we could return false to prevent the form from being submitted;
+    // returning anything other than false will allow the form submit to continue
+    return true;
+}
+
+// post-submit callback
+function showResponse(responseText, statusText)  {
+    // for normal html responses, the first argument to the success callback
+    // is the XMLHttpRequest object's responseText property
+
+    // if the ajaxSubmit method was passed an Options Object with the dataType
+    // property set to 'xml' then the first argument to the success callback
+    // is the XMLHttpRequest object's responseXML property
+
+    // if the ajaxSubmit method was passed an Options Object with the dataType
+    // property set to 'json' then the first argument to the success callback
+    // is the json data object returned by the server
+
+    alert('status: ' + statusText + '\n\nresponseText: \n' + responseText +
+        '\n\nThe output div should have already been updated with the responseText.');
+}
+</code></pre>
+                <form id="myForm2" action="http://www.malsup.com/jquery/form/dummy2.php" method="post"><div>
+
+                        <input type="hidden" name="Hidden" value="hiddenValue">
+                        <table>
+
+                        <tbody><tr><td>Name:</td><td><input name="Name" type="text" value="MyName2"></td></tr>
+                        <tr><td>Password:</td><td><input name="Password" type="password"></td></tr>
+                        <tr><td>Multiple:</td><td><select name="Multiple" multiple="multiple">
+                            <optgroup label="Group 1">
+                                <option value="one" selected="selected">One</option>
+
+                                <option value="two">Two</option>
+
+                                <option value="three">Three</option>
+                            </optgroup>
+                            <optgroup label="Group 2">
+                                <option value="four">Four</option>
+                                <option value="five">Five</option>
+                                <option value="six">Six</option>
+
+                            </optgroup>
+                        </select></td></tr>
+                        <tr><td>Single:</td><td><select name="Single">
+                            <option value="one" selected="selected">One</option>
+                            <option value="two">Two</option>
+                            <option value="three">Three</option>
+                        </select></td></tr>
+
+                        <tr><td>Single2:</td><td><select name="Single2">
+                            <optgroup label="Group 1">
+                                <option value="A" selected="selected">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                            </optgroup>
+
+                            <optgroup label="Group 2">
+
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                                <option value="F">F</option>
+                            </optgroup>
+                        </select></td></tr>
+                        <tr><td>Check:</td><td>
+
+                            <input type="checkbox" name="Check" value="1">
+
+                            <input type="checkbox" name="Check" value="2">
+                            <input type="checkbox" name="Check" value="3">
+                        </td></tr>
+                        <tr><td>Radio:</td><td>
+                            <input type="radio" name="Radio" value="1">
+                            <input type="radio" name="Radio" value="2">
+                            <input type="radio" name="Radio" value="3">
+
+                        </td></tr>
+                        <tr><td>Text:</td>
+                          <td>&nbsp;</td>
+                        </tr>
+
+                        </tbody></table>
+                        <textarea name="Text2" rows="2" cols="20">This is Form2</textarea>
+            <input type="reset" name="resetButton " value="Reset">
+                        <input type="submit" name="submitButton" value="Submit1">
+                        <input type="image" name="submitButton" value="Submit2" src="./jQuery Form Plugin_files/submit.gif">
+                </div></form>
+
+                <h1>输出 Div (#output2):</h1>
+                <div id="output2"> 用 AJAX 响应的数据替换Div的内容。</div>
+            </div>
+
+            <div id="sample3" class="sampleTabContent">
+            <p>
+            这个页面提供了几个例子，用来在表单提交到server之前校验其数据的合法性。让它起作用的一句就是 <code class="inline">beforeSubmit</code> 参数。如果提交之前执行的回调函数返回false，表单的提交将会终止。            </p><p>
+
+            下面的这个登录表单会在随后的几个例子中用到。每个例子都校验用户填入的用户名和密码。
+            </p><p>
+            <strong>表单代码:</strong>
+            </p><pre><code class="mix">&lt;form id="validationForm" action="dummy.php" method="post"&gt;
+    Username: &lt;input type="text" name="username" /&gt;
+
+    Password: &lt;input type="password" name="password" /&gt;
+    &lt;input type="submit" value="Submit" /&gt;
+&lt;/form&gt;</code></pre>
+            <p>
+            首先，我们初始化这个表单，给它一个 <code class="inline">beforeSubmit</code>
+            回调函数 - 这是一个用来校验的函数。
+            </p><pre><code class="mix">// prepare the form when the DOM is ready
+$(document).ready(function() {
+    // bind form using ajaxForm
+    $('#myForm2').ajaxForm( { beforeSubmit: validate } );
+});</code></pre>
+
+            <h3>使用 <code>formData</code> 参数校验表单</h3>
+            <form id="validateForm1" action="http://www.malsup.com/jquery/form/dummy.php" method="post"><div>
+                Username: <input type="text" name="username">
+                Password: <input type="password" name="password">
+                <input type="submit" value="Submit">
+
+            </div></form>
+            <pre><code class="mix">function validate(formData, jqForm, options) {
+    // formData is an array of objects representing the name and value of each field
+    // that will be sent to the server;  it takes the following form:
+    //
+    // [
+    //     { name:  username, value: valueOfUsernameInput },
+    //     { name:  password, value: valueOfPasswordInput }
+    // ]
+    //
+    // To validate, we can examine the contents of this array to see if the
+    // username and password fields have values.  If either value evaluates
+    // to false then we return false from this method.
+
+    for (var i=0; i &lt; formData.length; i++) {
+        if (!formData[i].value) {
+            alert('Please enter a value for both Username and Password');
+            return false;
+        }
+    }
+    alert('Both fields contain values.');
+}</code></pre>
+            <h3>使用 <code>jqForm</code> 参数校验表单</h3>
+            <form id="validateForm2" action="http://www.malsup.com/jquery/form/dummy.php" method="post"><div>
+                Username: <input type="text" name="username">
+
+                Password: <input type="password" name="password">
+                <input type="submit" value="Submit">
+            </div></form>
+            <pre><code class="mix">function validate(formData, jqForm, options) {
+    // jqForm is a jQuery object which wraps the form DOM element
+    //
+    // To validate, we can access the DOM elements directly and return true
+    // only if the values of both the username and password fields evaluate
+    // to true
+
+    var form = jqForm[0];
+    if (!form.username.value || !form.password.value) {
+        alert('Please enter a value for both Username and Password');
+        return false;
+    }
+    alert('Both fields contain values.');
+}</code></pre>
+            <h3>使用 <code>fieldValue</code> 方法校验表单</h3>
+            <form id="validateForm3" action="http://www.malsup.com/jquery/form/dummy.php" method="post"><div>
+
+                Username: <input type="text" name="username">
+                Password: <input type="password" name="password">
+                <input type="submit" value="Submit">
+            </div></form>
+            <pre><code class="mix">function validate(formData, jqForm, options) {
+    // fieldValue is a Form Plugin method that can be invoked to find the
+    // current value of a field
+    //
+    // To validate, we can capture the values of both the username and password
+    // fields and return true only if both evaluate to true
+
+    var usernameValue = $('input[@name=username]').fieldValue();
+    var passwordValue = $('input[@name=password]').fieldValue();
+
+    // usernameValue and passwordValue are arrays but we can do simple
+    // "not" tests to see if the arrays are empty
+    if (!usernameValue[0] || !passwordValue[0]) {
+        alert('Please enter a value for both Username and Password');
+        return false;
+    }
+    alert('Both fields contain values.');
+}</code></pre>
+            <p>
+            </p><h3>注意</h3>
+
+            你可以在<a href="http://docs.jquery.com/Plugins#Forms" class="external">jQuery Plugins Page</a>页面找到各种各样的校验表单的 jQuery 插件。
+
+
+            </div>
+
+            <div id="sample4" class="sampleTabContent">
+            <p>
+            这个页面展示如何处理server返回的JSON数据。
+            </p><p>
+            下面的例子是表单向server提交一段文本，server端将它以JSON格式返回。
+            <br>
+            <strong>表单代码：</strong>
+
+            </p><pre><code class="mix">&lt;form id="jsonForm" action="json-echo.php" method="post"&gt;
+    Message: &lt;input type="text" name="message" value="Hello JSON" /&gt;
+    &lt;input type="submit" value="Echo as JSON" /&gt;
+&lt;/form&gt;</code></pre>
+            <p>
+            </p><form id="jsonForm" action="http://www.vaikan.com/docs/jquery.form.plugin/json-echo.php" method="post"><div>
+                Message: <input type="text" name="message" value="Hello JSON">
+
+                <input type="submit" value="Echo as JSON">
+            </div></form>
+            <br>
+             <code class="inline">json-echo.php</code><strong>里的server端代码</strong>:
+            <pre><code class="php">&lt;?php  echo '{ message: "' . $_POST['message'] . '" }';  ?&gt;</code></pre>
+            <strong>JavaScript:</strong>
+            <pre><code class="mix">// prepare the form when the DOM is ready
+$(document).ready(function() {
+    // bind form using ajaxForm
+    $('#jsonForm').ajaxForm({
+        // dataType identifies the expected content type of the server response
+        dataType:  'json',
+
+        // success identifies the function to invoke when the server response
+        // has been received
+        success:   processJson
+    });
+});</code></pre>
+
+            <strong>回调函数</strong>
+            <pre><code class="mix">function processJson(data) {
+    // 'data' is the json object returned from the server
+    alert(data.message);
+}</code></pre>
+            </div>
+
+            <div id="sample6" class="sampleTabContent">
+            <p>
+            这个页面展示如何处理server返回的HTML数据。
+            </p><p>
+
+            下面的例子里表单向server提交一条文本信息，server将它放在div里以HTML形式将它返回。返回的数据将被添加到这个页面上 <code class="inline">htmlExampleTarget</code> div 里。
+            <br>
+            <strong>表单代码：</strong>
+            </p><pre><code class="mix">&lt;form id="htmlForm" action="html-echo.php" method="post"&gt;
+    Message: &lt;input type="text" name="message" value="Hello HTML" /&gt;
+    &lt;input type="submit" value="Echo as HTML" /&gt;
+
+&lt;/form&gt;</code></pre>
+            <p>
+            </p><form id="htmlForm" action="http://www.vaikan.com/docs/jquery.form.plugin/html-echo.php" method="post"><div>
+                Message: <input type="text" name="message" value="Hello HTML">
+                <input type="submit" value="Echo as HTML">
+            </div></form>
+            <br>
+             <code class="inline">html-echo.php</code>里server端的代码:
+            <pre><code class="php">&lt;?php
+echo '&lt;div style="background-color:#ffa; padding:20px"&gt;' . $_POST['message'] . '&lt;/div&gt;';
+?&gt;</code></pre>
+
+            <strong>JavaScript:</strong>
+            <pre><code class="mix">// prepare the form when the DOM is ready
+$(document).ready(function() {
+    // bind form using ajaxForm
+    $('#htmlForm').ajaxForm({
+        // target identifies the element(s) to update with the server response
+        target: '#htmlExampleTarget',
+
+        // success identifies the function to invoke when the server response
+        // has been received; here we apply a fade-in effect to the new content
+        success: function() {
+            $('#htmlExampleTarget').fadeIn('slow');
+        }
+    });
+});</code></pre>
+            <h3>htmlExampleTarget (输出的信息将会被加到下面):</h3>
+            <div id="htmlExampleTarget"></div>
+            </div>
+
+            <div id="sample5" class="sampleTabContent">
+            <p>
+
+            这个页面展示如何处理server返回的 XML 数据。
+            </p><p>
+           下面的例子里表单向server提交一条文本信息，server将它以 XML 形式返回。
+            <br>
+            <strong>表单代码：</strong>
+            </p><pre><code class="mix">&lt;form id="xmlForm" action="xml-echo.php" method="post"&gt;
+    Message: &lt;input type="text" name="message" value="Hello XML" /&gt;
+    &lt;input type="submit" value="Echo as XML" /&gt;
+
+&lt;/form&gt;</code></pre>
+            <p>
+            </p><form id="xmlForm" action="http://www.vaikan.com/docs/jquery.form.plugin/xml-echo.php" method="post"><div>
+                Message: <input type="text" name="message" value="Hello XML">
+                <input type="submit" value="Echo as XML">
+            </div></form>
+            <br>
+             <code class="inline">xml-echo.php</code><strong>中的server端代码</strong>:
+            <pre><code class="php">&lt;?php
+// !!! IMPORTANT !!! - the server must set the content type to XML
+header('Content-type: text/xml');
+echo '&lt;root&gt;&lt;message&gt;' . $_POST['message'] . '&lt;/message&gt;&lt;/root&gt;';
+?&gt;</code></pre>
+
+            <strong>JavaScript:</strong>
+            <pre><code class="mix">// prepare the form when the DOM is ready
+$(document).ready(function() {
+    // bind form using ajaxForm
+    $('#xmlForm').ajaxForm({
+        // dataType identifies the expected content type of the server response
+        dataType:  'xml',
+
+        // success identifies the function to invoke when the server response
+        // has been received
+        success:   processXml
+    });
+});</code></pre>
+
+            <strong>回调函数</strong>
+            <pre><code class="mix">function processXml(responseXML) {
+    // 'responseXML' is the XML document returned by the server; we use
+    // jQuery to extract the content of the message node from the XML doc
+    var message = $('message', responseXML).text();
+    alert(message);
+}</code></pre>
+            </div>
+
+            <div id="sample7" class="sampleTabContent">
+
+            <p>
+            这个页面将要展示这个表单插件如何处理上传文件的功能。不需要什么特别的代码来处理文件上传。文件上传域会被自动的检测到，自动的为你做好所需要的一切。
+            </p>
+            <p>
+            因为使用浏览器的<code class="inline"><a href="http://www.w3.org/TR/XMLHttpRequest/">XMLHttpRequest</a></code>对象是不可能上传文件的，这个表单插件使用了一个隐藏的iframe来完成这个工作。这是个常用的技巧，但它有一些固有的限制。这个iframe是当做表单提交的target目标的，也就意味着server返回的响应数据都会被写到这个iframe里。
+            如果server返回的数据是HTML 或 XML<sup>[1]</sup>形式的，这是没问题的，但当返回的数据类型是
+            script 或 JSON 时, 这两种形式的数据一般都需要处理一下然后利用页面上一些HTML代码来重新展示。</p>
+            <p>
+            考虑到处理 script 和 JSON 类响应的困难，这个插件允许你把这些响应代码嵌入到 <code class="inline">textarea</code> 元素里而且我们推荐当表单中有上传域时你使用这种方法’            然而，请注意,  
+            如果这个上传域里没有提供值，那么表单将会按常规的 XHR 方式提交(不使用iframe)。这就需要server端代码去判断何时使用textarea，何时不使用textarea。如果你喜欢，你可以一直按<code class="inline">iframe</code>方式处理。
+
+            插件有个选项可以使它强制一直使用 <em>iframe 模式</em> 而你的server端代码就可以一直使用在textarea里嵌入响应代码的形式。
+            
+            下面的就是一个从server端返回的一个script代码的示例：
+            </p><pre><code class="mix">&lt;textarea&gt;
+    for (var i=0; i &lt; 10; i++) {
+        // do some processing
+    }
+&lt;/textarea&gt;</code></pre>
+            <p></p><p>
+            下面的表单里有一个文件上传域和一个用来指示选择返回类型的下拉选项。 表单将提交到
+            <code class="inline"><a href="http://www.vaikan.com/docs/jquery.form.plugin/files-raw.php">files.php</a></code>里，这个php文件根据 dataType 来决定返回的响应数据的格式类型。
+
+            </p>
+
+            <form id="uploadForm" action="http://www.vaikan.com/docs/jquery.form.plugin/files.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="MAX_FILE_SIZE" value="100000">
+                File: <input type="file" name="file">
+                Return Type: <select id="uploadResponseType" name="mimetype">
+                    <option value="html">html</option>
+                    <option value="json">json</option>
+                    <option value="script">script</option>
+
+                </select>
+                <input type="submit" value="Submit">
+            </form>
+
+            <p>
+            <label>输出:</label>
+            </p><div id="uploadOutput"></div>
+
+            <hr>
+
+            <div>[1] <em>Safari不支持XML类型的响应值。</em></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="fields" class="tabContent">
+        <h1>处理表单域</h1>
+
+                这个页面将介绍和演示如何使用这个插件的<code class="inline">fieldValue</code> 和
+                <code class="inline">fieldSerialize</code> 方法。
+      <p>
+                </p><h2>fieldValue</h2>
+                <code class="inline">fieldValue</code>
+                方法可以让你获得一个表单域的当前值。例如,如果想获得id为'myForm'的表单里密码域里的值，你可以这样写：
+                <pre><code class="mix">var pwd = $('#myForm :password').fieldValue()[0];</code></pre>
+
+                这个方法用于都返回数组。如果没有发现有效值，就返回空数组，否则必定含有多于一个值的数组。
+                <p>
+                </p><h2>fieldSerialize</h2>
+                <code class="inline">fieldSerialize</code> 这个方法可以用来序列化表单里某一部分域，将其转变成查询串。你可以用在只想处理表单中某个或某些域的情况下。例如，只把表单里的文本类型的域序列化，你应该写成下面这样：
+                <pre><code class="mix">var queryString = $('#myForm :text').fieldSerialize();</code></pre>
+
+                <form id="inputForm" action="http://www.vaikan.com/docs/jquery.form.plugin/jquery.form.plugin.html#"><div>
+
+                    <strong>演示</strong><p>
+                    在下面的文本框里输入一个jQuery表达式，然后点击 'Test'，看看 <code class="inline">fieldValue</code> 和 <code class="inline">fieldSerialize</code>
+                    方法执行的结果。这些方法将在下面的表单里运行。</p><p>
+                    jQuery 表达式:
+                    <input id="query" type="text" value=":text">
+                    <span style="color:#555">(例如: textarea, [@type='hidden'], :radio, :checkbox, 等等)</span>
+
+                    <br><input id="successful" type="checkbox" checked="checked"> Successful controls only <sup>[1]</sup>
+                    </p><p><input type="submit" value="Test">
+                </p></div></form>
+                <br>
+                <form id="test" action="http://www.malsup.com/jquery/form/dummy.php" method="post"><div>
+                    <strong>测试表单</strong>
+                    <p>
+
+                    </p><table>
+                    <tbody><tr><td>&lt;input type="hidden" <span class="name">name="Hidden"</span> value="secret" /&gt;</td><td><input type="hidden" name="Hidden" value="secret"></td></tr>
+                    <tr><td>&lt;input <span class="name">name="Name"</span> type="text" value="MyName1" /&gt;</td><td><input name="Name" type="text" value="MyName1"></td></tr>
+                    <tr><td>&lt;input <span class="name">name="Password"</span> type="password" /&gt;</td><td><input name="Password" type="password" value=""></td></tr>
+
+                    <tr><td>&lt;select <span class="name">name="Multiple"</span> multiple="multiple"&gt;</td><td><select name="Multiple" multiple="multiple">
+                        <option value="one" selected="selected">One</option>
+                        <option value="two">Two</option>
+                        <option value="three">Three</option>
+                    </select></td></tr>
+
+                    <tr><td>&lt;select <span class="name">name="Single"</span>&gt;</td><td><select name="Single">
+                        <option value="one" selected="selected">One</option>
+                        <option value="two">Two</option>
+                        <option value="three">Three</option>
+                    </select></td></tr>
+                    <tr><td>&lt;input type="checkbox" <span class="name">name="Check"</span> value="1" /&gt;</td><td><input type="checkbox" name="Check" value="1"></td></tr>
+
+                    <tr><td>&lt;input type="checkbox" <span class="name">name="Check"</span> value="2" /&gt;</td><td><input type="checkbox" name="Check" value="2"></td></tr>
+                    <tr><td>&lt;input type="checkbox" <span class="name">name="Check"</span> value="3" /&gt;</td><td><input type="checkbox" name="Check" value="3"></td></tr>
+                    <tr><td>&lt;input type="checkbox" <span class="name">name="Check2"</span> value="4" /&gt;</td><td><input type="checkbox" name="Check2" value="4"></td></tr>
+
+                    <tr><td>&lt;input type="checkbox" <span class="name">name="Check2"</span> value="5" /&gt;</td><td><input type="checkbox" name="Check2" value="5"></td></tr>
+                    <tr><td>&lt;input type="checkbox" <span class="name">name="Check3"</span> /&gt;</td><td><input type="checkbox" name="Check3"></td></tr>
+                    <tr><td>&lt;input type="radio" <span class="name">name="Radio"</span> value="1" /&gt;</td><td><input type="radio" name="Radio" value="1"></td></tr>
+
+                    <tr><td>&lt;input type="radio" <span class="name">name="Radio"</span> value="2" /&gt;</td><td><input type="radio" name="Radio" value="2"></td></tr>
+                    <tr><td>&lt;input type="radio" <span class="name">name="Radio"</span> value="3" /&gt;</td><td><input type="radio" name="Radio" value="3"></td></tr>
+                    <tr><td>&lt;input type="radio" <span class="name">name="Radio2"</span> value="4" /&gt;</td><td><input type="radio" name="Radio2" value="4"></td></tr>
+
+                    <tr><td>&lt;input type="radio" <span class="name">name="Radio2"</span> value="5" /&gt;</td><td><input type="radio" name="Radio2" value="5"></td></tr>
+                    <tr><td>&lt;textarea <span class="name">name="Text"</span> rows="2" cols="20"&gt;&lt;/textarea&gt;</td><td><textarea name="Text" rows="2" cols="20"></textarea></td></tr>
+                    <tr><td>&lt;input type="reset" <span class="name">name="resetButton"</span> value="Reset" /&gt;</td><td><input type="reset" name="resetButton" value="Reset"></td></tr>
+
+                    <tr><td>&lt;input type="submit" <span class="name">name="sub"</span> value="Submit" /&gt;</td><td><input type="submit" name="submitButton" value="Submit"></td></tr>
+                    </tbody></table>
+                </div></form>
+                <p>
+                [1] <a class="external" href="http://www.w3.org/TR/html4/interact/forms.html#successful-controls">http://www.w3.org/TR/html4/interact/forms.html#successful-controls</a>.
+                </p><p>缺省条件下，<code class="inline">fieldValue</code> 和 <code class="inline">fieldSerialize</code> 只按
+                'successful controls'定义的情况运行。这就是说像下面的代码，如果一个checkbox没有被选中，返回的结果将会是个空数组。
+                </p><pre><code class="mix">// value will be an empty array if checkbox is not checked:
+var value = $('#myUncheckedCheckbox').fieldValue();
+// value.length == 0
+
+</code></pre>
+                然而，如果你只是想知道这个checkbox的‘value’是什么，不管它是否被选中，你可以这样写：
+                <pre><code class="mix">// value will hold the checkbox value even if it's not checked:
+var value = $('#myUncheckedCheckbox').fieldValue(false);
+// value.length == 1
+</code></pre>
+    </div>
+
+    <div id="faq" class="tabContent">
+        <h1>常见问题</h1>
+        <dl>
+        <dt>这个插件跟哪些版本的jQuery兼容？</dt>
+
+        <dd>这个插件需要jQuery v1.0.3 或 以后的版本。</dd>
+        <dt>这个插件需要其它插件的支持吗？</dt>
+        <dd>不需要。</dd>
+        <dt>这个插件的运行效率高吗？</dt>
+        <dd>是的！请到 <a href="http://www.malsup.com/jquery/form/comp/">对比页面</a> 查看这个插件和其它库(包括 Prototype 和 dojo)的比较情况。</dd>
+
+        <dt>最简单的使用这个插件的方法是怎样的？</dt>
+        <dd><code class="inline">ajaxForm</code> 提供一个最简单的方式你够让你的HTML表单可以使用 AJAX 提交。这是一个步到位的方法。</dd>
+        <dt> <code class="inline">ajaxForm</code> 和 <code class="inline">ajaxSubmit</code> 的不同之处是什么?</dt>
+        <dd>它们主要有两种区别：
+      <ol>
+
+                <li><code class="inline">ajaxSubmit</code> 会提交这个表单, <code class="inline">ajaxForm</code> 不会。当你调用 <code class="inline">ajaxSubmit</code>
+                    方法是，它会立即序列化你表单里的数据，把它提交给server。当使用 <code class="inline">ajaxForm</code> 时，它只是给你的表单上添加了一些必要的事件监听器，当用户提交表单时它能监听到用户的动作。当用户有提交动作时 <code class="inline">ajaxSubmit</code> 方法就会被调用。
+                </li>
+
+                <li>当使用 <code class="inline">ajaxForm</code> 提交表单时，被提交的数据里包括执行提交动作的元素的name和value (如果提交按钮是image类型，则包含的是点击事件的坐标)。</li>
+            </ol>
+        </dd>
+        <dt>如何取消一个表单的提交？</dt>
+        <dd>你可以在初始化这个表单时添加一个 'beforeSubmit' 回调函数，当这个函数返回false时提交就会取消。代码演示页面有这样的例子。</dd>
+        <dt>这个插件有没有单元测试套件？</dt>
+
+        <dd>有！ 这个插件有大量的单元测试用例，你可以用来测试这个插件的功能。
+        <a href="http://www.malsup.com/jquery/form/test/">Run unit tests.</a>
+        </dd>
+        <dt>这个插件支持文件上传功能吗？</dt>
+        <dd>支持！</dd>
+        </dl>
+    </div>
+
+    <div id="download" class="tabContent">
+        <h1>下载</h1>
+        官方插件文件是在jQuery Subversion 库里:
+        <a class="external" href="http://jqueryjs.googlecode.com/svn/trunk/plugins/form/jquery.form.js">http://jqueryjs.googlecode.com/svn/trunk/plugins/form/jquery.form.js</a>.
+        <p>
+        在<a class="external" href="http://docs.jquery.com/Plugins">jQuery Plugins</a>页面还有很多的有用的 <a class="external" href="http://docs.jquery.com/Plugins#Forms">Form Plugins</a>   。
+        </p><p>
+
+        </p><h1>支持</h1>
+        你可以从<a class="external" href="http://jquery.com/discuss/">jQuery 邮件列表</a> 里获得一些支持.  这是一个非常活跃的列表，有大量的jQuery开发者和使用用户。
+        <p>
+        你也可以通过 <a class="external" href="http://www.nabble.com/JQuery-f15494.html">Nabble Forums</a>来访问这个邮件列表。
+        </p><p>
+        </p><h1>贡献者</h1>
+        这插件的开发是一个团体的共同努力的结果，很多人对此贡献了想法和代码。
+        下面的是给这个插件做出了各种贡献的人的清单：
+        <ul>
+
+            <li>John Resig</li>
+            <li>Mike Alsup</li>
+            <li>Mark Constable</li>
+            <li>Klaus Hartl</li>
+            <li>Matt Grimm</li>
+            <li>Yehuda Katz</li>
+
+            <li>Jörn Zaefferer</li>
+            <li>Sam Collett</li>
+            <li>Gilles van den Hoven</li>
+            <li>Kevin Glowacz</li>
+        </ul>
+        <em>如果我遗漏了谁，请发邮件告诉我。</em>
+
+        <div id="footer">
+        This site is maintained by Mike Alsup.  Send comments or questions to jquery at malsup dot com.
+        </div>
+    </div>
+</div> <!-- main -->
+
+</body></html>
