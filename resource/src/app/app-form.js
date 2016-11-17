@@ -319,7 +319,7 @@ define('app/form',["app/common","moment","jquery/validate","jquery/form"],functi
 				_this.append("<input type='hidden' name='form_action' value='"+opts.formAction+"'>");
 			}
 		}
-		opts.url = APP.ctx + opts.url;
+		opts.url = APP.ctx + (opts.url || _this.attr('action'));
 		var form_opt = $.extend(true,{
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
