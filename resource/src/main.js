@@ -1,19 +1,4 @@
 require.config({
-	//不使用baseUrl，默认为main.js所在路径
-    //baseUrl: ctx+'/static/resources/js',//r.js编译不通过
-	/*echarts调试使用
-	  packages: [ 
-	           {
-	               name: 'echarts',
-	               location: 'lib/echarts',
-	               main: 'echarts'
-	           },
-	           {
-	               name: 'zrender',
-	               location: 'lib/echarts/zrender', // zrender与echarts在同一级目录
-	               main: 'zrender'
-	           }
-	],*/
 	paths:{
 		'app/index':'app/app-index',
 		'app/common':'app/app-common',
@@ -45,7 +30,11 @@ require.config({
 		'datatables/select':'lib/jquery/datatables/dataTables.select',
 		'datatables/responsive':'lib/jquery/datatables/dataTables.responsive',
 		'datatables/fixedHeader':'lib/jquery/datatables/dataTables.fixedHeader',
-		'echarts':'lib/echarts/echarts'
+		'echarts':'lib/echarts/echarts',
+		'cryptojs/core': "lib/utils/cryptojs/core", //加密
+        'cryptojs/md5': "lib/utils/cryptojs/md5",
+        'cryptojs/base64': "lib/utils/cryptojs/enc-base64",
+        'cryptojs/sha256': "lib/utils/cryptojs/sha256"
 	},
 	map: {
         '*': {'css': 'css-builder'}//css加载css-builder。js
@@ -57,11 +46,23 @@ require.config({
 		'jquery/ztree':['css!lib/jquery/ztree/metroStyle.css'],
 		'bootstrap/daterangepicker':['bootstrap','moment','css!lib/bootstrap/daterangepicker/daterangepicker.css'],
 		'bootstrap/datepicker':['bootstrap','css!lib/bootstrap/datepicker/bootstrap-datepicker3.css'],
-		'sweetalert':['css!lib/bootstrap/sweetalert/sweet-alert.css']
+		'sweetalert':['css!lib/bootstrap/sweetalert/sweet-alert.css'],
+		'cryptojs/md5': {
+            deps: ['cryptojs/core'],
+            exports: "CryptoJS"
+        },
+        'cryptojs/base64': {
+            deps: ['cryptojs/core'],
+            exports: "CryptoJS"
+        },
+        'cryptojs/sha256': {
+            deps: ['cryptojs/core'],
+            exports: "CryptoJS"
+        }
+
+		
     }
 });
-
-//$("body").append("<div  id=\"pageLoadTop\" style=\"width:100%;height:100%;left:0;top:0;position:absolute;z-index:20000;background:#000000 url('"+_app_img_base_url+"/logo.png') no-repeat center;\"></div>");
 
 define(['app/index','moment','jquery/scrolltotop',
         'css!app/main.css',
@@ -73,10 +74,5 @@ define(['app/index','moment','jquery/scrolltotop',
 	}else{
 		require(['css!app/main-themes-light.css']);
 	}
-	/*setTimeout(function(){
-		$('#pageLoadTop').fadeOut(1000,function(){
-			$(this).remove();
-		});
-	},500);*/
 	return APP;
 });
