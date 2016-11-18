@@ -2,6 +2,8 @@ require.config({
 	paths:{
 		'app/index':'app/app-index',
 		'app/common':'app/app-common',
+		'app/api':'app/app-api',
+		'app/digests':'app/app-digests',
 		'app/form':'app/app-form',
 		'app/datatables':'app/app-datatables',
 		'app/treetable':'app/app-treeTable',
@@ -30,11 +32,7 @@ require.config({
 		'datatables/select':'lib/jquery/datatables/dataTables.select',
 		'datatables/responsive':'lib/jquery/datatables/dataTables.responsive',
 		'datatables/fixedHeader':'lib/jquery/datatables/dataTables.fixedHeader',
-		'echarts':'lib/echarts/echarts',
-		'cryptojs/core': "lib/utils/cryptojs/core", //加密
-        'cryptojs/md5': "lib/utils/cryptojs/md5",
-        'cryptojs/base64': "lib/utils/cryptojs/enc-base64",
-        'cryptojs/sha256': "lib/utils/cryptojs/sha256"
+		'echarts':'lib/echarts/echarts'
 	},
 	map: {
         '*': {'css': 'css-builder'}//css加载css-builder。js
@@ -46,20 +44,8 @@ require.config({
 		'jquery/ztree':['css!lib/jquery/ztree/metroStyle.css'],
 		'bootstrap/daterangepicker':['bootstrap','moment','css!lib/bootstrap/daterangepicker/daterangepicker.css'],
 		'bootstrap/datepicker':['bootstrap','css!lib/bootstrap/datepicker/bootstrap-datepicker3.css'],
-		'sweetalert':['css!lib/bootstrap/sweetalert/sweet-alert.css'],
-		'cryptojs/md5': {
-            deps: ['cryptojs/core'],
-            exports: "CryptoJS"
-        },
-        'cryptojs/base64': {
-            deps: ['cryptojs/core'],
-            exports: "CryptoJS"
-        },
-        'cryptojs/sha256': {
-            deps: ['cryptojs/core'],
-            exports: "CryptoJS"
-        }
-
+		'sweetalert':['css!lib/bootstrap/sweetalert/sweet-alert.css']
+    	
 		
     }
 });

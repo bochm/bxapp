@@ -1,3 +1,6 @@
+/**
+ * 首页初始化
+ */
 define(['app/common'],function(APP) {
 	var resizeHandlers = [];
 	

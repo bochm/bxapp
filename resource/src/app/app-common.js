@@ -1,4 +1,7 @@
-define('app/common',['bootstrap','moment'],function() {
+/**
+ * 通用工具
+ */
+define('app/common',['app/api','bootstrap','moment'],function(API) {
 	
 	var brandColors = {
 			'blue': '#89C4F4',
@@ -31,33 +34,18 @@ define('app/common',['bootstrap','moment'],function() {
 	device.windowsPhone = function () {return device.windows() && _findDevice('phone');};
 	device.windowsTablet = function () {return device.windows() && (_findDevice('touch') && !device.windowsPhone());};
 
-    //部分常量(DATA、MSG等)必须和AppConstants类中定义的一致(取消调用/app/common/constrants获取常量的方式)
-	var _dict_srv_url = "system/dict/query/";//服务端字典数据获取URL
-
 	if(! ('APP' in window) ){
 		window['APP'] = {
 			"isIE8" : false,
 			"isIE9" : false,
 			"isIE10": false,
 			"isRTL" : false,
-			"DATA" : "data",//ajax返回json数据对象{"data":[{},{}]}
-			"MSG" : "message",
-			"STATUS" : "status",
-			"OK" : "seccuss",
-			"FAIL" : "fail",
-			"ERROR" : "error",
-			"WORN" : "warning",
-			"EXCEPTION" : "exception",
 			"ctx" : _ctx,
 			"debug" : _is_debug,
 			"device" : device,
 			"isMobile" :  (device.androidPhone() || device.iphone() || device.ipod() || device.windowsPhone()),
 			"isTablet" : (device.ipad() || device.androidTablet() || device.windowsTablet()),
 			"currentUrl" : "index",
-			"dict" : {},
-			"stmidMapUrl" : "app/common/selectMapByStmID",//服务端根据sqlmapper ID获取map数据URL
-			"stmidListUrl" : "app/common/selectArrayByStmID",//服务端根据sqlmapper ID获取List数据URL
-			"stmidMapListUrl" : "app/common/selectMapListByStmID",//服务端根据sqlmapper ID获取mapList数据URL,需要在param中指定key
 			getParameterByName : function(name) {
 		        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
 		        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -118,88 +106,6 @@ define('app/common',['bootstrap','moment'],function() {
 	        	else
 	        		return moment(d,d_patterm).format(patterm);
 	        },
-	        /**
-			 * json数据提交,服务器端接收JSON格式的对象
-			 * @param  {String} url 提交url
-			 * @param  {Boolean} isSync 是否同步
-			 * @param  {Function} callback 成功回调函数
-			 * @param  {Function} errorback 失败回调函数
-			 */
-	        ajax : function(url,data,type,isSync,callback,errorback){
-				var async = true;
-				if(isSync != undefined || isSync != null) async = isSync;
-				var retData;
-				$.ajax({ 
-				        type:type, 
-				        url: APP.ctx+((url.indexOf("?") >0) ? (url.split("?")[0]+".json?" + url.split("?")[1]) : url+".json"), 
-				        contentType : 'application/json;charset=utf-8',             
-				        data: JSON.stringify(data),
-				        async:async,
-				        success:function(ret,status){
-				        	if(typeof callback === 'function'){
-				        		callback(ret,status);
-				        	}else{
-				        		retData = ret;
-				        	}
-				        },
-				        error:function(xhr){
-				        	if(typeof errorback === 'function'){
-				        		errorback(xhr.status,xhr.statusText);
-				        	}else{
-				        		_sysError('系统错误,错误代码['+xhr.status+'] 错误名称['+xhr.statusText+']');
-				        		APP.unblockUI();
-				        		retData = xhr;
-				        	}
-				        }
-				});
-				return retData;  
-			},
-			postJson : function(url,param,isSync,callback,errorback){
-				return this.ajax(url,param,'POST',isSync,callback,errorback);  
-			},
-			getJson : function(url,param,isSync,callback,errorback){
-				return this.ajax(url,param,'GET',isSync,callback,errorback);  
-			},
-			getJsonData : function(url,param){
-				var _data;
-				this.getJson(url,param || {},false,function(ret){
-					_data = ret;
-				});
-				return _data;
-			},
-			getMapByStmId : function(param){
-				return this.getJsonData(APP.stmidMapUrl,param);
-			},
-			getListByStmId : function(param){
-				return this.getJsonData(APP.stmidListUrl,param);
-			},
-			getMapListByStmId : function(param){
-				return this.getJsonData(APP.stmidMapListUrl,param);
-			},
-			getDictByType : function(type){
-				if(this.isEmpty(this.dict[type])) {
-					var _dict_list = this.getJsonData(_dict_srv_url+type);
-					if($.isArray(_dict_list) && _dict_list.length > 0){
-						this.dict[type] = _dict_list;
-					}
-				}
-				return this.dict[type];
-			},
-			getDictMap : function(type){
-				var _dict_array = this.getDictByType(type);
-				var _dict_map = {};
-				if($.isArray(_dict_array)){
-					for(var i=0;i<_dict_array.length;i++){
-						_dict_map[_dict_array[i].value] = _dict_array[i].name;
-					}
-				}
-				return _dict_map;
-			},
-			getDictName : function(type,value){
-				var _dict_map = this.getDictMap(type);
-				if(_dict_map[value]) return _dict_map[value];
-				else return "";
-			},
 			loadPage : function(target,url,data,callback,errorback){
 				if(url){
 					APP.blockUI({target:target,message:'页面加载中',});
@@ -373,7 +279,7 @@ define('app/common',['bootstrap','moment'],function() {
 	        			var _this = $(this);
 	        			_this.bootstrapSwitch('destroy');
 	        			if(_this.data("dict-type")){//按字典数据初始化
-	        				var _dict_data = APP.getDictByType(_this.data("dict-type"));
+	        				var _dict_data = API.getDictByType(_this.data("dict-type"));
 	        				if($.isArray(_dict_data) && _dict_data.length == 2){
 	        					_this.data("on-value",_dict_data[0].value);
 	        					_this.data("on-text",_dict_data[0].name);

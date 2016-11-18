@@ -3,9 +3,9 @@
  * @author bx
  * @ignore
  */
-define(["app/common","datatables","datatables/buttons/flash","datatables/buttons/print","datatables/select",
+define(["app/common",'app/api',"datatables","datatables/buttons/flash","datatables/buttons/print","datatables/select",
         "datatables/responsive","datatables/fixedHeader",
-        "css!lib/jquery/datatables/dataTables.bootstrap.css"],function(APP,DataTable) {
+        "css!lib/jquery/datatables/dataTables.bootstrap.css"],function(APP,API,DataTable) {
 	//-------------------默认参数初始化及修改----------------------------------
 	
 	//工具按钮设置
@@ -300,7 +300,7 @@ define(["app/common","datatables","datatables/buttons/flash","datatables/buttons
 		}else if(!APP.isEmpty(_options.deleteRecord) && !APP.isEmpty(_options.deleteRecord.url)){
 			APP.confirm('','是否删除选择的记录?',function(){
 				var _id_column = _options.deleteRecord.id ? _options.deleteRecord.id : 'id';
-				APP.postJson(_options.deleteRecord.url,dt.selectedColumn(_id_column),null,function(ret,status){
+				API.postJson(_options.deleteRecord.url,dt.selectedColumn(_id_column),null,function(ret,status){
 					if(ret.OK){
 						dt.deleteSelectedRow();
 						APP.success(ret[APP.MSG]);
@@ -538,7 +538,7 @@ define(["app/common","datatables","datatables/buttons/flash","datatables/buttons
 			//先从服务器加载数据，然后再绘制表格
 			else{
 				APP.blockUI({'target':$table.get(),'gif':'load-tables'});
-				APP.postJson(default_opt.dataUrl,ajax_params,true,function(ret,status){
+				API.postJson(default_opt.dataUrl,ajax_params,true,function(ret,status){
 					default_opt.data = ret;
 					APP.unblockUI($table.get());
 					callback($table.DataTable(default_opt));

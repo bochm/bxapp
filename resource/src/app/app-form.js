@@ -1,5 +1,5 @@
 
-define('app/form',["app/common","moment","jquery/validate","jquery/form"],function(APP) {
+define('app/form',["app/common","app/api","moment","jquery/validate","jquery/form"],function(APP,API) {
 	var FORM = {
 			initDatePicker : function(ct){
 	        	APP.queryContainer(ct).find('[form-role="date"]').each(function(){
@@ -210,10 +210,10 @@ define('app/form',["app/common","moment","jquery/validate","jquery/form"],functi
 			}
 		}
 		if(!APP.isEmpty(p.url)){
-			return APP.postJson(p.url,paramData,false);
+			return API.postJson(p.url,paramData,false);
 		}else{
 			paramData.stmID = p.stmID || p.stmid || p.stmId;
-			return APP.isEmpty(APP.postJson('/app/common/selectMapByStmID',paramData,false));
+			return APP.isEmpty(API.getListByStmId(paramData));
 		}
 		
 	}, "已存在");
@@ -285,7 +285,7 @@ define('app/form',["app/common","moment","jquery/validate","jquery/form"],functi
 				if(formField.data('json')) _selectOpt.jsonData = formField.data('json');
 				else if(formField.data('stmid')) _selectOpt.stmID = formField.data('stmid');
 				else if(formField.data('dict-type')){
-					_selectOpt.data = APP.getDictByType(formField.data('dict-type'));
+					_selectOpt.data = API.getDictByType(formField.data('dict-type'));
 					if($.isArray(_selectOpt.data)){
 						for(var i=0;i<_selectOpt.data.length;i++){//select2使用text显示
 							_selectOpt.data[i].id = _selectOpt.data[i].value;
@@ -323,11 +323,14 @@ define('app/form',["app/common","moment","jquery/validate","jquery/form"],functi
 		var form_opt = $.extend(true,{
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
-				APP.blockUI({target:_in_modal ? '.modal-dialog' : 'body',message:'提交中',gif : 'form-submit'});
+				APP.blockUI({target:_in_modal ? '.modal-dialog' : 'body',message:opts.onSubmitMsg || '提交中',gif : 'form-submit'});
 				return true;
 			},
 			type : 'post',
 			dataType : 'json',
+			beforeSend: function(request) {
+                request.setRequestHeader("test", "bcm");
+            },
 			includeHidden : true,
 			error:function(error){
 				if(APP.debug)console.log(error);
@@ -454,7 +457,7 @@ define('app/form',["app/common","moment","jquery/validate","jquery/form"],functi
 						var _parent_sel = $(_select.data("parent-for"));
 						opts.param[_parent_sel.attr("name").replace(".","_")] = _parent_sel.val();//替换参数中的. 否则mapper文件会无法识别
 					}
-					var url = opts.url || APP.stmidListUrl;
+					var url = opts.url || API.stmidListUrl;
 					var type = "POST";
 					if(opts.jsonData && opts.jsonData != ""){
 						url = opts.jsonData;
@@ -464,7 +467,7 @@ define('app/form',["app/common","moment","jquery/validate","jquery/form"],functi
 					if(opts.stmID) paramData.stmID=opts.stmID;
 					if(opts.param) paramData.param=opts.param;
 					//同步方式防止数据量大是无法加载
-					APP.ajax(url,paramData,type,false,function(ret){
+					API.ajax(url,paramData,type,false,function(ret){
 						opts.data = ret;
 					});
 				}else if(opts.url && opts.ajax === undefined){//默认ajax方法
@@ -534,13 +537,13 @@ define('app/form',["app/common","moment","jquery/validate","jquery/form"],functi
 			if(_select.data("parent-for")){
 				$(_select.data("parent-for")).on("change",function(){
 					opts.param[$(this).attr("name").replace(".","_")] = $(this).val(); //替换参数中的. 否则mapper文件会无法识别
-					var url = opts.url || APP.stmidListUrl;
+					var url = opts.url || API.stmidListUrl;
 					var type = "POST";
 					var paramData = {};
 					if(opts.stmID) paramData.stmID=opts.stmID;
 					if(opts.param) paramData.param=opts.param;
 					//同步方式防止数据量大是无法加载
-					APP.ajax(url,paramData,type,false,function(ret){
+					API.ajax(url,paramData,type,false,function(ret){
 						_fill_options(_select,ret);
 					});
 					
