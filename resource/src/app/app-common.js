@@ -1,7 +1,7 @@
 /**
  * 通用工具
  */
-define('app/common',['app/api','bootstrap','moment'],function(API) {
+define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	
 	var brandColors = {
 			'blue': '#89C4F4',
@@ -120,6 +120,7 @@ define('app/common',['app/api','bootstrap','moment'],function(API) {
 			            	var _html = $(res);
 		            		APP.initComponents(_html.get());
 			            	APP.unblockUI(target);
+			            	$(target).children().remove();
 			            	$(target).append(_html);
 			            	if(typeof callback === 'function'){
 			            		callback(res);

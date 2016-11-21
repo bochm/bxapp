@@ -6,7 +6,7 @@
 (function( factory ){
 	if ( typeof define === 'function' && define.amd ) {
 		// AMD
-		define( ['datatables', 'datatables/buttons'], function ( ) {
+		define( ['jquery','datatables', 'datatables/buttons'], function ( $) {
 			return factory( $, window, document );
 		} );
 	}

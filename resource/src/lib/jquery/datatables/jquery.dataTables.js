@@ -29,7 +29,7 @@
 
 	if ( typeof define === 'function' && define.amd ) {
 		// AMD
-		define('datatables', [], function () {
+		define( ['jquery'], function ( $ ) {
 			return factory( $, window, document );
 		} );
 	}

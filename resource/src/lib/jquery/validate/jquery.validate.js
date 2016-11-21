@@ -8,12 +8,11 @@
  */
 (function( factory ) {
 
-	/*if ( typeof define === "function" && define.amd ) {
-		define( [], jQuery,factory );
+	if ( typeof define === "function" && define.amd ) {
+		define( ["jquery"], factory );
 	} else {
 		factory( jQuery );
-	}*/
-	factory( jQuery );
+	}
 }(function( $ ) {
 
 $.extend($.fn, {

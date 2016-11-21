@@ -1,7 +1,7 @@
 /**
  * 基于Ztree的基本封装
  */
-define(['app/common','app/api','jquery/ztree'],function(APP,API){
+define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,APP,API){
 	//重写同步tree节点，改为调用API.ajax
 	var zt = $.fn.zTree,
 	tools = zt._z.tools,

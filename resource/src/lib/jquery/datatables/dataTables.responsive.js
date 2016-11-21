@@ -23,7 +23,7 @@
 (function( factory ){
 	if ( typeof define === 'function' && define.amd ) {
 		// AMD
-		define('datatables/responsive', [ 'datatables'], function ( ) {
+		define('datatables/responsive', [ 'jquery','datatables'], function ( $) {
 			return factory( $, window, document );
 		} );
 	}

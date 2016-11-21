@@ -16,7 +16,7 @@
     if (typeof define === 'function' && define.amd) {
         // using AMD; register as anon module
 
-        define([], function () {
+        define(['jquery'], function (jQuery) {
 			return factory( jQuery);
 		} );
     } else {

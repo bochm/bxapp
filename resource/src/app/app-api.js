@@ -1,7 +1,7 @@
 /**
  * 服务端方法调用
  */
-define('app/api',['app/digests'],function(APP,DIGESTS) {
+define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 
 	var _dict_srv_url = "system/dict/query/";//服务端字典数据获取URL
 	var _stmid_map_url = "app/common/selectMapByStmID";//服务端根据sqlmapper ID获取map数据URL

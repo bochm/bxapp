@@ -1,4 +1,4 @@
-define(['app/common','app/datatables'],function(APP,DataTable){
+define('app/treetable',['jquery','app/common','app/datatables'],function($,APP,DataTable){
 	var Node, Tree, methods;
 
 	  Node = (function() {

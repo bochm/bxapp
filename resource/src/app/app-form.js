@@ -1,5 +1,6 @@
 
-define('app/form',["app/common","app/api","moment","jquery/validate","jquery/form"],function(APP,API) {
+define('app/form',["jquery","app/common","app/api","moment",
+                   "jquery/validate","jquery/form"],function($,APP,API) {
 	var FORM = {
 			initDatePicker : function(ct){
 	        	APP.queryContainer(ct).find('[form-role="date"]').each(function(){
@@ -329,7 +330,7 @@ define('app/form',["app/common","app/api","moment","jquery/validate","jquery/for
 			type : 'post',
 			dataType : 'json',
 			beforeSend: function(request) {
-                request.setRequestHeader("test", "bcm");
+                request.setRequestHeader("rp_token", "");
             },
 			includeHidden : true,
 			error:function(error){

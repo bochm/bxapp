@@ -9,7 +9,7 @@
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
     //define(['jquery'], factory);
-	  define([], function () {
+	  define(['jquery'], function (jQuery) {
 			return factory(jQuery);
 	 } );
   } else if (typeof exports === 'object') {

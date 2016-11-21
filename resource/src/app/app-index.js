@@ -1,7 +1,7 @@
 /**
  * 首页初始化
  */
-define(['app/common'],function(APP) {
+define(['jquery','app/common'],function($,APP) {
 	var resizeHandlers = [];
 	
 	
@@ -195,8 +195,10 @@ define(['app/common'],function(APP) {
                 _page_bar.append(_page_breadcrumb);
                 var _page_tool_bar = $('<div class="page-toolbar">');
                 if(APP.debug){
-                	var _page_debug_tool = $("<div class='btn-group pull-right'><button class='btn btn-fit-height grey-salt dropdown-toggle' data-toggle='dropdown' data-hover='dropdown' data-delay='1000' data-close-others='true'>"+
-                			"调试 <i class='fa fa-angle-down'></button></div>");
+                	var _page_debug_tool = $("<div class='btn-group pull-right'>" +
+                			"<button class='btn btn-fit-height grey-salt dropdown-toggle' " +
+                			"data-toggle='dropdown' data-hover='dropdown' data-delay='1000' " +
+                			"data-close-others='true'>调试 <i class='fa fa-angle-down'></button></div>");
                 	var _page_debug_tool_menu = $("<ul class='dropdown-menu pull-right' role='menu'>");
                 	var _page_debug_tool_src = $("<li><a><i class='iconfont icon-code'></i> 链接</a></li>");
                 	var _page_debug_tool_ref = $("<li><a><i class='iconfont icon-undo'></i> 刷新</a></li>");
@@ -221,12 +223,14 @@ define(['app/common'],function(APP) {
         $('.page-sidebar').on('click', 'li > a', function (e) {
             var hasSubMenu = $(this).next().hasClass('sub-menu');
 
-            if (APP.getViewPort().width >= resBreakpointMd && $(this).parents('.page-sidebar-menu-hover-submenu').size() === 1) { // 离开鼠标停留菜单
+            if (APP.getViewPort().width >= resBreakpointMd && 
+            		$(this).parents('.page-sidebar-menu-hover-submenu').size() === 1) { // 离开鼠标停留菜单
                 return;
             }
 
             if (hasSubMenu === false) {
-                if (APP.getViewPort().width < resBreakpointMd && $('.page-sidebar').hasClass("in")) { //移动端加载页面时隐藏菜单
+                if (APP.getViewPort().width < resBreakpointMd && 
+                		$('.page-sidebar').hasClass("in")) { //移动端加载页面时隐藏菜单
                     $('.page-header .responsive-toggler').click();
                 }
                 return;
@@ -419,7 +423,41 @@ define(['app/common'],function(APP) {
         	$('body').addClass('page-header-fixed-mobile');
         }
     };
-    
+    APP.showLogin = function(){
+    	$('body').fadeOut('fast',function(){
+    		var preHtml = $(this).html();
+    		APP.loadPage('body','login.html',{},function(){
+    			$('.login-page').slideDown('fast',function(){
+    				$('body').removeClass('page-header-fixed page-sidebar-fixed').addClass('login').show();
+    	    	});
+    		})
+    	});
+    	/*$('.login-page').slideDown('fast',function(){
+    		document.forms[0].loginname.focus();
+    	});
+    	require(['app/form'],function(FM){
+    		$('form.login-form').initForm({
+    			beforeSubmit : function(formData, jqForm, options){
+    				APP.blockUI({target:'.content',message:'登陆中',gif : 'form-submit'});
+    				return true;
+    			},
+    			success:function(response, status){
+    				APP.unblockUI('.content');
+    				console.log(response);
+    				$('.login-page').slideUp('slow',function() {
+    					$(this).remove();
+    					$('body').removeClass('login').addClass('page-header-fixed page-sidebar-fixed')
+    					.css('display','none');
+    					APP.loadPage('body','index.html',{},function(){
+    						APP.initIndex();
+    						$('body').fadeIn('fast');		
+    					});
+    					
+    		    	});
+    			}
+    		});
+    	})*/
+    };
     APP.initIndex = function(){
     	handleFixedSidebar();
     	handleOnResize();
@@ -429,10 +467,12 @@ define(['app/common'],function(APP) {
     	APP.initScroll('.scroller');
     	APP.addResizeHandler(handleFixedSidebar);
     	APP.addResizeHandler(handleSidebarAndContentHeight);
-    	
+    	require(['domReady!'],function(doc){
+    		$('body').fadeIn('fast');
+    	});
     	$("a[data-toggle='refresh-page']").on('click',function(){
-    		alert("asdasd");
-    		if($currPage) APP.loadPage('div.page-content',$currPage);
+    		APP.showLogin();
+    		//if($currPage) APP.loadPage('div.page-content',$currPage);
     	})
     	
     }

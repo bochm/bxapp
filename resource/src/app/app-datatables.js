@@ -3,9 +3,12 @@
  * @author bx
  * @ignore
  */
-define(["app/common",'app/api',"datatables","datatables/buttons/flash","datatables/buttons/print","datatables/select",
+define('app/datatables',['jquery','app/common','app/api',
+        "datatables",
+        "datatables/buttons/flash",
+        "datatables/buttons/print","datatables/select",
         "datatables/responsive","datatables/fixedHeader",
-        "css!lib/jquery/datatables/dataTables.bootstrap.css"],function(APP,API,DataTable) {
+        "css!lib/jquery/datatables/dataTables.bootstrap.css"],function($,APP,API,DataTable) {
 	//-------------------默认参数初始化及修改----------------------------------
 	
 	//工具按钮设置

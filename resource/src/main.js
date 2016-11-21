@@ -14,6 +14,7 @@ require.config({
 		'sweetalert':'lib/bootstrap/sweetalert/sweet-alert',//弹出窗口
 		'switch':'lib/bootstrap/switch/bootstrap-switch',//开关选择
 		'moment':'lib/utils/moment',//时间工具
+		'jquery':'lib/jquery/jquery-2.2.0.min',
 		'jquery/migrate':'lib/jquery/jquery-migrate-min',//jquery版本迁移插件
 		'jquery/scrolltotop':'lib/jquery/scrolltotop',//返回顶部
 		'jquery/scrollbar':'lib/jquery/scrollbar/jquery.slimscroll',//滚动条
@@ -38,19 +39,23 @@ require.config({
         '*': {'css': 'css-builder'}//css加载css-builder。js
     },
 	shim:{
-		'jquery/gritter':['css!lib/jquery/gritter/jquery.gritter.css'],
-		'jquery/carousel':['css!lib/jquery/carousel/owl.carousel.css'],
-		'jquery/select2':['css!lib/jquery/select2/select2.css'],
-		'jquery/ztree':['css!lib/jquery/ztree/metroStyle.css'],
+		'bootstrap':['jquery'],
+		'jquery/scrolltotop' : ['jquery'],
+		'jquery/gritter':['jquery','css!lib/jquery/gritter/jquery.gritter.css'],
+		'jquery/carousel':['jquery','css!lib/jquery/carousel/owl.carousel.css'],
+		'jquery/select2':['jquery','css!lib/jquery/select2/select2.css'],
+		'jquery/ztree':['jquery','css!lib/jquery/ztree/metroStyle.css'],
 		'bootstrap/daterangepicker':['bootstrap','moment','css!lib/bootstrap/daterangepicker/daterangepicker.css'],
 		'bootstrap/datepicker':['bootstrap','css!lib/bootstrap/datepicker/bootstrap-datepicker3.css'],
-		'sweetalert':['css!lib/bootstrap/sweetalert/sweet-alert.css']
+		'sweetalert':['jquery','css!lib/bootstrap/sweetalert/sweet-alert.css']
     	
 		
     }
 });
 
 define(['app/index','moment','jquery/scrolltotop',
+        'css!lib/bootstrap/bootstrap.css',
+        'css!lib/font-awesome/font-awesome.css',
         'css!app/main.css',
         'css!app/main-layout.css',
         'css!app/main-component.css'],function(APP,moment){
@@ -60,5 +65,7 @@ define(['app/index','moment','jquery/scrolltotop',
 	}else{
 		require(['css!app/main-themes-light.css']);
 	}
+	
+	APP.initIndex();
 	return APP;
 });
