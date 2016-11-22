@@ -112,7 +112,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 					$.ajax({
 			            type: "GET",
 			            cache: false,
-			            url: url,
+			            url: url+".html",
 			            data: data,
 			            dataType: "html",
 			            success: function(res) {

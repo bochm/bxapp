@@ -453,9 +453,9 @@ define(['jquery','app/common'],function($,APP) {
     }
     APP.showLogin = function(){
     	$('body').fadeOut('fast',function(){
-    		APP.loadPage('body','login.html',{},function(){
+    		APP.loadPage('body','login',{},function(){
+    			$('body').removeClass().addClass('login').show();
     			$('.login-page').slideDown('fast',function(){
-    				$('body').removeClass().addClass('login').show();
     				document.forms[0].loginname.focus();
     				_initLoginForm();
     	    	});
@@ -472,7 +472,7 @@ define(['jquery','app/common'],function($,APP) {
     }
     APP.initIndex = function(){
     	$('body').removeClass().addClass('page-header-fixed page-sidebar-fixed').css('display','none');
-		APP.loadPage('body','main.html',{},function(){
+		APP.loadPage('body','main',{},function(){
 			handleFixedSidebar();
 	    	handleOnResize();
 	    	handleSidebarMenu();

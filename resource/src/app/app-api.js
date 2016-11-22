@@ -2,6 +2,7 @@
  * 服务端方法调用
  */
 define('app/api',['jquery','app/digests'],function($,DIGESTS) {
+	$.support.cors = true;//ie9必须
 	var _rp_token = "rp_token"; //服务端token名称
 	var _user_name = "loginname";//服务端用户登陆名称
 	var _us_token = "rsToken";//服务端返回token名称
@@ -76,6 +77,7 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 		    },
 		    error:function(xhr,status,error){
 		    	//后端异常以全局处理,前端跨域无法处理后端异常
+		    	console.log(xhr);
 		    	_error('系统错误,请确认服务或网络是否正常!');
 		    	/*if(typeof errorback === 'function'){
 		        	errorback(xhr,status,error);
@@ -138,7 +140,7 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 				return this.getJsonData(_stmid_maplist_url,param);
 			},
 			getDictByType : function(type){
-				if(this.isEmpty(this.dict[type])) {
+				if(this.dict[type] == undefined || this.dict[type] == null) {
 					var _dict_list = this.getJsonData(_dict_srv_url+type);
 					if($.isArray(_dict_list) && _dict_list.length > 0){
 						this.dict[type] = _dict_list;

@@ -14,7 +14,7 @@ require.config({
 		'sweetalert':'lib/bootstrap/sweetalert/sweet-alert',//弹出窗口
 		'switch':'lib/bootstrap/switch/bootstrap-switch',//开关选择
 		'moment':'lib/utils/moment',//时间工具
-		'jquery':'lib/jquery/jquery-2.2.0.min',
+		'jquery':'lib/jquery/jquery-1.12.0.min',
 		'jquery/migrate':'lib/jquery/jquery-migrate-min',//jquery版本迁移插件
 		'jquery/scrolltotop':'lib/jquery/scrolltotop',//返回顶部
 		'jquery/scrollbar':'lib/jquery/scrollbar/jquery.slimscroll',//滚动条
