@@ -66,6 +66,6 @@ define(['app/index','moment','jquery/scrolltotop',
 		require(['css!app/main-themes-light.css']);
 	}
 	
-	APP.initIndex();
+	APP.showIndex();
 	return APP;
 });

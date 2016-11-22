@@ -344,7 +344,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(APP.debug)console.log(response);
 				APP.unblockUI(_in_modal ? '.modal-dialog' : 'body');
 				if(response.OK){
-					APP.notice('',response[APP.MSG],'success',_in_modal);
+					APP.notice('',response[API.MSG],'success',_in_modal);
 					//动态更新规格，否则会造成重复提交验证不通过
 					_this.find('.checkExists').each(function(){
 						var _c_form_field = $(this);
@@ -355,10 +355,10 @@ define('app/form',["jquery","app/common","app/api","moment",
 							_c_form_field.rules( "add", opts.rules[_c_field_name]);
 						}
 					});
-					if(typeof callback === 'function')callback(response[APP.DATA]);
-					else if(opts.onSuccess) opts.onSuccess(response[APP.DATA]);
+					if(typeof callback === 'function')callback(response[API.DATA]);
+					else if(opts.onSuccess) opts.onSuccess(response[API.DATA]);
 				}else{
-					APP.notice('',response[APP.MSG],'warning',_in_modal);
+					APP.notice('',response[API.MSG],'warning',_in_modal);
 					if(typeof errorback === 'function')errorback(response,status);
 					else if(opts.onError) opts.onError(response,status);
 				}

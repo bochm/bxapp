@@ -40,7 +40,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			"isIE9" : false,
 			"isIE10": false,
 			"isRTL" : false,
-			"ctx" : _ctx,
+			"ctx" : _srv_url + _ctx,
 			"debug" : _is_debug,
 			"device" : device,
 			"isMobile" :  (device.androidPhone() || device.iphone() || device.ipod() || device.windowsPhone()),
@@ -684,11 +684,18 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	};
 	/**
 	 * APP.alert简单的error
-	 * @param  {String} text 内容
+	 * @param  {String/Object} error 内容或者错误对象
 	 */
-	APP.error = function(text){
-		APP.alert('',text,'error');
+	APP.error = function(error){
+		if(typeof error == 'object') APP.alert('',error[API.MSG],'error');
+		else APP.alert('',error,'error');
 	};
+	/**
+	 * APP.alert系统全局的error
+	 */
+	APP.sysError  =function(){
+		APP.alert('服务异常','请确认是否存在网络或服务器异常!','error');
+	}
 	/**
 	 * sweet-alert插件封装，简单的confirm
 	 * @param  {String} title 标题

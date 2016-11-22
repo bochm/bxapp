@@ -423,18 +423,7 @@ define(['jquery','app/common'],function($,APP) {
         	$('body').addClass('page-header-fixed-mobile');
         }
     };
-    APP.showLogin = function(){
-    	$('body').fadeOut('fast',function(){
-    		var preHtml = $(this).html();
-    		APP.loadPage('body','login.html',{},function(){
-    			$('.login-page').slideDown('fast',function(){
-    				$('body').removeClass('page-header-fixed page-sidebar-fixed').addClass('login').show();
-    	    	});
-    		})
-    	});
-    	/*$('.login-page').slideDown('fast',function(){
-    		document.forms[0].loginname.focus();
-    	});
+    function _initLoginForm(){
     	require(['app/form'],function(FM){
     		$('form.login-form').initForm({
     			beforeSubmit : function(formData, jqForm, options){
@@ -443,42 +432,67 @@ define(['jquery','app/common'],function($,APP) {
     			},
     			success:function(response, status){
     				APP.unblockUI('.content');
-    				console.log(response);
-    				$('.login-page').slideUp('slow',function() {
-    					$(this).remove();
-    					$('body').removeClass('login').addClass('page-header-fixed page-sidebar-fixed')
-    					.css('display','none');
-    					APP.loadPage('body','index.html',{},function(){
-    						APP.initIndex();
-    						$('body').fadeIn('fast');		
-    					});
-    					
-    		    	});
+    				if(response.ERROR){
+    					APP.error(response);
+    				}else{
+    					API.storeUser(response);
+        				$('.login-page').slideUp('slow',function() {
+        					$(this).remove();
+        					APP.initIndex();
+        		    	});
+    				}
+    				
+    			},
+    			error:function(err){
+    				if(APP.debug)console.log(err);
+    				APP.unblockUI('.content');
+    				APP.sysError();
     			}
     		});
-    	})*/
-    };
-    APP.initIndex = function(){
-    	handleFixedSidebar();
-    	handleOnResize();
-    	handleSidebarMenu();
-    	handleSidebarToggler();
-    	handleHeader();
-    	APP.initScroll('.scroller');
-    	APP.addResizeHandler(handleFixedSidebar);
-    	APP.addResizeHandler(handleSidebarAndContentHeight);
-    	require(['domReady!'],function(doc){
-    		$('body').fadeIn('fast');
-    	});
-    	$("a[data-toggle='refresh-page']").on('click',function(){
-    		APP.showLogin();
-    		//if($currPage) APP.loadPage('div.page-content',$currPage);
     	})
-    	
+    }
+    APP.showLogin = function(){
+    	$('body').fadeOut('fast',function(){
+    		APP.loadPage('body','login.html',{},function(){
+    			$('.login-page').slideDown('fast',function(){
+    				$('body').removeClass().addClass('login').show();
+    				document.forms[0].loginname.focus();
+    				_initLoginForm();
+    	    	});
+    		})
+    	});
+    };
+    APP.showIndex = function(){
+    	API.getUser(function(user){
+    		APP.initIndex();
+    	},function(err){
+    		if(err[API.STATUS] == "401") APP.showLogin();
+			else APP.sysError();
+    	});
+    }
+    APP.initIndex = function(){
+    	$('body').removeClass().addClass('page-header-fixed page-sidebar-fixed').css('display','none');
+		APP.loadPage('body','main.html',{},function(){
+			handleFixedSidebar();
+	    	handleOnResize();
+	    	handleSidebarMenu();
+	    	handleSidebarToggler();
+	    	handleHeader();
+	    	APP.initScroll('.scroller');
+	    	APP.addResizeHandler(handleFixedSidebar);
+	    	APP.addResizeHandler(handleSidebarAndContentHeight);
+	    	require(['domReady!'],function(doc){
+	    		$('body').fadeIn('fast');		
+	    	});
+	    	$("a[data-toggle='refresh-page']").on('click',function(){
+	    		//APP.showLogin();
+	    		//if($currPage) APP.loadPage('div.page-content',$currPage);
+	    	})
+		},function(err){
+			APP.error(err);
+		});
     }
 	return APP;
-	
-	
-	
+
 });
 
