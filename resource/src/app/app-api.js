@@ -3,10 +3,11 @@
  */
 define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 	$.support.cors = true;//ie9必须
-	var _rp_token = "rp_token"; //服务端token名称
-	var _user_name = "loginname";//服务端用户登陆名称
-	var _us_token = "rsToken";//服务端返回token名称
-	var _login_url = "login";
+	var _rp_token = "rp_token"; //服务端token名称,服务端验证header中的token名称
+	var _user_name = "loginname";//服务端用户登陆名称,header中的名称
+	var _user_login = 'loginName';//客户端获取用户登陆名,user对象的getLoginName
+	var _us_token = "rsToken";//服务端返回token名称,user对象的getRsToken
+	var _login_url = "login";//获取服务端user对象的URL
 	var _dict_srv_url = "system/dict/query/";//服务端字典数据获取URL
 	var _stmid_map_url = "app/common/selectMapByStmID";//服务端根据sqlmapper ID获取map数据URL
 	var _stmid_list_url = "app/common/selectArrayByStmID";//服务端根据sqlmapper ID获取List数据URL
@@ -30,6 +31,17 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 	function _store_user(u){
 		return storage.setItem('_LOCAL_USER_',JSON.stringify(u));
 	}
+	function _create_header(url,errorback){
+		var _user = _local_user();
+		if(_user == null || _user == undefined){
+			if(errorback && typeof errorback === 'function') errorback({"status":"401" ,"message":"登陆过期失效"},"401");
+			return null;
+		}
+		var _header = {};
+		_header[_user_name] = _user[_user_login];
+		_header[_rp_token] = DIGESTS.hex_hmac_sha256(_user[_us_token], encodeURI(url));
+		return _header;
+	}
 	/**
 	 * json数据提交,服务器端接收JSON格式的对象
 	 * @param  {String} url 提交url
@@ -38,27 +50,22 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 	 * @param  {Function} errorback 失败回调函数
 	 */
 	function _ajax(url,data,type,isSync,callback,errorback){
-		var _user = _local_user();
-		if(_user == null || _user == undefined){
-			errorback({"status":"401" ,"message":"登陆过期失效"},"401");
-			return null;
-		}
-		console.log(_user);
+		var _url = API.ctx + url;
+		var _header = _create_header(_url,errorback);
+		if(_header == null) return;
+		
 		var async = true;
 		if(isSync != undefined || isSync != null) async = isSync;
-		var _url = _ctx + url;
+		
 		var retData;
 		$.ajax({ 
 			type:type, 
 			//url: _ctx+((url.indexOf("?") >0) ? (url.split("?")[0]+".json?" + url.split("?")[1]) : url+".json"), 
 		    url : _srv_url + _url,
-			contentType : 'application/json;charset=utf-8',             
+			contentType : 'application/json;charset=utf-8',
 		    data: JSON.stringify(data),
 		    async:async,
-		    beforeSend: function(request) {
-		    	request.setRequestHeader(_user_name, _user['loginName']);
-                request.setRequestHeader(_rp_token, DIGESTS.hex_hmac_sha256(_user[_us_token], encodeURI(_url)));
-            },
+		    headers : _header,
 		    success:function(ret,status){
 		    	if(ret.ERROR){
 		    		if(typeof errorback === 'function'){
@@ -104,6 +111,7 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 			"stmidListUrl" : _stmid_list_url,
 			"stmidMapUrl" : _stmid_map_url,
 			"stmidMapListUrl" : _stmid_maplist_url,
+			createHeader : _create_header,
 	        ajax : _ajax,
 			postJson : function(url,param,isSync,callback,errorback){
 				return _ajax(url,param,'POST',isSync,callback,errorback);  
@@ -122,12 +130,19 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 				return _data;
 			},
 			getUser : function(callback,errorback){
-				return this.callSrv(_login_url,{},function(user){
-					_store_user(user);
-					callback(user);
-				},function(err){
-					errorback(err);
-				});
+				var _user = _local_user();
+				if(_user == null || _user == undefined){
+					errorback({"status":"401" ,"message":"登陆过期失效"},"401");
+					return null;
+				}else{
+					return this.callSrv(_login_url+"/"+_user[_user_login],{},function(user){
+						_store_user(user);
+						callback(user);
+					},function(err){
+						errorback(err);
+					});
+				}
+				
 			},
 			storeUser : _store_user,
 			getMapByStmId : function(param){

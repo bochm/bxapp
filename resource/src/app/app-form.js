@@ -227,6 +227,9 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 */
 	$.fn.initForm = function (opts,callback,errorback) {
 		var _this = $(this);
+		var _header = opts.headers || API.createHeader(API.ctx + (opts.url || _this.attr('action')),errorback);
+		if(_header == null) return;
+		
 		if(opts.autoClear)_this.clearForm(true); //静态modal中的form 先清空再初始化
 		if(APP.isEmpty(opts)) opts = {};
 		if(APP.isEmpty(opts.fieldOpts)) opts.fieldOpts = {};//fieldOpts表单元素的初始化参数
@@ -329,9 +332,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			},
 			type : 'post',
 			dataType : 'json',
-			beforeSend: function(request) {
-                request.setRequestHeader("rp_token", "");
-            },
+			headers : _header,
 			includeHidden : true,
 			error:function(error){
 				if(APP.debug)console.log(error);
@@ -526,16 +527,19 @@ define('app/form',["jquery","app/common","app/api","moment",
 			_select.select2(default_opt);
 			if(_select.data("original") || _select.data("init")) _select.val((_select.data("original") || _select.data("init"))).trigger("change");
 			else _select.val(_select.val()).trigger("change");
-
-			_select.on("select2:select", function (e) { 
-				if(_select.val() != '-1' && _select.val() != ''){
-					_select.closest('.form-group').removeClass('has-error');
-					_select.siblings("span#"+_select.attr("id")+"-error").remove();
-					_select.siblings("i.validate-icon").removeClass("fa-check fa-warning").removeAttr("data-original-title");
-				}
-			});
+			//避免单页面时重复执行事件
+			if(APP.isEmpty(_select.data("event-init"))){
+				_select.on("select2:select", function (e) { 
+					if(_select.val() != '-1' && _select.val() != ''){
+						_select.closest('.form-group').removeClass('has-error');
+						_select.siblings("span#"+_select.attr("id")+"-error").remove();
+						_select.siblings("i.validate-icon").removeClass("fa-check fa-warning").removeAttr("data-original-title");
+					}
+				});
+			}
+			
 			//级联下拉框
-			if(_select.data("parent-for")){
+			if(_select.data("parent-for") && APP.isEmpty(_select.data("event-init"))){//避免单页面时重复执行事件
 				$(_select.data("parent-for")).on("change",function(){
 					opts.param[$(this).attr("name").replace(".","_")] = $(this).val(); //替换参数中的. 否则mapper文件会无法识别
 					var url = opts.url || API.stmidListUrl;
@@ -547,10 +551,9 @@ define('app/form',["jquery","app/common","app/api","moment",
 					API.ajax(url,paramData,type,false,function(ret){
 						_fill_options(_select,ret);
 					});
-					
 				});
 			}
-			
+			_select.data("event-init","init");
 		});
 		
 		return _select;

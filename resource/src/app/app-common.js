@@ -112,7 +112,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 					$.ajax({
 			            type: "GET",
 			            cache: false,
-			            url: url+".html",
+			            url: url,
 			            data: data,
 			            dataType: "html",
 			            success: function(res) {
@@ -125,7 +125,12 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			            	if(typeof callback === 'function'){
 			            		callback(res);
 			            	}
-			            	$('.loading-page').slideDown('slow');
+			            	if($('.loading-page').data("js-module")){
+			            		require([$('.loading-page').data("js-module")],function(m){
+			            			m.init(data);
+			            		})
+			            	}
+			            	$('.loading-page').fadeIn('slow');
 			            },
 			            error: function(xhr, ajaxOptions, thrownError) {
 			            	if(typeof errorback === 'function'){
@@ -610,7 +615,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			$.ajax({
 	            type: "GET",
 	            cache: false,
-	            url: APP.ctx+src,
+	            url: src,
 	            data:opts.param,
 	            dataType: "html",
 	            success: function(html) {
@@ -620,6 +625,12 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	            	if(mid){
 		            	$('#'+mid).remove();
 		            	$('body').append(_html);
+		            	if($('#'+mid).data("js-module")){
+		            		require([$('#'+mid).data("js-module")],function(m){
+		            			if($('#'+mid).data("js-main")) m[$('#'+mid).data("js-main")].apply(this);
+		            			else m.init(data);
+		            		})
+		            	}
 						$('#'+mid).modal('show');
 	            	}else{
 	            		var _modal = $("<div class='modal fade' tabindex='-1' data-focus-on='input:first' role='dialog' data-backdrop='static'></div>");

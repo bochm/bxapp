@@ -426,8 +426,10 @@ define(['jquery','app/common'],function($,APP) {
     function _initLoginForm(){
     	require(['app/form'],function(FM){
     		$('form.login-form').initForm({
+    			headers : {},
     			beforeSubmit : function(formData, jqForm, options){
     				APP.blockUI({target:'.content',message:'登陆中',gif : 'form-submit'});
+    				options.url = (options.url + "/" + formData[0].value);
     				return true;
     			},
     			success:function(response, status){
@@ -453,7 +455,7 @@ define(['jquery','app/common'],function($,APP) {
     }
     APP.showLogin = function(){
     	$('body').fadeOut('fast',function(){
-    		APP.loadPage('body','login',{},function(){
+    		APP.loadPage('body','login.html',{},function(){
     			$('body').removeClass().addClass('login').show();
     			$('.login-page').slideDown('fast',function(){
     				document.forms[0].loginname.focus();
@@ -472,7 +474,7 @@ define(['jquery','app/common'],function($,APP) {
     }
     APP.initIndex = function(){
     	$('body').removeClass().addClass('page-header-fixed page-sidebar-fixed').css('display','none');
-		APP.loadPage('body','main',{},function(){
+		APP.loadPage('body','main.html',{},function(){
 			handleFixedSidebar();
 	    	handleOnResize();
 	    	handleSidebarMenu();

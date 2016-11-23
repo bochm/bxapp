@@ -1,4 +1,4 @@
-<div class="loading-page">
+<div class="loading-page" data-js-module="module/system/user">
 <span id="table-system-user-list-toolbar">
 <a class="btn btn-sm btn-primary btn-saveRecord" id="system-user-list-edit-btn">修改用户</a>
 <a class="btn btn-sm btn-warning btn-deleteRecord" data-role="deleteRecord">删除用户</a>
@@ -160,8 +160,3 @@
 </div>
 </div>
 </div>
-<script type="text/javascript">
-require(['module/system/user'],function(user){
-	user.init({'pcompany':1});
-})
-</script>
