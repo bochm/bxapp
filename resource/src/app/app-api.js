@@ -113,74 +113,88 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 			"stmidMapListUrl" : _stmid_maplist_url,
 			createHeader : _create_header,
 	        ajax : _ajax,
-			postJson : function(url,param,isSync,callback,errorback){
-				return _ajax(url,param,'POST',isSync,callback,errorback);  
-			},
-			callSrv : function(url,param,callback,errorback){
-				return this.postJson(url,param,true,callback,errorback);  
-			},
-			getJson : function(url,param,isSync,callback,errorback){
-				return _ajax(url,param,'GET',isSync,callback,errorback);  
-			},
-			getJsonData : function(url,param){
-				var _data;
-				this.getJson(url,param || {},false,function(ret){
-					_data = ret;
-				});
-				return _data;
-			},
-			getUser : function(callback,errorback){
-				var _user = _local_user();
-				if(_user == null || _user == undefined){
-					errorback({"status":"401" ,"message":"登陆过期失效"},"401");
-					return null;
-				}else{
-					return this.callSrv(_login_url+"/"+_user[_user_login],{},function(user){
-						_store_user(user);
-						callback(user);
-					},function(err){
-						errorback(err);
-					});
-				}
-				
-			},
-			storeUser : _store_user,
-			getMapByStmId : function(param){
-				return this.getJsonData(_stmid_map_url,param);
-			},
-			getListByStmId : function(param){
-				return this.getJsonData(_stmid_list_url,param);
-			},
-			getMapListByStmId : function(param){
-				return this.getJsonData(_stmid_maplist_url,param);
-			},
-			getDictByType : function(type){
-				if(this.dict[type] == undefined || this.dict[type] == null) {
-					var _dict_list = this.getJsonData(_dict_srv_url+type);
-					if($.isArray(_dict_list) && _dict_list.length > 0){
-						this.dict[type] = _dict_list;
-					}
-				}
-				return this.dict[type];
-			},
-			getDictMap : function(type){
-				var _dict_array = this.getDictByType(type);
-				var _dict_map = {};
-				if($.isArray(_dict_array)){
-					for(var i=0;i<_dict_array.length;i++){
-						_dict_map[_dict_array[i].value] = _dict_array[i].name;
-					}
-				}
-				return _dict_map;
-			},
-			getDictName : function(type,value){
-				var _dict_map = this.getDictMap(type);
-				if(_dict_map[value]) return _dict_map[value];
-				else return "";
-			}
+	        storeUser : _store_user
 		}
 	}
-	
+	API.postJson = function(url,param,isSync,callback,errorback){
+		return _ajax(url,param,'POST',isSync,callback,errorback);  
+	}
+	API.callSrv = function(url,param,callback,errorback){
+		return API.postJson(url,param,true,callback,errorback);  
+	}
+	API.getJson = function(url,param,isSync,callback,errorback){
+		return _ajax(url,param,'GET',isSync,callback,errorback);  
+	}
+	API.jsonData = function(url,param){
+		var _data;
+		this.postJson(url,param || {},false,function(ret){
+			_data = ret;
+		});
+		return _data;
+	}
+	API.getUser = function(callback,errorback){
+		var _user = _local_user();
+		if(_user == null || _user == undefined){
+			errorback({"status":"401" ,"message":"登陆过期失效"},"401");
+			return null;
+		}else{
+			return API.callSrv(_login_url+"/"+_user[_user_login],{},function(user){
+				_store_user(user);
+				callback(user);
+			},function(err){
+				errorback(err);
+			});
+		}
+		
+	}
+	API.getMapByStmId = function(param){
+		return API.jsonData(_stmid_map_url,param);
+	}
+	API.getListByStmId = function(param){
+		return API.jsonData(_stmid_list_url,param);
+	}
+	API.getMapListByStmId = function(param){
+		return API.jsonData(_stmid_maplist_url,param);
+	}
+	API.getDictByType = function(type){
+		if(API.dict[type] == undefined || API.dict[type] == null) {
+			var _dict_list = API.jsonData(_dict_srv_url+type);
+			if($.isArray(_dict_list) && _dict_list.length > 0){
+				API.dict[type] = _dict_list;
+			}
+		}
+		return API.dict[type];
+	}
+	API.getDictMap = function(type){
+		var _dict_array = API.getDictByType(type);
+		var _dict_map = {};
+		if($.isArray(_dict_array)){
+			for(var i=0;i<_dict_array.length;i++){
+				_dict_map[_dict_array[i].value] = _dict_array[i].name;
+			}
+		}
+		return _dict_map;
+	}
+	API.getDictName = function(type,value){
+		var _dict_map = API.getDictMap(type);
+		if(_dict_map[value]) return _dict_map[value];
+		else return "";
+	}
+	API.localData = function(url){
+		var retData;
+		$.ajax({ 
+		    url : url,
+			contentType : 'application/json;charset=utf-8',
+		    async:false,
+		    success:function(ret,status){
+		    	retData = ret
+		    },
+		    error:function(xhr,status,error){
+		    	_error('系统错误,'+url+'数据不存在');
+		    }
+		});
+		return retData;  
+	}
 	return API;
 });
 

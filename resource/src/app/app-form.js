@@ -445,6 +445,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 		}
 		_select.change();
 	}
+	function _get_options_data(opts){
+		var url = opts.url || API.stmidListUrl;
+		var paramData = {};
+		if(opts.stmID) paramData.stmID=opts.stmID;
+		if(opts.param) paramData.param=opts.param;
+		return API.jsonData(url,paramData);
+	}
 	$.fn.select = function ( opts ) {
 		var _select = $(this);
 		
@@ -459,19 +466,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 						var _parent_sel = $(_select.data("parent-for"));
 						opts.param[_parent_sel.attr("name").replace(".","_")] = _parent_sel.val();//替换参数中的. 否则mapper文件会无法识别
 					}
-					var url = opts.url || API.stmidListUrl;
-					var type = "POST";
+					
 					if(opts.jsonData && opts.jsonData != ""){
-						url = opts.jsonData;
-						type = "GET";
+						opts.data = API.localData(opts.jsonData);
+					}else{
+						opts.data = _get_options_data(opts);
 					}
-					var paramData = {};
-					if(opts.stmID) paramData.stmID=opts.stmID;
-					if(opts.param) paramData.param=opts.param;
-					//同步方式防止数据量大是无法加载
-					API.ajax(url,paramData,type,false,function(ret){
-						opts.data = ret;
-					});
+					
 				}else if(opts.url && opts.ajax === undefined){//默认ajax方法
 					opts.ajax = {
 						delay: 250,
@@ -542,15 +543,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			if(_select.data("parent-for") && APP.isEmpty(_select.data("event-init"))){//避免单页面时重复执行事件
 				$(_select.data("parent-for")).on("change",function(){
 					opts.param[$(this).attr("name").replace(".","_")] = $(this).val(); //替换参数中的. 否则mapper文件会无法识别
-					var url = opts.url || API.stmidListUrl;
-					var type = "POST";
-					var paramData = {};
-					if(opts.stmID) paramData.stmID=opts.stmID;
-					if(opts.param) paramData.param=opts.param;
-					//同步方式防止数据量大是无法加载
-					API.ajax(url,paramData,type,false,function(ret){
-						_fill_options(_select,ret);
-					});
+					_fill_options(_select,_get_options_data(opts));
 				});
 			}
 			_select.data("event-init","init");
