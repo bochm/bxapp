@@ -1,6 +1,6 @@
 
 define('app/form',["jquery","app/common","app/api","moment",
-                   "jquery/validate","jquery/form"],function($,APP,API) {
+                   "jquery/validate","jquery/form","switch"],function($,APP,API) {
 	var FORM = {
 			initDatePicker : function(ct){
 	        	APP.queryContainer(ct).find('[form-role="date"]').each(function(){

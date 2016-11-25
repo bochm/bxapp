@@ -26,8 +26,8 @@ require.config({
 		'jquery/validate':'lib/jquery/validate/jquery.validate',//验证
 		'jquery/select2':'lib/jquery/select2/select2.full',//下拉列表
 		'jquery/ztree':'lib/jquery/ztree/jquery.ztree.all',//树形
-		'datatables':'lib/jquery/datatables/jquery.dataTables',
-		'datatables/buttons':'lib/jquery/datatables/dataTables.buttons',
+		'datatables.net':'lib/jquery/datatables/jquery.dataTables',
+		'datatables.net-buttons':'lib/jquery/datatables/dataTables.buttons',
 		'datatables/buttons/flash':'lib/jquery/datatables/buttons.flash',
 		'datatables/buttons/print':'lib/jquery/datatables/buttons.print',
 		'datatables/select':'lib/jquery/datatables/dataTables.select',

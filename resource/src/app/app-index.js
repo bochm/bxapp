@@ -175,8 +175,8 @@ define(['jquery','app/common'],function($,APP) {
         
         if(actMenu.attr("href")){
         	var url = actMenu.attr("href");
-        	$('.page-content-wrapper>.page-content').children().remove();
-        	$('.page-content-wrapper>.page-content').css('display','none');
+        	//$('.page-content-wrapper>.page-content').children().remove();
+        	//$('.page-content-wrapper>.page-content').css('display','none');
         	APP.loadPage(pageContent,url,{},function(){
         		if (isInSidebar && actMenu.parents('li.open').size() === 0) {
                     $('.page-sidebar-menu > li.open > a').click();
@@ -490,6 +490,8 @@ define(['jquery','app/common'],function($,APP) {
 	    		//APP.showLogin();
 	    		//if($currPage) APP.loadPage('div.page-content',$currPage);
 	    	})
+	    	//主页点击
+	    	$('.page-sidebar li > a.act-menu:first').click();
 		},function(err){
 			APP.error(err);
 		});

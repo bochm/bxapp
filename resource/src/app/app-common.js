@@ -120,7 +120,9 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			            	var _html = $(res);
 		            		APP.initComponents(_html.get());
 			            	APP.unblockUI(target);
-			            	$(target).children().remove();
+			            	$(target).children().each(function(){
+			                    if($(this).attr("id") != "topcontrol") $(this).remove();
+			                });
 			            	$(target).append(_html);
 			            	if(typeof callback === 'function'){
 			            		callback(res);

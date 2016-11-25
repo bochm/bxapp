@@ -9,7 +9,7 @@
 /*
 * bx add 增加表格功能按钮样式
 */
-.dataTables_wrapper .dataTables_btn_toolbar{
+/* .dataTables_wrapper .dataTables_btn_toolbar{
   float: left;
   padding-top: 0.25em;
   padding-bottom: 0.15em;
@@ -17,7 +17,7 @@
 }
 .dataTables_wrapper .dataTables_btn_toolbar .btn-group{
   margin-right: 0.15em;
-}
+} */
 /*
 * bx add 增加表格尾部分页等功能区域统一设置样式
 */
@@ -300,9 +300,13 @@ div.dt-buttons {
    position: relative;
    float: left;
   /*bx add 修改工具栏位置*/
-/*    padding-top: 0.1em;
+  padding-top: 0.25em;
   padding-bottom: 0.15em;
-  padding-left: 0.15em; */
+  padding-left: 0.15em;
+  
+}
+div.dt-buttons .btn-group{
+   margin-right: 0.15em;/*bx add 组合按钮间距*/
 }
 div.dt-buttons a{
    margin-right: 0.2em;/*bx add 修改工具栏位置*/
@@ -372,9 +376,9 @@ div.dt-button-background {
   height: 100%;
   z-index: 2001;
 } */
- /*bx delete 去除分辨率响应*/
-/* 
-@media screen and (max-width: 767px) {
+
+/* 取消按钮工具栏响应 */
+/* @media screen and (max-width: 767px) {
   div.dt-buttons {
     float: none;
     width: 100%;
@@ -384,8 +388,8 @@ div.dt-button-background {
   div.dt-buttons a.btn {
     float: none;
   }
-} */
-
+}
+ */
 
 
 

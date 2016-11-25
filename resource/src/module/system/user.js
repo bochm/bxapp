@@ -17,9 +17,10 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 	
 	function inti_table(param){
 		$('table.datatable').initTable({
+			"title" : "用户表",
 			"params" : param, //测试
-			"scrollY": "400px",
-			"buttons":["addRecord"],
+			"scrollY": "390px",
+			"buttons":["excel","addRecord"],
 			"deleteRecord" : {url : 'system/user/delete',id : 'id'},
 			"addRecord" : function(dt){
 				if(!$('#sys-user-password').hasClass('required'))$('#sys-user-password').addClass('required');//新增必须输入密码

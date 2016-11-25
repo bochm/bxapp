@@ -4,7 +4,7 @@
  * @ignore
  */
 define('app/datatables',['jquery','app/common','app/api',
-        "datatables",
+        "datatables.net",
         "datatables/buttons/flash",
         "datatables/buttons/print","datatables/select",
         "datatables/responsive","datatables/fixedHeader",
@@ -15,14 +15,17 @@ define('app/datatables',['jquery','app/common','app/api',
 	var btn_opts = {
 			"pdf": {"icon":"<i class='fa fa-file-pdf-o'></i> ","text":"导出PDF"},
 			"copy":{"icon":"<i class='fa fa-copy'></i> ","text":"复制"},
-			"excel":{"icon":"<i class='fa fa-file-excel-o'></i> ","text":"导出EXCEL"},
+			"excel":{"icon":"<i class='fa fa-file-excel-o'></i> ","text":"导出"},
 			"print":{"icon":"<i class='fa fa-print'></i> ","text":"打印"}
 	}
 	/**
      * 默认参数设置
      */
 	var default_opts = {
-			"dom": "<'dataTables_btn_toolbar'B><'dataTables_filter'><'table-scrollable'tr<'table-foot-bar' ilp>>",//f改为自定义回车搜索
+			//B不能包含在任何自定义div中，否则flash导出失效
+			//f改为自定义回车搜索
+			"dom": "B<'dataTables_filter'><'table-scrollable'tr<'table-foot-bar' ilp>>",
+			//"dom": "Bfrtip",//
 			"oLanguage": {
 				"sLengthMenu": "_MENU_/页",
 				"sSearch":"<div class='input-icon input-icon-sm'><i class='iconfont icon-search'></i>_INPUT_</div>",
@@ -35,12 +38,12 @@ define('app/datatables',['jquery','app/common','app/api',
 				"sZeroRecords":"没有数据",
 				"sEmptyTable":"没有数据",
 				"buttons":{
-						"pdf":btn_opts.pdf.icon,
-						"copy":btn_opts.copy.icon,
+						"pdf":btn_opts.pdf.icon + btn_opts.pdf.text,
+						"copy":btn_opts.copy.icon + btn_opts.copy.text,
 						"copyTitle":"复制到剪贴板",
 						"copyInfo":{_: '以复制 %d 行到剪贴板',1: '复制 1 行到剪贴板'},
 						"excel":btn_opts.excel.icon+btn_opts.excel.text,
-						"print":btn_opts.print.icon
+						"print":btn_opts.print.icon+btn_opts.print.text
 				},
 				"oPaginate":{
 					"sNext":">",
@@ -204,7 +207,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			},
 			button: {
 				tag: 'a',
-				className: 'btn btn-sm'
+				className: 'btn btn-sm btn-info'
 			},
 			buttonLiner: {
 				tag: '',
@@ -235,8 +238,7 @@ define('app/datatables',['jquery','app/common','app/api',
 	} );
 	
 	
-	$.fn.dataTable.Buttons.swfPath = APP.jsPath+'/lib/jquery/datatables/swf/flashExport.swf';
-	
+	DataTable.Buttons.swfPath = APP.jsPath+'/lib/jquery/datatables/swf/flashExport.swf';
 	/**
      * 表格默认新增修改方法
      */
@@ -405,7 +407,7 @@ define('app/datatables',['jquery','app/common','app/api',
 		return _getDataTable(_table,default_opt,function(otable){
 			//初始化表格工具栏 ，增加ID约束
 			
-			var toolbar = $("div#"+tableid+"_wrapper>div.dataTables_btn_toolbar>div.dt-buttons");
+			var toolbar = $("div#"+tableid+"_wrapper>div.dt-buttons");
 			var pageToolbar = $("#"+(default_opt.toolbar ? default_opt.toolbar : (tableid+"-toolbar")));
 			
 			pageToolbar.find('.btn[data-role]').each(function(){
@@ -485,6 +487,10 @@ define('app/datatables',['jquery','app/common','app/api',
 				otable.draw(false);
 			});*/
 			
+			if(default_opt.scrollY){
+				$("div#"+tableid+"_wrapper .dataTables_scrollHeadInner").css({width: '100%'});
+				$("div#"+tableid+"_wrapper .dataTables_scrollHeadInner table").css({width: '100%'});
+			}
 			if(callback && typeof callback == "function")callback(otable);
 		});
 	};

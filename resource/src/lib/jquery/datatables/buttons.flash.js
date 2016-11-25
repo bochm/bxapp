@@ -9,7 +9,7 @@
 (function( factory ){
 	if ( typeof define === 'function' && define.amd ) {
 		// AMD
-		define( ['jquery','datatables', 'datatables/buttons'], function ( $ ) {
+		define( ['jquery', 'datatables.net', 'datatables.net-buttons'], function ( $ ) {
 			return factory( $, window, document );
 		} );
 	}
@@ -492,12 +492,13 @@ var _glue = function ( flash, node )
 };
 
 /**
- * Get the file name for an exported file.
+ * Get the file name for an exported file. mod by bcm 修改文件名称为初始化参数title
  *
+ * @param {object}  dt       datatable对象
  * @param {object}  config       Button configuration
  * @param {boolean} incExtension Include the file name extension
  */
-var _filename = function ( config, incExtension )
+var _filename = function ( dt,config, incExtension )
 {
 	// Backwards compatibility
 	var filename = config.filename === '*' && config.title !== '*' && config.title !== undefined ?
@@ -507,7 +508,10 @@ var _filename = function ( config, incExtension )
 	if ( typeof filename === 'function' ) {
 		filename = filename();
 	}
-
+	//mod by bcm 修改文件名称为初始化参数title
+	if(dt.init().title !== undefined){
+		filename = dt.init().title;
+	}
 	if ( filename.indexOf( '*' ) !== -1 ) {
 		filename = $.trim( filename.replace( '*', $('title').text() ) );
 	}
@@ -1136,7 +1140,7 @@ DataTable.ext.buttons.csvFlash = $.extend( {}, flashButton, {
 			data.str;
 
 		flash.setAction( 'csv' );
-		flash.setFileName( _filename( config ) );
+		flash.setFileName( _filename( dt,config ) ); //mod by bcm
 		_setText( flash, output );
 	},
 
@@ -1277,9 +1281,8 @@ DataTable.ext.buttons.excelFlash = $.extend( {}, flashButton, {
 		}
 
 		_xlsxToStrings( xlsx );
-
 		flash.setAction( 'excel' );
-		flash.setFileName( _filename( config ) );
+		flash.setFileName( _filename( dt,config ) ); //mod by bcm
 		flash.setSheetData( xlsx );
 		_setText( flash, '' );
 	},
@@ -1309,10 +1312,10 @@ DataTable.ext.buttons.pdfFlash = $.extend( {}, flashButton, {
 		} );
 
 		flash.setAction( 'pdf' );
-		flash.setFileName( _filename( config ) );
+		flash.setFileName( _filename( dt,config ) ); //mod by bcm
 
 		_setText( flash, JSON.stringify( {
-			title:       _filename(config, false),
+			title:       _filename(dt,config, false), //mod by bcm
 			message: typeof config.message == 'function' ? config.message(dt, button, config) : config.message,
 			colWidth:    ratios.toArray(),
 			orientation: config.orientation,

@@ -1,4 +1,4 @@
-define('module/system/menu',['app/common','app/treetable','app/form'],function(APP,DT,FORM) {
+define('module/system/menu',['app/common','app/api','app/treetable','app/form'],function(APP,API,DT,FORM) {
 	
 	var columns = [
 	    { "data": "id","visible" : false},
@@ -6,7 +6,7 @@ define('module/system/menu',['app/common','app/treetable','app/form'],function(A
 	    { "data": "name","title":"菜单名称"},
 	    { "data": "icon","title":"图标"},
 	    { "data": "target","title":"链接"},
-	    { "data": "status","title":"状态","dictType" : "on_off"},
+	    { "data": "status","title":"状态","render" : function(data){return API.getDictName("on_off",data)}},
 	    { "data": "sort","title":"排序号"}
 	];
 	var columnDefs = [	
@@ -37,7 +37,7 @@ define('module/system/menu',['app/common','app/treetable','app/form'],function(A
 			"addEditModal" : {"url" : "pages/system/menu/menu-edit.html","id":"system-menu-edit"},
 			"deleteRecord" : function(dt,node,e){
 				APP.confirm('','是否删除选择的菜单及包含的所有子菜单?',function(){
-					APP.postJson("system/menu/delete",dt.selectedColumn("id"),null,function(ret,status){
+					API.postJson("system/menu/delete",dt.selectedColumn("id"),null,function(ret,status){
 						if(ret.OK){
 							dt.deleteSelectedRow();
 							APP.success(ret[APP.MSG]);
