@@ -312,7 +312,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		
 		
 		
-		var _in_modal = (_this.parents('.modal-dialog').size() > 0) ? '.modal-dialog' : '';
+		var _in_modal = (_this.parents('.modal-dialog').size() > 0) ? _this.parents('.modal-dialog').get(0) : 'body';
 		//提交是初始化bean的提交类型  add save delete  对应BaseBean 的form_action属性
 		if(opts.formAction){
 			if(_this.children(":hidden[name='form_action']").size()>0){
@@ -326,7 +326,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		var form_opt = $.extend(true,{
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
-				APP.blockUI({target:_in_modal ? '.modal-dialog' : 'body',message:opts.onSubmitMsg || '提交中',gif : 'form-submit'});
+				APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || '提交中',gif : 'form-submit'});
 				return true;
 			},
 			type : 'post',
@@ -339,14 +339,14 @@ define('app/form',["jquery","app/common","app/api","moment",
 			includeHidden : true,
 			error:function(error){
 				if(APP.debug)console.log(error);
-				APP.unblockUI(_in_modal ? '.modal-dialog' : 'body');
+				APP.unblockUI(_in_modal);
 				APP.notice('',"系统错误 错误代码:"+error.status+" 错误名称:"+error.statusText,'error',_in_modal);
 				if(typeof errorback === 'function')errorback(error);
 				else if(opts.onError) opts.onError(error);
 			},
 			success:function(response, status){
 				if(APP.debug)console.log(response);
-				APP.unblockUI(_in_modal ? '.modal-dialog' : 'body');
+				APP.unblockUI(_in_modal);
 				if(response.OK){
 					APP.notice('',response[API.MSG],'success',_in_modal);
 					//动态更新规格，否则会造成重复提交验证不通过

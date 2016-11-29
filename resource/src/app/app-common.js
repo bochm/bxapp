@@ -565,18 +565,13 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			offset: {from: "top",amount: 1},
 			width: 250,
 			delay: 2000,
-			allow_dismiss: true,
 			stackup_spacing: 2
 		};
 		default_options.width = $(default_options.ele).width();
 		var $alert, css, offsetAmount;
-	    $alert = $("<div>");
-	    $alert.attr("class", "app-noticeS alert");
+	    $alert = $("<div class='app-noticeS alert'>");
 	    if (default_options.type) {
 	    	$alert.addClass("alert-" + (default_options.type == 'error' ? 'danger' : default_options.type));
-	    }
-	    if (default_options.allow_dismiss) {
-	    	$alert.append("<button type='button' class='close' data-dismiss='alert'></button>");
 	    }
 	    if(!APP.isEmpty(title))$alert.append("<h4 class='alert-heading'>"+title+"</h4>");
 	    $alert.append("<p>"+message+"</p>");
@@ -585,7 +580,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	    	return offsetAmount = Math.max(offsetAmount, 
 	    			parseInt($(this).css(default_options.offset.from)) + $(this).outerHeight() + default_options.stackup_spacing);
 	    });
-	    css = {
+	    var css = {
 	    	"position": (default_options.ele === "body" ? "fixed" : "absolute"),
 	    	"margin": 1,
 	    	"z-index": "9999999",
@@ -596,11 +591,11 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	    $alert.css(css);
 
 	    $(default_options.ele).append($alert);
-/*	    $alert.css("display","none");
-	    $alert.fadeIn(600);*/
+	    $alert.css("display","none");
+	    $alert.fadeIn(600);
 	    if (default_options.delay > 0) {
 	    	$alert.delay(default_options.delay).slideUp('500',function() {
-	    		$alert.remove();
+	    		$(this).remove();
 	    	});
 	    }
 	};

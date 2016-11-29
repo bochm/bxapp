@@ -55,7 +55,7 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
     	            	$('body').append(html);
     					$('#sys-login').modal('show');
     	            	$('#sys-login').on('hide.bs.modal', function () {
-                			$(this).remove();
+    	            		$('#sys-login').remove();
                		 	});
     		            $('form.login-form').initForm({
     		            	headers : {},
