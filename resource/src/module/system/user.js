@@ -19,7 +19,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 		$('table.datatable').initTable({
 			"title" : "用户表",
 			"params" : param, //测试
-			"scrollY": "390px",
+			"scrollY": "350px",
 			"buttons":["excel","addRecord"],
 			"deleteRecord" : {url : 'system/user/delete',id : 'id'},
 			"addRecord" : function(dt){

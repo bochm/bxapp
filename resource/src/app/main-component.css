@@ -2440,7 +2440,8 @@ UI Loading
 /***
 Customized Bootstrap Modal 
 ***/
-.close {
+/* 使用文字显示 mod by bcm */
+/* .close {
   display: inline-block;
   margin-top: 0px;
   margin-right: 0px;
@@ -2450,7 +2451,7 @@ Customized Bootstrap Modal
   text-indent: -10000px;
   outline: none;
   background-image: url("../images/remove-icon-small.png") !important;
-}
+} */
 .modal {
   z-index: 10050;
   outline: none;
@@ -2459,12 +2460,22 @@ Customized Bootstrap Modal
 }
 .modal .modal-header {
   border-bottom: 1px solid #EFEFEF;
+  background-color: #468dcb;
+  color: #ffffff;
+  height: 50px;
+}
+.modal .modal-footer {
+  background-color: #ddeff8;
+  height: 50px;
+  padding-top: 8px !important;
 }
 .modal .modal-header h3 {
   font-weight: 300;
 }
 .modal .modal-header .close {
   margin-top: 0px !important;
+  color: #ffffff;
+  font-size: 1em;
 }
 .modal .modal-dialog {
   z-index: 10051;

@@ -227,8 +227,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 */
 	$.fn.initForm = function (opts,callback,errorback) {
 		var _this = $(this);
-		var _header = opts.headers || API.createHeader(API.ctx + (opts.url || _this.attr('action')),errorback);
-		if(_header == null) return;
 		
 		if(opts.autoClear)_this.clearForm(true); //静态modal中的form 先清空再初始化
 		if(APP.isEmpty(opts)) opts = {};
@@ -323,7 +321,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 				_this.append("<input type='hidden' name='form_action' value='"+opts.formAction+"'>");
 			}
 		}
-		opts.url = APP.ctx + (opts.url || _this.attr('action'));
+		var _url = API.ctx + (opts.url || _this.attr('action'));
+		opts.url = API.srv + _url;
 		var form_opt = $.extend(true,{
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
@@ -332,7 +331,11 @@ define('app/form',["jquery","app/common","app/api","moment",
 			},
 			type : 'post',
 			dataType : 'json',
-			headers : _header,
+			beforeSend : function(request){
+				if(!opts.headers){
+					return API.createHeader(_url,request,errorback);
+				}
+			},
 			includeHidden : true,
 			error:function(error){
 				if(APP.debug)console.log(error);
@@ -360,6 +363,9 @@ define('app/form',["jquery","app/common","app/api","moment",
 					else if(opts.onSuccess) opts.onSuccess(response[API.DATA]);
 				}else{
 					APP.notice('',response[API.MSG],'warning',_in_modal);
+					if(response[API.STATUS] == "401"){
+						API.showLogin();
+		        	}
 					if(typeof errorback === 'function')errorback(response,status);
 					else if(opts.onError) opts.onError(response,status);
 				}

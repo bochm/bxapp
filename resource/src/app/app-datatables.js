@@ -486,11 +486,19 @@ define('app/datatables',['jquery','app/common','app/api',
 			/*$(window).resize(function(){
 				otable.draw(false);
 			});*/
-			
+			//滚动条处理,当没有显示滚动条时列宽100%
 			if(default_opt.scrollY){
-				$("div#"+tableid+"_wrapper .dataTables_scrollHeadInner").css({width: '100%'});
-				$("div#"+tableid+"_wrapper .dataTables_scrollHeadInner table").css({width: '100%'});
+				var _scrollBody = $("div#"+tableid+"_wrapper .dataTables_scrollBody");
+				if(_scrollBody.height() > _table.height()){
+					$("div#"+tableid+"_wrapper .dataTables_scrollHeadInner").css({width: "100%"});
+					$("div#"+tableid+"_wrapper .dataTables_scrollHeadInner table").css({width: "100%"});
+				}else if(default_opt.tableType == 'treetable'){
+					_scrollBody.css("overflow-y","scroll");
+				}
 			}
+			otable.on( 'column-sizing.dt', function ( e, settings ) {
+			    console.log( 'Column width recalculated in table' );
+			} );
 			if(callback && typeof callback == "function")callback(otable);
 		});
 	};

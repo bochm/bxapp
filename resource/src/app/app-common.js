@@ -40,7 +40,6 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			"isIE9" : false,
 			"isIE10": false,
 			"isRTL" : false,
-			"ctx" : _srv_url + _ctx,
 			"debug" : _is_debug,
 			"device" : device,
 			"isMobile" :  (device.androidPhone() || device.iphone() || device.ipod() || device.windowsPhone()),
@@ -572,7 +571,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 		default_options.width = $(default_options.ele).width();
 		var $alert, css, offsetAmount;
 	    $alert = $("<div>");
-	    $alert.attr("class", "app-noticeS alert alert-block fade in");
+	    $alert.attr("class", "app-noticeS alert");
 	    if (default_options.type) {
 	    	$alert.addClass("alert-" + (default_options.type == 'error' ? 'danger' : default_options.type));
 	    }
@@ -583,23 +582,24 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	    $alert.append("<p>"+message+"</p>");
 	    offsetAmount = default_options.offset.amount;
 	    $(".app-noticeS").each(function() {
-	    	return offsetAmount = Math.max(offsetAmount, parseInt($(this).css(default_options.offset.from)) + $(this).outerHeight() + default_options.stackup_spacing);
+	    	return offsetAmount = Math.max(offsetAmount, 
+	    			parseInt($(this).css(default_options.offset.from)) + $(this).outerHeight() + default_options.stackup_spacing);
 	    });
 	    css = {
 	    	"position": (default_options.ele === "body" ? "fixed" : "absolute"),
 	    	"margin": 1,
 	    	"z-index": "9999999",
-	    	"display": "none",
+/*	    	"display": "none",*/
 	    	"width" : default_options.width-2 + "px"
 	    };
 	    css[default_options.offset.from] = offsetAmount + "px";
 	    $alert.css(css);
 
 	    $(default_options.ele).append($alert);
-
-	    $alert.slideDown("slow");
+/*	    $alert.css("display","none");
+	    $alert.fadeIn(600);*/
 	    if (default_options.delay > 0) {
-	    	$alert.delay(default_options.delay).slideUp('slow',function() {
+	    	$alert.delay(default_options.delay).slideUp('500',function() {
 	    		$alert.remove();
 	    	});
 	    }

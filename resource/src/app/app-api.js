@@ -31,16 +31,73 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 	function _store_user(u){
 		return storage.setItem('_LOCAL_USER_',JSON.stringify(u));
 	}
-	function _create_header(url,errorback){
+	function _create_header(url,request,errorback){
 		var _user = _local_user();
 		if(_user == null || _user == undefined){
 			if(errorback && typeof errorback === 'function') errorback({"status":"401" ,"message":"登陆过期失效"},"401");
-			return null;
+			return false;
 		}
-		var _header = {};
-		_header[_user_name] = _user[_user_login];
-		_header[_rp_token] = DIGESTS.hex_hmac_sha256(_user[_us_token], encodeURI(url));
-		return _header;
+		request.setRequestHeader(_user_name,_user[_user_login]);
+		request.setRequestHeader(_rp_token,DIGESTS.hex_hmac_sha256(_user[_us_token], encodeURI(url)));
+		return true;
+	}
+	function _showLogin(url,data,type,isSync,callback,errorback){
+		require(['bootstrap','app/form'],function(){
+			if($('#sys-login').length > 0){
+        		$('#sys-login').modal('show');
+        	}else{
+        		$.ajax({
+    	            type: "GET",
+    	            cache: false,
+    	            url: "login-pop.html",
+    	            dataType: "html",
+    	            success: function(html) {
+    	            	$('body').append(html);
+    					$('#sys-login').modal('show');
+    	            	$('#sys-login').on('hide.bs.modal', function () {
+                			$(this).remove();
+               		 	});
+    		            $('form.login-form').initForm({
+    		            	headers : {},
+    		            	rules:{
+    							"loginname":{"messages":{"required" : "请输入用户名"}},
+    							"password":{"messages":{"required" : "请输入密码"}}
+    						},
+    		            	beforeSubmit : function(formData, jqForm, options){
+    		            		$('.login-form .alert-danger').remove();
+    		            		$(".login-form button[type='submit']").attr("disabled","true").text("登录中..");
+    		            		options.url = (options.url + "/" + formData[0].value);
+    		            		return true;
+    		            	},
+    		            	success:function(response, status){
+    		            		$(".login-form button[type='submit']").removeAttr("disabled").text("登录");
+    		            		if(response.ERROR){
+    		            			$('.login-form').prepend("<div class='alert alert-danger'>" +
+    		            					"<button class='close' type='button' data-dismiss='alert'>×</button>" +
+    		            					"<span></span>"+response[API.MSG]+"</div>");
+    		            		}else{
+    		            			API.storeUser(response);
+    		            			$('#sys-login').modal('hide');
+    		            			if(url)_ajax(url,data,type,isSync,callback,errorback);
+    		            		}
+    		            		
+    		            	},
+    		            	error:function(err){
+    		            		$(".login-form button[type='submit']").removeAttr("disabled").text("登录");
+    		            		$('.login-form').prepend("<div class='alert alert-danger'>" +
+    	            					"<button class='close' type='button' data-dismiss='alert'>×</button>" +
+    	            					"<span></span>系统错误，无法连接服务器</div>");
+    		            	}
+    		            });
+    	            	
+    	            },
+    	            error: function(xhr, ajaxOptions, thrownError) {
+    	            	_error("登陆页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
+    	            }
+    	        });
+        	}
+			
+		})
 	}
 	/**
 	 * json数据提交,服务器端接收JSON格式的对象
@@ -51,8 +108,6 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 	 */
 	function _ajax(url,data,type,isSync,callback,errorback){
 		var _url = API.ctx + url;
-		var _header = _create_header(_url,errorback);
-		if(_header == null) return;
 		
 		var async = true;
 		if(isSync != undefined || isSync != null) async = isSync;
@@ -65,14 +120,19 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 			contentType : 'application/json;charset=utf-8',
 		    data: JSON.stringify(data),
 		    async:async,
-		    headers : _header,
+		    beforeSend : function(request){
+		    	return _create_header(_url,request,errorback);
+			},
 		    success:function(ret,status){
 		    	if(ret.ERROR){
-		    		if(typeof errorback === 'function'){
+		    		if(ret[API.STATUS] == "401"){
+		        		_showLogin(url,data,type,isSync,callback,errorback);
+		        	}
+		    		else if(typeof errorback === 'function'){
 			        	errorback(ret,ret[API.STATUS]);
 			        }else{
 			        	retData = ret;
-			        	_error('系统错误,错误代码['+ret[API.STATUS]+'] 错误名称['+xhr[API.MSG]+']');
+			        	_error('系统错误,错误代码['+ret[API.STATUS]+'] 错误名称['+ret[API.MSG]+']');
 			        }
 		    	}else{
 		    		if(typeof callback === 'function'){
@@ -108,12 +168,14 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 			"WORN" : "warning",
 			"EXCEPTION" : "exception",
 			"ctx" : _ctx,
+			"srv" : _srv_url,
 			"stmidListUrl" : _stmid_list_url,
 			"stmidMapUrl" : _stmid_map_url,
 			"stmidMapListUrl" : _stmid_maplist_url,
 			createHeader : _create_header,
 	        ajax : _ajax,
-	        storeUser : _store_user
+	        storeUser : _store_user,
+	        showLogin : _showLogin
 		}
 	}
 	API.postJson = function(url,param,isSync,callback,errorback){

@@ -468,8 +468,7 @@ define(['jquery','app/common'],function($,APP) {
     	API.getUser(function(user){
     		APP.initIndex();
     	},function(err){
-    		if(err[API.STATUS] == "401") APP.showLogin();
-			else APP.sysError();
+			APP.sysError();
     	});
     }
     APP.initIndex = function(){
