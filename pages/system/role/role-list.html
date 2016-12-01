@@ -1,0 +1,88 @@
+<div class="loading-page" data-js-module="module/system/role">
+<span id="table-system-role-list-toolbar">
+<a class="btn btn-sm btn-primary btn-selectOne" data-role="permissionRole"><i class='fa fa-unlock'></i> 权限</a>
+</span>
+<table id="table-system-role-list" class="table datatable table-bordered nowrap"  data-url="system/role" 
+	data-paging="true" data-info="true" data-ordering="true">
+		<thead><tr>
+			<th  data-column=name >名称</th>
+			<th  data-column="enname" >英文名称</th>
+			<th  data-column="roleType">角色类型</th>
+			<th data-column="dataScope" >数据范围</th>
+			<th  data-column="remarks" >备注</th>
+		</tr></thead>
+		<tbody>
+		</tbody>
+</table>	
+
+<!-- 新增修改-->
+<div class="modal fade" id="system-role-list-edit" tabindex="-1" role="dialog" data-backdrop="static">
+<div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title">角色维护</h4>
+         </div>
+         <div class="modal-body">
+            <form class="form-horizontal" action="system/role" role="form" id="system-role-edit-form" >
+            	<input type="hidden" name="id">
+            	<div class="form-body">
+            		<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label col-md-4">英文名称</label>
+								<div class="col-md-8">
+								<div class="input-icon right"> <i class="fa validate-icon"></i>
+								<input type="text" name="enname" class="form-control required checkExists"></div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label col-md-4">名称</label>
+								<div class="col-md-8">
+								<div class="input-icon right"> <i class="fa validate-icon"></i>
+								<input type="text" name="name" class="form-control required"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label col-md-4">角色类型</label>
+								<div class="col-md-8">
+								<select name="roleType" form-role='select' data-dict-type='sys_role_type' 
+								class="form-control required selectOpt"/>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label col-md-4">数据范围</label>
+								<div class="col-md-8">
+								<select name="dataScope" form-role='select' data-dict-type='sys_data_scope' 
+								class="form-control required selectOpt"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="control-label col-md-2">备注</label>
+								<div class="col-md-10"><input type="text" name="remarks" class="form-control input-xlarge"></div>
+							</div>
+						</div>
+					</div>
+            	</div>
+            </form>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn  btn-default" data-dismiss="modal">关闭</button>
+            <button type="button" class="btn btn-primary" data-submit="#system-role-edit-form">提交</button>
+         </div>
+      </div>
+</div>
+</div>
+</div>

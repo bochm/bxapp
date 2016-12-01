@@ -4,6 +4,7 @@ define('module/system/dict',['app/common','app/api','app/datatables','app/form']
 		$('table.datatable').initTable({
 			"scrollY": "400px",
 			"autoWidth": true,
+			"order": [2,'asc'],
 			"buttons":["addRecord","saveRecord","deleteRecord"],
 			"deleteRecord" : {"url" : 'system/dict/delete',"id" : 'id'},
 			"addEditForm" : {

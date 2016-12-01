@@ -1,7 +1,7 @@
 /**
  * 服务端方法调用
  */
-define('app/api',['jquery','app/digests'],function($,DIGESTS) {
+define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 	$.support.cors = true;//ie9必须
 	var _rp_token = "rp_token"; //服务端token名称,服务端验证header中的token名称
 	var _user_name = "loginname";//服务端用户登陆名称,header中的名称
@@ -13,18 +13,16 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 	var _stmid_list_url = "app/common/selectArrayByStmID";//服务端根据sqlmapper ID获取List数据URL
 	var _stmid_maplist_url = "app/common/selectMapListByStmID";//服务端根据sqlmapper ID获取mapList数据URL,需要在param中指定key
 	var storage = window.localStorage;
-	function _error(msg){
+	function _sysError(msg){
 		require(['jquery/gritter'],function(){
 			$.gritter.add({
-				title: "系统错误",
 				text: msg,
+				title : "系统异常",
 				sticky: true,
-				time: '3000',
 				class_name: 'gritter-error'
 			});
 		})
 	}
-	
 	function _local_user(){
 		return JSON.parse(storage.getItem('_LOCAL_USER_'));
 	}
@@ -57,48 +55,54 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
     	            	$('#sys-login').on('hide.bs.modal', function () {
     	            		$('#sys-login').remove();
                		 	});
-    		            $('form.login-form').initForm({
-    		            	headers : {},
-    		            	rules:{
-    							"loginname":{"messages":{"required" : "请输入用户名"}},
-    							"password":{"messages":{"required" : "请输入密码"}}
-    						},
-    		            	beforeSubmit : function(formData, jqForm, options){
-    		            		$('.login-form .alert-danger').remove();
-    		            		$(".login-form button[type='submit']").attr("disabled","true").text("登录中..");
-    		            		options.url = (options.url + "/" + formData[0].value);
-    		            		return true;
-    		            	},
-    		            	success:function(response, status){
-    		            		$(".login-form button[type='submit']").removeAttr("disabled").text("登录");
-    		            		if(response.ERROR){
-    		            			$('.login-form').prepend("<div class='alert alert-danger'>" +
-    		            					"<button class='close' type='button' data-dismiss='alert'>×</button>" +
-    		            					"<span></span>"+response[API.MSG]+"</div>");
-    		            		}else{
-    		            			API.storeUser(response);
-    		            			$('#sys-login').modal('hide');
-    		            			if(url)_ajax(url,data,type,isSync,callback,errorback);
-    		            		}
-    		            		
-    		            	},
-    		            	error:function(err){
-    		            		$(".login-form button[type='submit']").removeAttr("disabled").text("登录");
-    		            		$('.login-form').prepend("<div class='alert alert-danger'>" +
-    	            					"<button class='close' type='button' data-dismiss='alert'>×</button>" +
-    	            					"<span></span>系统错误，无法连接服务器</div>");
-    		            	}
-    		            });
-    	            	
+    	            	_initLoginForm(url,data,type,isSync,callback,errorback);
     	            },
     	            error: function(xhr, ajaxOptions, thrownError) {
-    	            	_error("登陆页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
+    	            	_sysError("登陆页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
     	            }
     	        });
         	}
 			
 		})
 	}
+    function _initLoginForm(url,data,type,isSync,callback,errorback){
+    	var local_user = _local_user();
+    	if(local_user != null && _local_user != undefined) {
+    		document.forms['login-form'].loginname.value = local_user[_user_login];
+    	}
+    	$('form.login-form').initForm({
+        	headers : {},
+        	rules:{
+				"loginname":{"messages":{"required" : "请输入用户名"}},
+				"password":{"messages":{"required" : "请输入密码"}}
+			},
+        	beforeSubmit : function(formData, jqForm, options){
+        		$('.login-form .alert-danger').remove();
+        		$(".login-form button[type='submit']").attr("disabled","true").text("登录中..");
+        		options.url = (options.url + "/" + formData[0].value);
+        		return true;
+        	},
+        	success:function(response, status){
+        		$(".login-form button[type='submit']").removeAttr("disabled").text("登录");
+        		if(response.ERROR){
+        			$('.login-form').prepend("<div class='alert alert-danger'>" +
+        					"<button class='close' type='button' data-dismiss='alert'>×</button>" +
+        					"<span></span>"+response[API.MSG]+"</div>");
+        		}else{
+        			API.storeUser(response);
+        			$('#sys-login').modal('hide');
+        			if(url)_ajax(url,data,type,isSync,callback,errorback);
+        		}
+        		
+        	},
+        	error:function(err){
+        		$(".login-form button[type='submit']").removeAttr("disabled").text("登录");
+        		$('.login-form').prepend("<div class='alert alert-danger'>" +
+    					"<button class='close' type='button' data-dismiss='alert'>×</button>" +
+    					"<span></span>系统错误，无法连接服务器</div>");
+        	}
+        });
+    }
 	/**
 	 * json数据提交,服务器端接收JSON格式的对象
 	 * @param  {String} url 提交url
@@ -108,7 +112,6 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 	 */
 	function _ajax(url,data,type,isSync,callback,errorback){
 		var _url = API.ctx + url;
-		
 		var async = true;
 		if(isSync != undefined || isSync != null) async = isSync;
 		
@@ -126,13 +129,13 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 		    success:function(ret,status){
 		    	if(ret.ERROR){
 		    		if(ret[API.STATUS] == "401"){
-		        		_showLogin(url,data,type,isSync,callback,errorback);
+		    			_showLogin(url,data,type,isSync,callback,errorback);
 		        	}
 		    		else if(typeof errorback === 'function'){
 			        	errorback(ret,ret[API.STATUS]);
 			        }else{
 			        	retData = ret;
-			        	_error('系统错误,错误代码['+ret[API.STATUS]+'] 错误名称['+ret[API.MSG]+']');
+			        	_sysError('系统错误,错误代码['+ret[API.STATUS]+'] 错误名称['+ret[API.MSG]+']');
 			        }
 		    	}else{
 		    		if(typeof callback === 'function'){
@@ -145,13 +148,7 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 		    error:function(xhr,status,error){
 		    	//后端异常以全局处理,前端跨域无法处理后端异常
 		    	console.log(xhr);
-		    	_error('系统错误,请确认服务或网络是否正常!');
-		    	/*if(typeof errorback === 'function'){
-		        	errorback(xhr,status,error);
-		        }else{
-		        	_error('系统错误,错误代码['+status+'] 错误名称['+xhr.statusText+']');
-		        	retData = xhr;
-		        }*/
+		    	_sysError("请确认是否存在网络或服务器异常!");
 		    }
 		});
 		return retData;  
@@ -174,6 +171,7 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 			"stmidMapListUrl" : _stmid_maplist_url,
 			createHeader : _create_header,
 	        ajax : _ajax,
+	        localUser : _local_user,
 	        storeUser : _store_user,
 	        showLogin : _showLogin
 		}
@@ -197,14 +195,14 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 	API.getUser = function(callback,errorback){
 		var _user = _local_user();
 		if(_user == null || _user == undefined){
-			errorback({"status":"401" ,"message":"登陆过期失效"},"401");
+			if(typeof errorback == "function") errorback({"status":"401" ,"message":"登陆过期失效"},"401");
 			return null;
 		}else{
 			return API.callSrv(_login_url+"/"+_user[_user_login],{},function(user){
 				_store_user(user);
-				callback(user);
+				if(typeof callback == "function") callback(user);
 			},function(err){
-				errorback(err);
+				if(typeof errorback == "function") errorback(err);
 			});
 		}
 		
@@ -252,10 +250,25 @@ define('app/api',['jquery','app/digests'],function($,DIGESTS) {
 		    	retData = ret
 		    },
 		    error:function(xhr,status,error){
-		    	_error('系统错误,'+url+'数据不存在');
+		    	APP.notice('','系统错误,'+url+'数据不存在','error');
 		    }
 		});
 		return retData;  
+	}
+	/**
+	 * 获取模块按钮（功能权限）
+	 * @param  {String} role 权限前缀 如: sys:role:
+	 * @param  {Object} btns 功能/按钮对象 如{"sys:role:addRecord" : addRecord,"sys:role:assignRole" : {"text":"XX"}}
+	 * @return  {Array} 功能/按钮数组 如:["addRecord","saveRecord",{"text":"XX",action:function}]
+	 */
+	API.getButtons = function(role,btns){
+		//var permissions = API.jsonData("system/role/permissions/"+role+"/"+_local_user()[_user_login]);
+		var permissions = ["sys:role:addRecord","sys:role:saveRecord","sys:role:deleteRecord","sys:role:assignRole"];
+		var buttons = new Array();
+		for(var i=0;i<permissions.length;i++){
+			if(btns[permissions[i]]) buttons.push(btns[permissions[i]]);
+		}
+		return buttons;
 	}
 	return API;
 });

@@ -111,7 +111,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 					$.ajax({
 			            type: "GET",
 			            cache: false,
-			            url: url,
+			            url: ((url.indexOf("?") >0) ? (url.split("?")[0]+".html?" + url.split("?")[1]) : url+".html"),
 			            data: data,
 			            dataType: "html",
 			            success: function(res) {
@@ -606,13 +606,13 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	 * @param  {String} mid modal显示div的id,参数不为空则src页面必须为<div class='modal fade'>下的页面
 	 * @param  {opts} mid为空时指定标题,传递参数
 	 */
-	APP.showModal = function(src,mid,opts){
+	APP.showModal = function(src,mid,opts,callback,errorback){
 		opts = opts || {title : '标题'};
 		require(['bootstrap'],function(){
 			$.ajax({
 	            type: "GET",
 	            cache: false,
-	            url: src,
+	            url: ((src.indexOf("?") >0) ? (src.split("?")[0]+".html?" + src.split("?")[1]) : src+".html"),
 	            data:opts.param,
 	            dataType: "html",
 	            success: function(html) {
@@ -627,6 +627,8 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 		            			if($('#'+mid).data("js-main")) m[$('#'+mid).data("js-main")].apply(this);
 		            			else m.init(data);
 		            		})
+		            	}else if(typeof callback === 'function'){
+		            		callback.call(this);
 		            	}
 						$('#'+mid).modal('show');
 	            	}else{
@@ -649,6 +651,9 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	            	
 	            },
 	            error: function(xhr, ajaxOptions, thrownError) {
+	            	if(typeof errorback === 'function'){
+	            		errorback.call(this,xhr);
+	            	}
 	            	_sysError("页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
 	            }
 	        });

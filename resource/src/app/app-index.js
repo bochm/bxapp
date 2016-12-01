@@ -423,37 +423,9 @@ define(['jquery','app/common'],function($,APP) {
         	$('body').addClass('page-header-fixed-mobile');
         }
     };
-    function _initLoginForm(){
-    	require(['app/form'],function(FM){
-    		$('form.login-form').initForm({
-    			headers : {},
-    			beforeSubmit : function(formData, jqForm, options){
-    				APP.blockUI({target:'.content',message:'登陆中',gif : 'form-submit'});
-    				options.url = (options.url + "/" + formData[0].value);
-    				return true;
-    			},
-    			success:function(response, status){
-    				APP.unblockUI('.content');
-    				if(response.ERROR){
-    					APP.error(response);
-    				}else{
-    					API.storeUser(response);
-        				$('.login-page').slideUp('slow',function() {
-        					$(this).remove();
-        					APP.initIndex();
-        		    	});
-    				}
-    				
-    			},
-    			error:function(err){
-    				if(APP.debug)console.log(err);
-    				APP.unblockUI('.content');
-    				APP.sysError();
-    			}
-    		});
-    	})
-    }
-    APP.showLogin = function(){
+    
+    
+    /*APP.showLogin = function(){
     	$('body').fadeOut('fast',function(){
     		APP.loadPage('body','login.html',{},function(){
     			$('body').removeClass().addClass('login').show();
@@ -463,17 +435,15 @@ define(['jquery','app/common'],function($,APP) {
     	    	});
     		})
     	});
-    };
+    };*/
     APP.showIndex = function(){
     	API.getUser(function(user){
     		APP.initIndex();
-    	},function(err){
-			APP.sysError();
     	});
     }
     APP.initIndex = function(){
     	$('body').removeClass().addClass('page-header-fixed page-sidebar-fixed').css('display','none');
-		APP.loadPage('body','main.html',{},function(){
+		APP.loadPage('body','main',{},function(){
 			handleFixedSidebar();
 	    	handleOnResize();
 	    	handleSidebarMenu();
@@ -483,7 +453,7 @@ define(['jquery','app/common'],function($,APP) {
 	    	APP.addResizeHandler(handleFixedSidebar);
 	    	APP.addResizeHandler(handleSidebarAndContentHeight);
 	    	require(['domReady!'],function(doc){
-	    		$('body').fadeIn('fast');		
+	    		$('body').fadeIn('slow');		
 	    	});
 	    	$("a[data-toggle='refresh-page']").on('click',function(){
 	    		//APP.showLogin();

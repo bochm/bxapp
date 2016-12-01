@@ -34,7 +34,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 			"expandable": true,"expandBtn" : true,
 			"columns": columns,"columnDefs": columnDefs,
 			"buttons" : ['addRecord','saveRecord','deleteRecord'],
-			"addEditModal" : {"url" : "pages/system/menu/menu-edit.html","id":"system-menu-edit"},
+			"addEditModal" : {"url" : "pages/system/menu/menu-edit","id":"system-menu-edit"},
 			"deleteRecord" : function(dt,node,e){
 				APP.confirm('','是否删除选择的菜单及包含的所有子菜单?',function(){
 					API.postJson("system/menu/delete",dt.selectedColumn("id"),null,function(ret,status){
