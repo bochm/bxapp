@@ -348,7 +348,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(APP.debug)console.log(response);
 				APP.unblockUI(_in_modal);
 				if(response.OK){
-					APP.notice('',response[API.MSG],'success',_in_modal,true);
+					APP.notice('',response[API.MSG],'success',_in_modal,opts.autoClose);
 					//动态更新规格，否则会造成重复提交验证不通过
 					_this.find('.checkExists').each(function(){
 						var _c_form_field = $(this);
