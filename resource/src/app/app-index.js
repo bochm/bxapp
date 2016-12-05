@@ -424,10 +424,38 @@ define(['jquery','app/common'],function($,APP) {
         }
     };
     
-    
-    /*APP.showLogin = function(){
+    function _initLoginForm(){
+    	require(['app/form'],function(FM){
+    		$('form.login-form').initForm({
+    			headers : {},
+    			beforeSubmit : function(formData, jqForm, options){
+    				APP.blockUI({target:'.login-page',message:'登陆中',gif : 'form-submit'});
+    				options.url = (options.url + "/" + formData[0].value);
+    				return true;
+    			},
+    			success:function(response, status){
+    				APP.unblockUI('.login-page');
+    				if(response.ERROR){
+    					APP.error(response);
+    				}else{
+    					API.storeUser(response);
+        				$('.login-page').slideUp('slow',function() {
+        					$(this).remove();
+        					APP.initIndex();
+        		    	});
+    				}
+    			},
+    			error:function(err){
+    				if(APP.debug)console.log(err);
+    				APP.unblockUI('.login-page');
+    				APP.sysError();
+    			}
+    		});
+    	})
+    }
+    function _showLogin(){
     	$('body').fadeOut('fast',function(){
-    		APP.loadPage('body','login.html',{},function(){
+    		APP.loadPage('body','login',{},function(){
     			$('body').removeClass().addClass('login').show();
     			$('.login-page').slideDown('fast',function(){
     				document.forms[0].loginname.focus();
@@ -435,10 +463,13 @@ define(['jquery','app/common'],function($,APP) {
     	    	});
     		})
     	});
-    };*/
+    }
     APP.showIndex = function(){
-    	API.getUser(function(user){
+    	API.getLoginUser(function(user){
     		APP.initIndex();
+    	},function(ret,status){
+    		if(status == "401") _showLogin();
+    		else APP.error(ret);
     	});
     }
     APP.initIndex = function(){

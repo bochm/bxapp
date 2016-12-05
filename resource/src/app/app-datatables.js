@@ -274,11 +274,11 @@ define('app/datatables',['jquery','app/common','app/api',
 			}
 			var _field_opts = _form.fieldOpts || {};
 			var form_opts = {formAction : type,clearForm : true,autoClear : true,type : 'post',validate : _form_validate,fieldOpts:_field_opts,
-					rules : _form.rules,formData : null,url:((_form.url || $(_form.el).attr("action")) + "/" + type)};
+					autoClose : false,rules : _form.rules,formData : null,url:((_form.url || $(_form.el).attr("action")) + "/" + type)};
 			if(type == 'save') {
 				form_opts.formData = dt.selectedRows()[0];
 				form_opts.clearForm = false;
-				//form_opts.autoClear = false;
+				form_opts.autoClose = true;
 			}
 			require(['app/form'],function(FORM){
 				$(_form.el).initForm(form_opts,function(data){

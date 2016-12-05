@@ -31,6 +31,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 	function inti_table(param){
 		$('table.datatable').treetable({
 			"tid":"id","tpid":"parentId",
+			"scrollY": "390px",autoWidth:true,
 			"expandable": true,"expandBtn" : true,
 			"columns": columns,"columnDefs": columnDefs,
 			"buttons" : ['addRecord','saveRecord','deleteRecord'],
@@ -69,7 +70,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 				 formAction : act,validate : {},clearForm : true,url:"system/menu/"+act,
 				 fieldOpts : {
 					 "icon" : {"templateResult" : sys_menuedit_formatResult, "templateSelection":sys_menuedit_formatResult},
-					 "parentMenuName" : {"view" : {"selectedMulti": false}}
+					 "parentMenuName" : {"view" : {"selectedMulti": false},"queryTools" : true}
 				 },
 				 onSuccess : function(ret){
 					 $.fn.zTree.getZTreeObj('system_menu_forms_parentTree').reAsyncChildNodes(null, "refresh");

@@ -533,10 +533,11 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	 * @param  {String} text  通知主体
 	 * @param  {String} type  通知类型 error|warning|info|light default:info 
 	 * @param  {String} ele  显示位置 调用alertS
+	 * @param  {Boolean} autoClose 显示的容器(modal)是否自动关闭
 	 */
-	APP.notice = function(title,text,type,ele){
+	APP.notice = function(title,text,type,ele,autoClose){
 		if(!APP.isEmpty(ele)){
-			APP.alertS(title,text,type,ele);
+			APP.alertS(title,text,type,ele,autoClose);
 		}else{
 			require(['jquery/gritter'],function(){
 				$.gritter.add({
@@ -557,8 +558,9 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	 * @param  {String} message 提示内容
 	 * @param  {String} type  通知类型 error|warning|info|success default:info 
 	 * @param  {String} ele  显示位置
+	 * @param  {Boolean} autoClose 显示的容器(modal)是否自动关闭
 	 */
-	APP.alertS = function(title,message,type,ele){
+	APP.alertS = function(title,message,type,ele,autoClose){
 		var default_options = {
 			ele: ele ? ele : "body",
 			type: type ? type : "info",
@@ -596,6 +598,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	    if (default_options.delay > 0) {
 	    	$alert.delay(default_options.delay).slideUp('500',function() {
 	    		$(this).remove();
+	    		if(autoClose) $(default_options.ele).parent('.modal').modal('hide');
 	    	});
 	    }
 	};
@@ -673,35 +676,49 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	 * @param  {String} title 标题
 	 * @param  {String} text 内容
 	 * @param  {String} type error', 'warning', 'info', 'success
+	 * @param  {String} ele alertS显示容器,一般用于modal中
+	 * @param  {Boolean} autoClose 显示的容器(modal)是否自动关闭
 	 */
-	APP.alert = function(title,text,type){
-		require(['sweetalert'],function(){
-			swal({title : title, text : APP.isEmpty(text) ? '' : text, 
-					type : APP.isEmpty(type) ? 'success' : type,
-							confirmButtonText:'确定',cancelButtonText : '取消'});
-		});
+	APP.alert = function(title,text,type,ele,autoClose){
+		if(ele){
+			APP.alertS(title,text,type,ele,autoClose);
+		}else{
+			require(['sweetalert'],function(){
+				swal({title : title, text : APP.isEmpty(text) ? '' : text, 
+						type : APP.isEmpty(type) ? 'success' : type,
+								confirmButtonText:'确定',cancelButtonText : '取消'});
+			});
+		}
+		
 	};
 	/**
 	 * APP.alert简单的info
-	 * @param  {String} text 内容
+	 * @param  {String} msg 内容
+	 * @param  {Dom} ele alertS显示的容器
+	 * @param  {Boolean} autoClose 显示的容器(modal)是否自动关闭
 	 */
-	APP.info = function(text){
-		APP.alert('',text,'info');
+	APP.info = function(msg,ele,autoClose){
+		if(typeof msg == 'object') APP.alert('',msg[API.MSG],'info',ele,autoClose);
+		else APP.alert('',msg,'info',ele,autoClose);
 	};
 	/**
 	 * APP.alert简单的success
-	 * @param  {String} text 内容
+	 * @param  {String} msg 内容
+	 * @param  {Dom} ele alertS显示的容器
+	 * @param  {Boolean} autoClose 显示的容器(modal)是否自动关闭
 	 */
-	APP.success = function(text){
-		APP.alert('',text,'success');
+	APP.success = function(msg,ele,autoClose){
+		if(typeof msg == 'object') APP.alert('',msg[API.MSG],'success',ele,autoClose);
+		else APP.alert('',msg,'success',ele,autoClose);
 	};
 	/**
 	 * APP.alert简单的error
 	 * @param  {String/Object} error 内容或者错误对象
+	 * @param  {Dom} ele alertS显示的容器
 	 */
-	APP.error = function(error){
-		if(typeof error == 'object') APP.alert('',error[API.MSG],'error');
-		else APP.alert('',error,'error');
+	APP.error = function(error,ele){
+		if(typeof error == 'object') APP.alert('',error[API.MSG],'error',ele,false);
+		else APP.alert('',error,'error',ele,false);
 	};
 	/**
 	 * APP.alert系统全局的error

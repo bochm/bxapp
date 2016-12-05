@@ -95,6 +95,11 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 	$.fn.tree = function(settings,zNodes){
 		var _this = $(this);
 		var _nodeData = zNodes;
+		var tree_id = _this.attr("id")
+		if(APP.isEmpty(tree_id)){
+			alert("请指定tree的id属性");
+			return null;
+		}
 		if(settings){
 			if(settings.stmID && settings.async === undefined && zNodes === undefined){//增加stmID选项获取sqlMapper的sqlID获取数组数据
 				var url = settings.url || API.stmidListUrl;
@@ -112,11 +117,18 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 					_nodeData = ret;
 				});*/
 			}
+			//默认显示图标,显示自定义字体图标判断
+			if(settings.view == undefined) settings.view = {};
+			if(settings.view.showIcon == undefined) settings.view.showIcon = true;
 		}
+		
 		var tree_settings = $.extend(true,{
 			view: {
 				dblClickExpand: true,
-				nameIsHTML: true
+				nameIsHTML: true,
+				fontCss: function(treeId, treeNode){
+					return (!!treeNode.highlight) ? {color:"#428bca", "font-weight":"bold"} : {color:"#333", "font-weight":"normal"};
+				}
 			},
 			data: {
 				simpleData: {
@@ -125,12 +137,12 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 			},
 			callback: {
 				onNodeCreated : function(event, treeId, treeNode) {
-			        if (treeNode.icons) {//iconfont FontAwesome 两种字体
+			        if (settings.view.showIcon && treeNode.icons) {//iconfont FontAwesome 两种字体
 			            $('#'+ treeNode.tId +'_a').addClass(treeNode.icons.indexOf('iconfont') == 0 ? 'icon_fonts' : "icons")
 			            						  .find('> span.button').append('<i class="'+ treeNode.icons +'"></i>');
 			        }
 			        if (settings.onNodeCreated) {
-			        	settings.onNodeCreated.toFunc().call(this, event, treeId, treeNode)
+			        	settings.onNodeCreated.call(this, event, treeId, treeNode)
 			        }
 			    },
 	            onCollapse: function(event, treeId, treeNode) {
@@ -138,7 +150,7 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 	                    $('#'+ treeNode.tId +'_ico').find('> i').attr('class', treeNode.iconsClose)
 	                }
 	                if (settings.onCollapse) {
-	                	settings.onCollapse.toFunc().call(this, event, treeId, treeNode);
+	                	settings.onCollapse.call(this, event, treeId, treeNode);
 	                }
 	            },
 	            onExpand : function(event, treeId, treeNode) {
@@ -146,12 +158,64 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 	                    $('#'+ treeNode.tId +'_ico').find('> i').attr('class',treeNode.icons)
 	                }
 	                if (settings.onExpand) {
-	                	settings.onExpand.toFunc().call(this, event, treeId, treeNode);
+	                	settings.onExpand.call(this, event, treeId, treeNode);
 	                }
 	            }
 			}
 		},settings);
-		return $.fn.zTree.init(_this, tree_settings, _nodeData);
+		
+		var zTree_obj = $.fn.zTree.init(_this, tree_settings, _nodeData);
+		//树形搜索工具
+		if(tree_settings.queryTools){
+			var nodes = [];
+			var queryContent = $("<div class='input-group'>");
+			queryContent.html("<span class='input-group-btn'>"+
+					"<button type='button' class='btn blue dropdown-toggle' data-toggle='dropdown' tabindex='-1'>"+
+					"<i class='fa fa-angle-down'></i></button><ul class='dropdown-menu' role='menu'>"+
+					"<li><a href='#' class='expand'>展开</a></li>"+
+					"<li><a href='#' class='collapse'>收起</a></li></ul></span>"+
+					"<input type='text' class='form-control'>"+
+					"<span class='input-group-btn'>"+
+					"<button class='btn blue btn-query' type='button'><i class='fa fa-search'></i></button></span>");
+			//treeselect放在同级隐藏域中
+			if(_this.hasClass("treeSelect")) _this.before(queryContent);
+			else _this.parent().before(queryContent);
+			var queryInput = queryContent.find('input');
+			queryInput.on('keyup',function(e){
+				if (e.keyCode == 13 || (e.keyCode == 8 && (this.value.length == 0))) {
+					queryTree();
+                }
+			});
+			queryContent.find('button.btn-query').on('click',queryTree);
+			queryContent.find('a.expand').on('click',function(){zTree_obj.expandAll(true)});
+			queryContent.find('a.collapse').on('click',function(){zTree_obj.expandAll(false)});
+			function updateNodes(highlight) {
+				for( var i=0, l=nodes.length; i<l; i++) {
+					nodes[i].highlight = highlight;
+					zTree_obj.updateNode(nodes[i]);
+					if(highlight)expandNodeParent(nodes[i]);
+				}
+			}
+			function expandNodeParent(node){
+				var parentNode = node.getParentNode();
+				if(parentNode != null ){
+					zTree_obj.expandNode(parentNode, true, false, true);
+					expandNodeParent(parentNode);
+				}
+			}
+			function queryTree(){
+				var value = $.trim(queryInput.val());
+				if (value != '') {
+					updateNodes(false);
+					nodes = zTree_obj.getNodesByParamFuzzy("name",value);
+					updateNodes(true);
+		        }else{
+		        	updateNodes(false);
+		        }
+			}
+		}
+		
+		return zTree_obj;
 	}
 	
 	

@@ -348,7 +348,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(APP.debug)console.log(response);
 				APP.unblockUI(_in_modal);
 				if(response.OK){
-					APP.notice('',response[API.MSG],'success',_in_modal);
+					APP.notice('',response[API.MSG],'success',_in_modal,true);
 					//动态更新规格，否则会造成重复提交验证不通过
 					_this.find('.checkExists').each(function(){
 						var _c_form_field = $(this);
@@ -620,7 +620,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			
 			_parent.append(inputGroup);//将input-group放入当前控件原父节点
 			var menuContent = $("<div id='"+treeId+"_MenuContent' style='display:none;height: 150px;overflow-y: auto; background-color: #F5F5F5;'></div>");//下拉菜单显示层
-			var treeSel = $("<ul id='"+treeId+"' class='ztree' style='margin-top:0; width:100%;'></ul>");//ztree控件
+			var treeSel = $("<ul id='"+treeId+"' class='ztree treeSelect' style='margin-top:0; width:100%;'></ul>");//ztree控件
 			menuContent.append(treeSel);//将树形放入下拉菜单显示层
 			_parent.append(menuContent);//将下拉菜单显示层放入当前节点原父节点
 			

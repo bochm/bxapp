@@ -5,7 +5,7 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 	$.support.cors = true;//ie9必须
 	var _rp_token = "rp_token"; //服务端token名称,服务端验证header中的token名称
 	var _user_name = "loginname";//服务端用户登陆名称,header中的名称
-	var _user_login = 'loginName';//客户端获取用户登陆名,user对象的getLoginName
+
 	var _us_token = "rsToken";//服务端返回token名称,user对象的getRsToken
 	var _login_url = "login";//获取服务端user对象的URL
 	var _dict_srv_url = "system/dict/query/";//服务端字典数据获取URL
@@ -35,7 +35,7 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 			if(errorback && typeof errorback === 'function') errorback({"status":"401" ,"message":"登陆过期失效"},"401");
 			return false;
 		}
-		request.setRequestHeader(_user_name,_user[_user_login]);
+		request.setRequestHeader(_user_name,_user[_user_name]);
 		request.setRequestHeader(_rp_token,DIGESTS.hex_hmac_sha256(_user[_us_token], encodeURI(url)));
 		return true;
 	}
@@ -68,7 +68,7 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
     function _initLoginForm(url,data,type,isSync,callback,errorback){
     	var local_user = _local_user();
     	if(local_user != null && _local_user != undefined) {
-    		document.forms['login-form'].loginname.value = local_user[_user_login];
+    		document.forms['login-form'].loginname.value = local_user[_user_name];
     	}
     	$('form.login-form').initForm({
         	headers : {},
@@ -91,7 +91,8 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
         		}else{
         			API.storeUser(response);
         			$('#sys-login').modal('hide');
-        			if(url)_ajax(url,data,type,isSync,callback,errorback);
+        			if(url != undefined && url != null)_ajax(url,data,type,isSync,callback,errorback);
+        			else if(typeof callback == 'function') callback(response);
         		}
         		
         	},
@@ -110,7 +111,7 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 	 * @param  {Function} callback 成功回调函数
 	 * @param  {Function} errorback 失败回调函数
 	 */
-	function _ajax(url,data,type,isSync,callback,errorback){
+	function _ajax(url,data,type,isSync,callback,errorback,indexLogin){
 		var _url = API.ctx + url;
 		var async = true;
 		if(isSync != undefined || isSync != null) async = isSync;
@@ -128,7 +129,7 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 			},
 		    success:function(ret,status){
 		    	if(ret.ERROR){
-		    		if(ret[API.STATUS] == "401"){
+		    		if(ret[API.STATUS] == "401" && indexLogin === undefined){
 		    			_showLogin(url,data,type,isSync,callback,errorback);
 		        	}
 		    		else if(typeof errorback === 'function'){
@@ -196,14 +197,26 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 		var _user = _local_user();
 		if(_user == null || _user == undefined){
 			if(typeof errorback == "function") errorback({"status":"401" ,"message":"登陆过期失效"},"401");
+			else _showLogin(null,null,null,null,callback,errorback);
 			return null;
 		}else{
-			return API.callSrv(_login_url+"/"+_user[_user_login],{},function(user){
+			return _user;
+		}
+		
+	}
+	//首页获取user
+	API.getLoginUser = function(callback,errorback){
+		var _user = _local_user();
+		if(_user == null || _user == undefined){
+			if(typeof errorback == "function") errorback({"status":"401" ,"message":"登陆过期失效"},"401");
+			return null;
+		}else{
+			return _ajax(_login_url+"/"+_user[_user_name],{},'POST',true,function(user){
 				_store_user(user);
 				if(typeof callback == "function") callback(user);
-			},function(err){
-				if(typeof errorback == "function") errorback(err);
-			});
+			},function(err,status){
+				if(typeof errorback == "function") errorback(err,status);
+			},true);
 		}
 		
 	}
@@ -262,7 +275,7 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 	 * @return  {Array} 功能/按钮数组 如:["addRecord","saveRecord",{"text":"XX",action:function}]
 	 */
 	API.getButtons = function(role,btns){
-		//var permissions = API.jsonData("system/role/permissions/"+role+"/"+_local_user()[_user_login]);
+		//var permissions = API.jsonData("system/role/permissions/"+role+"/"+_local_user()[_user_name]);
 		var permissions = ["sys:role:addRecord","sys:role:saveRecord","sys:role:deleteRecord","sys:role:assignRole"];
 		var buttons = new Array();
 		for(var i=0;i<permissions.length;i++){

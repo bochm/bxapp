@@ -72,11 +72,6 @@ website:    http://code.google.com/p/jquerytree/
 .ztree li span.button.ico_open{margin-right:2px; background-position: -147px -21px; vertical-align:top; *vertical-align:middle}
 .ztree li span.button.ico_close{margin-right:2px; margin-right:2px; background-position: -147px 0; vertical-align:top; *vertical-align:middle}
 .ztree li span.button.ico_docu{margin-right:2px; background-position: -147px -42px; vertical-align:top; *vertical-align:middle}
-/*自定义图标修改  bcm*/
-.ztree li a.icons > span.button > i{font-family:'FontAwesome' !important;}
-.ztree li a.icons > span.button{text-indent:-3px; font-size:15px; margin-top:2px; line-height:17px; text-align:center; background:none !important;}
-.ztree li a.icon_fonts > span.button > i{font-family:'iconfont' !important;}
-.ztree li a.icon_fonts > span.button{text-indent:-3px; font-size:15px; margin-top:2px; line-height:17px; text-align:center; background:none !important;}
 
 .ztree li span.button.edit {margin-left:2px; margin-right: -1px; background-position: -189px -21px; vertical-align:top; *vertical-align:middle}
 .ztree li span.button.edit:hover {
@@ -100,3 +95,11 @@ span.tmpzTreeMove_arrow {width:16px; height:21px; display: inline-block; padding
 
 ul.ztree.zTreeDragUL {margin:0; padding:0; position:absolute; width:auto; height:auto;overflow:hidden; background-color:#cfcfcf; border:1px #00B83F dotted; opacity:0.8; filter:alpha(opacity=80)}
 .ztreeMask {z-index:10000; background-color:#cfcfcf; opacity:0.0; filter:alpha(opacity=0); position:absolute}
+
+
+/*自定义图标修改  bcm*/
+.ztree li a.icons > span.button > i{font-family:'FontAwesome' !important;}
+.ztree li a.icons > span.button{text-indent:-3px; font-size:15px; margin-top:2px; line-height:17px; text-align:center; background:none !important;}
+.ztree li a.icon_fonts > span.button > i{font-family:'iconfont' !important;}
+.ztree li a.icon_fonts > span.button{text-indent:-3px; font-size:15px; margin-top:2px; line-height:17px; text-align:center; background:none !important;}
+
