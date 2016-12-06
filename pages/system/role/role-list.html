@@ -1,6 +1,12 @@
-<div class="loading-page" data-js-module="module/system/role">
+<div class="loading-page" data-js-module="module/system/role" data-permission="sys:org">
 <span id="table-system-role-list-toolbar">
-<a class="btn btn-sm btn-primary btn-selectOne" data-role="permissionRole"><i class='fa fa-unlock'></i> 权限</a>
+	<a data-role="addRecord" data-permission="add"/>
+	<a data-role="saveRecord" data-permission="save"/>
+	<a data-role="deleteRecord" data-permission="delete"/>
+	<a class="btn btn-sm btn-primary btn-selectOne" data-permission="assignRole" 
+	data-role="assignRole"><i class='fa fa-share-alt'></i> 分配</a>
+	<a class="btn btn-sm btn-primary btn-selectOne" data-permission="permissionRole" 
+	data-role="permissionRole"><i class='fa fa-unlock'></i> 权限</a>
 </span>
 <table id="table-system-role-list" class="table datatable table-bordered nowrap"  data-url="system/role" 
 	data-paging="true" data-info="true" data-ordering="true">

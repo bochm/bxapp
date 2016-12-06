@@ -441,7 +441,7 @@ define(['jquery','app/common'],function($,APP) {
     					API.storeUser(response);
         				$('.login-page').slideUp('slow',function() {
         					$(this).remove();
-        					APP.initIndex();
+        					APP.initIndex(response);
         		    	});
     				}
     			},
@@ -464,17 +464,43 @@ define(['jquery','app/common'],function($,APP) {
     		})
     	});
     }
+    function _initMenu(menus){
+    	var menubar =  $("ul#index-page-sidebar-menu");
+    	var home = menus[0];
+    	menubar.append("<li class='start active' data-menu-id='"+home.id+"'>" +
+    			"<a href="+((APP.isEmpty(home.target) || home.target == '#') ? "'#'" : "'"+home.target+"' class='act-menu'")+">" +
+				"<i class='"+home.icon+"'></i><span class='title'>"+home.name+"</span><span class='selected'></span></a></li>");
+    	for(var i=1;i<menus.length;i++){
+    		var m = menus[i];
+    		if(APP.isEmpty(m.parent_id)){
+    			menubar.append("<li data-menu-id='"+m.id+"'>" +
+    					"<a href="+((APP.isEmpty(m.target) || m.target == '#') ? "'#'" : "'"+m.target+"' class='act-menu'")+">" +
+    					"<i class='"+m.icon+"'></i><span class='title'>"+m.name+"</span><span class='selected'></span></a></li>");
+    		}else{
+    			var pmenu = menubar.find("li[data-menu-id='"+m.parent_id+"']");
+    			if(pmenu.children("ul.sub-menu").length == 0){
+    				pmenu.children("a").append("<span class='arrow'></span>");
+    				pmenu.append("<ul class='sub-menu'>");
+    			}
+    			pmenu.children("ul.sub-menu").append("<li data-menu-id='"+m.id+"'>" +
+    					"<a href="+((APP.isEmpty(m.target) || m.target == '#') ? "'#'" : "'"+m.target+"' class='act-menu'")+">" +
+    					"<i class='"+m.icon+"'></i>"+m.name+"</a></li>");
+    		}
+    	}
+    }
     APP.showIndex = function(){
     	API.getLoginUser(function(user){
-    		APP.initIndex();
+    		APP.initIndex(user);
     	},function(ret,status){
     		if(status == "401") _showLogin();
     		else APP.error(ret);
     	});
     }
-    APP.initIndex = function(){
+    APP.initIndex = function(user){
     	$('body').removeClass().addClass('page-header-fixed page-sidebar-fixed').css('display','none');
 		APP.loadPage('body','main',{},function(){
+			var menus = API.jsonData('system/index/menu/'+user.id);
+			_initMenu(menus);
 			handleFixedSidebar();
 	    	handleOnResize();
 	    	handleSidebarMenu();
@@ -491,7 +517,7 @@ define(['jquery','app/common'],function($,APP) {
 	    		//if($currPage) APP.loadPage('div.page-content',$currPage);
 	    	})
 	    	//主页点击
-	    	$('.page-sidebar li > a.act-menu:first').click();
+	    	//$('.page-sidebar li > a.act-menu:first').click();
 		},function(err){
 			APP.error(err);
 		});

@@ -242,7 +242,7 @@ define('app/datatables',['jquery','app/common','app/api',
 	/**
      * 表格默认新增修改方法
      */
-	function _addEditRecord(dt, node,e,type){
+	function _addEditRecord(e,dt, node,type){
 		var _options = dt.init();
 		if(typeof _options.addRecord === 'function' && type == 'add'){
 			_options.addRecord(dt,node,e);
@@ -294,7 +294,7 @@ define('app/datatables',['jquery','app/common','app/api',
 	/**
      * 表格默认删除方法
      */
-	function _deleteRecord(dt,node,e){
+	function _deleteRecord(e,dt,node){
 		if(dt.selectedCount() < 1){
 			APP.info('请选择需要删除的记录');
 			return;
@@ -325,7 +325,7 @@ define('app/datatables',['jquery','app/common','app/api',
 		text: "<i class='fa fa-copy'></i> 新增",
 		className: 'btn btn-sm btn-primary',
 		action: function ( e, dt, node, config ) {
-			_addEditRecord(dt, node,e,'add');
+			_addEditRecord(e,dt, node,'add');
 		}
 	};
 	/**
@@ -339,7 +339,7 @@ define('app/datatables',['jquery','app/common','app/api',
 				APP.info('请选择一条需要修改的记录');
 				return;
 			}
-			_addEditRecord( dt, node,e,'save');
+			_addEditRecord(e, dt, node,'save');
 		}
 	};
 	/**
@@ -349,7 +349,7 @@ define('app/datatables',['jquery','app/common','app/api',
 		text: "<i class='fa fa-trash-o'></i> 删除",
 		className: 'btn btn-sm btn-warning btn-selectMore',
 		action: function ( e, dt, node, config ) {
-			_deleteRecord(dt,node,e);
+			_deleteRecord(e,dt,node);
 		}
 	};
 	DataTable.getTable = function(selector){
@@ -380,6 +380,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			"lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "全部"]],
 			"pageLength": 10,
 			"autoWidth": false,
+			"permission" : true, //检测权限,buttons按页面toolbar中的按钮显示
 			"scrollCollapse": true,
 			"select": {style: 'os',info:false},
 			"buttons": [],
@@ -404,22 +405,44 @@ define('app/datatables',['jquery','app/common','app/api',
 	        	}
 	         }
 		},opts);
+		//检测权限,buttons清空,按页面toolbar中的按钮显示
+		if(default_opt.permission){
+			default_opt.buttons = [];
+			$("#"+(default_opt.toolbar ? default_opt.toolbar : (tableid+"-toolbar"))).children().each(function(){
+				var _btn = $(this);
+				if(_btn.html() != "" && _btn.hasClass("btn")){
+					default_opt.buttons.push({
+						text: _btn.html(),
+						className: _btn.attr("class"),
+						action: function ( e, dt, node, config ) {
+							if(typeof default_opt[_btn.data("role")] === 'function') 
+								default_opt[_btn.data("role")](e,dt, _btn.get());
+						}
+					});
+				}else{
+					default_opt.buttons.push(_btn.data("role"));
+				}
+				_btn.remove();
+			});
+		}
 		return _getDataTable(_table,default_opt,function(otable){
 			//初始化表格工具栏 ，增加ID约束
 			var toolbar = $("div#"+tableid+"_wrapper>div.dt-buttons");
 			var pageToolbar = $("#"+(default_opt.toolbar ? default_opt.toolbar : (tableid+"-toolbar")));
-			
-			pageToolbar.find('.btn[data-role]').each(function(){
+			//初始化页面toolbar中的自定义按钮
+			pageToolbar.children('.btn[data-role]').each(function(){
 				var _btn = $(this);
 				var _btn_type = _btn.data('role');
 				_btn.click(function(e){
-					if(_btn_type == 'addRecord') _addEditRecord(otable, _btn.get(),e,'add');
-					else if(_btn_type == 'saveRecord') _addEditRecord(otable, _btn.get(),e,'save');
-					else if(_btn_type == 'deleteRecord') _deleteRecord(otable, _btn.get(),e);
-					else if(typeof default_opt[_btn_type] === 'function') default_opt[_btn_type](otable, _btn.get(),e);
+					if(_btn_type == 'addRecord') _addEditRecord(e,otable, _btn.get(),'add');
+					else if(_btn_type == 'saveRecord') _addEditRecord(e,otable, _btn.get(),'save');
+					else if(_btn_type == 'deleteRecord') _deleteRecord(e,otable, _btn.get());
+					else if(typeof default_opt[_btn_type] === 'function') default_opt[_btn_type](e,otable, _btn.get());
 				});
 			});
-			
+
+			//页面toolbar中的按钮追加至dt-buttons
+			pageToolbar.children().appendTo(toolbar);
 			/*if(opts.exportBtns){
 				var _export_btn_group = $("<div class='btn-group'>");
 				var _export_btn_main = $("<button type='button' class='btn btn-sm btn-info'>测试</button>");
@@ -441,11 +464,10 @@ define('app/datatables',['jquery','app/common','app/api',
 				
 				pageToolbar.prepend(_export_btn_group);
 			}*/
-			pageToolbar.children().appendTo(toolbar);
-			//表格选择一条和多条记录(如新增、删除等必须要选择记录才能启用)按钮禁用约束
-			var _one_btn = toolbar.find('.btn-selectOne');
-			var _more_btn = toolbar.find('.btn-selectMore');
 			
+			//表格选择一条和多条记录(如新增、删除等必须要选择记录才能启用)按钮禁用约束
+			var _one_btn = toolbar.children('.btn-selectOne');
+			var _more_btn = toolbar.children('.btn-selectMore');
 			APP.disableBtn(_one_btn);
 			APP.disableBtn(_more_btn);
 			otable.on( 'draw.dt', function () {

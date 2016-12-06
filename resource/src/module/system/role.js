@@ -3,17 +3,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 	   {"targets": 2,"render" : function(data){return API.getDictName("sys_role_type",data)}},
 	   {"targets": 3,"render" : function(data){return API.getDictName("sys_data_scope",data)}}
 	];
-	var buttons = {
-		"sys:role:addRecord" : "addRecord",
-		"sys:role:saveRecord" : "saveRecord",
-		"sys:role:deleteRecord" : "deleteRecord",
-		"sys:role:assignRole" : {
-			text : "<i class='fa fa-share-alt'></i> 分配",
-			className: 'btn-selectOne',
-			action : assignRole
-		}
-	};
-	function permissionRole(dt,node,e){
+	function permissionRole(e, dt, node){
 		var selectedId = dt.selectedRows()[0].id;
 		APP.showModal("pages/system/role/role-permissions","system-role-permissions",{},function(){
 			var tree = $("#system-role-permissions-tree").tree({
@@ -80,7 +70,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 			"scrollY": "400px",
 			"autoWidth": true,
 			"columnDefs" : columnDefs,
-			"buttons":API.getButtons("sys:role:",buttons),
+			"permission" : true,
 			"deleteRecord" : {"url" : 'system/role/delete',"id" : 'id'},
 			"addEditForm" : {
 				"el" : "#system-role-edit-form",
@@ -89,7 +79,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 						"messages":{"checkExists" : "已存在该英文名称"}}
 				}
 			},
-			"permissionRole" : permissionRole
+			"permissionRole" : permissionRole,"assignRole" : assignRole
 		},function(dt){
 			
 		});

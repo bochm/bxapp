@@ -14,13 +14,30 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 		"company.id" : {param : {type : "公司"}},
 		"dept.id" : {param : {type : "部门"}}
 	}
-	
+	function _update_user(e,dt,node){
+		if(dt.selectedCount() != 1){
+			APP.info('请选择一条需要修改的用户');
+			return;
+		}
+		$('#sys-user-password').removeClass('required');//密码不填写视为不修改密码
+		$('#system-user-edit-form').initForm({
+			url : "system/user/save.json",clearForm : false,formAction : "save",autoClear : true,type : 'post',rules : form_rules,
+			formData : dt.selectedRows()[0],fieldOpts : field_opts
+		},function(data){
+			dt.updateSelectedRow(data);
+		});
+		//修改时密码显示为空
+		$('#sys-user-password').attr('type','text');
+		$('#sys-user-password').val('');
+		$('#sys-user-password').attr('type','password');
+		$('#system-user-list-edit').modal('show');
+	}
 	function inti_table(param){
 		$('table.datatable').initTable({
 			"title" : "用户表",
 			"params" : param, //测试
 			"scrollY": "350px",
-			"buttons":["excel","addRecord"],
+			"permission":true,
 			"deleteRecord" : {url : 'system/user/delete',id : 'id'},
 			"addRecord" : function(dt){
 				if(!$('#sys-user-password').hasClass('required'))$('#sys-user-password').addClass('required');//新增必须输入密码
@@ -31,29 +48,15 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 					dt.addRow(data);
 				});
 				$('#system-user-list-edit').modal('show');
-			}
+			},
+			"updateUser" : _update_user
 		},function(otable){
 			userTable = otable;
 		});
 	}
 	function handleEdit(){
 		$("#system-user-list-edit-btn").click(function(){
-			if(userTable.selectedCount() != 1){
-				APP.info('请选择一条需要修改的用户');
-				return;
-			}
-			$('#sys-user-password').removeClass('required');//密码不填写视为不修改密码
-			$('#system-user-edit-form').initForm({
-				url : "system/user/save.json",clearForm : false,formAction : "save",autoClear : true,type : 'post',rules : form_rules,
-				formData : userTable.selectedRows()[0],fieldOpts : field_opts
-			},function(data){
-				userTable.updateSelectedRow(data);
-			});
-			//修改时密码显示为空
-			$('#sys-user-password').attr('type','text');
-			$('#sys-user-password').val('');
-			$('#sys-user-password').attr('type','password');
-			$('#system-user-list-edit').modal('show');
+			
 		});
 		$("#system-user-edit-form [name='company.id']").on("change",function(){
 			$("#system-user-edit-form [name='company.name']").val($(this).children(":selected").text());
