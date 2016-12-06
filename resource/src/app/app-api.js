@@ -269,19 +269,14 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 		return retData;  
 	}
 	/**
-	 * 获取模块按钮（功能权限）
-	 * @param  {String} role 权限前缀 如: sys:role:
-	 * @param  {Object} btns 功能/按钮对象 如{"sys:role:addRecord" : addRecord,"sys:role:assignRole" : {"text":"XX"}}
-	 * @return  {Array} 功能/按钮数组 如:["addRecord","saveRecord",{"text":"XX",action:function}]
+	 * 获取功能权限
+	 * @param  {String} role 权限前缀 如: sys:role
+	 * @return  {Array} 功能数组 如:["sys:role:add","sys:role:update"]
 	 */
-	API.getButtons = function(role,btns){
-		//var permissions = API.jsonData("system/role/permissions/"+role+"/"+_local_user()[_user_name]);
-		var permissions = ["sys:role:addRecord","sys:role:saveRecord","sys:role:deleteRecord","sys:role:assignRole"];
-		var buttons = new Array();
-		for(var i=0;i<permissions.length;i++){
-			if(btns[permissions[i]]) buttons.push(btns[permissions[i]]);
-		}
-		return buttons;
+	API.getPermission = function(role){
+		var permissions = API.jsonData("system/permissions/"+_local_user().id+"/"+role);
+		//var permissions = ["sys:role:add","sys:role:save","sys:role:delete","sys:role:assignRole"];
+		return permissions;
 	}
 	return API;
 });

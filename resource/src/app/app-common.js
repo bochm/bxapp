@@ -311,7 +311,14 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	        },
 	        //初始化控件
 	        initComponents: function(target){
-	        	
+	        	var page_permission = $(target).data("permission");
+	        	if(page_permission){
+	        		var pmis = API.getPermission(page_permission);
+	        		$(target).find("[data-permission]").each(function(){
+	        			var pm = $(this).data("permission");
+	        			if($.inArray(page_permission+":"+pm,pmis) === -1) $(this).remove();
+	        		});
+	        	}
 	        	APP.initTab(target,false);
 	        	APP.initPopover(target);
 	        	APP.initTooltip(target);
