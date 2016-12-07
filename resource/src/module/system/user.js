@@ -51,7 +51,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			},
 			"updateUser" : _update_user,
 			"queryUser" : function(e,dt,node){
-				dt.query({"company_id":"22c2acc32081486e8594ff7d2fadacb3"});
+				dt.query({"company_id":"d0d128c38b9a400981b6a3ac0e1f805c"});
 			}
 		},function(otable){
 			userTable = otable;

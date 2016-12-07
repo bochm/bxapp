@@ -50,6 +50,7 @@ div.dataTables_length select {
 .dataTables_wrapper .dataTables_filter {
 	float: right;
 	margin-top: 0.3em;
+	margin-right: 2.5em;
 	/* margin-right: 15px;bx add 修过滤位置 预留出滚动条位置  已使用dom方式修改 */
 }
 
@@ -64,6 +65,7 @@ div.dataTables_filter input {
 }
 div.dataTables_filter .icon-search {
 	margin-top: -1.3em;/*bx add 图标位置上移 */
+	cursor: pointer;
 }
 
 div.dataTables_info {

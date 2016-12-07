@@ -380,7 +380,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			"info": false,
 			"lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "全部"]],
 			"pageLength": 10,
-			"autoWidth": false,
+			"autoWidth": true,
 			"permission" : true, //检测权限,buttons按页面toolbar中的按钮显示
 			"scrollCollapse": true,
 			"select": {style: 'os',info:false},
@@ -389,7 +389,11 @@ define('app/datatables',['jquery','app/common','app/api',
 			"createdRow": function (nRow, aData, iDataIndex) {},
 	        "initComplete":function(oSettings, json){
 	        	if(oSettings.searching == undefined || oSettings.searching){ //未定义则为默认启用
-	        		var searchHTML = "<label><div class='input-icon right'><input type='search' class='form-control input-sm' placeholder='请输入搜索内容' aria-controls='"+tableid+"'><i class='iconfont icon-search'></i></div></label>"; 
+	        		var searchHTML = "<label><div class='input-icon left'>" +
+	        				"<input type='search' class='form-control input-sm' placeholder='请输入搜索内容' aria-controls='"+tableid+"'>" +
+	        				"<i class='iconfont icon-search'></i>" +
+	        				"<button class='btn btn-sm green' style='margin-bottom: 2px;'>" +
+	        				"<i class='fa fa-filter fa-lg'/></i></button></div></label>";
 		            $("div#"+tableid+"_wrapper .dataTables_filter").html(searchHTML);
 		            //搜索事件
 		            $("div#"+tableid+"_wrapper .dataTables_filter input").on('keyup',function(e) {
@@ -402,6 +406,9 @@ define('app/datatables',['jquery','app/common','app/api',
 		                if (_input.val().length > 0) {
 		                	_table.dataTable().api().search(_input.val()).draw();
 		                }
+		            });
+		            $("div#"+tableid+"_wrapper .dataTables_filter button").on('click',function(e) {
+		            	alert("do filter");
 		            });
 	        	}
 	         }
@@ -618,15 +625,20 @@ define('app/datatables',['jquery','app/common','app/api',
      * 查询方法
      */
 	DataTable.Api.register( 'query()', function (params,callback) {
-		var opts = this.init();
+		var _table = this;
+		var opts = _table.init();
 		opts.params = params;
-		if(opts.tableType == 'treetable') $("#"+opts.tableId).treetable(opts);
-		else{
-			this.clear().draw();
-			APP.blockUI({'target':$table.get(),'gif':'load-tables'});
-			API.postJson(opts.dataUrl,ajax_params,true,function(ret,status){
-				default_opt.data = ret;
-				APP.unblockUI($table.get());
+		var $table = $("#"+opts.tableId).get();
+		if(opts.tableType == 'treetable'){
+			/*_table.destroy();
+			$("#"+opts.tableId).empty();
+			$("#"+opts.tableId).treetable(opts);*/
+		}else{
+			_table.clear().draw();
+			APP.blockUI({'target':$table,'gif':'load-tables'});
+			API.postJson(opts.dataUrl,params,true,function(ret,status){
+				_table.rows.add(ret).draw();
+				APP.unblockUI($table);
 			});
 		}
 	} );

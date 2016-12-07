@@ -25,7 +25,10 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 			"scrollY": "390px","autoWidth" : true,
 			"buttons" : ['addRecord','saveRecord','deleteRecord'],
 			"addEditModal" : {"url" : "pages/system/org/org-edit","id":"system-org-edit"},
-			"deleteRecord" : delete_record
+			"deleteRecord" : delete_record,
+			"queryUser" : function(e,dt,node){
+				dt.query({"company_id":"d0d128c38b9a400981b6a3ac0e1f805c"});
+			}
 		});
 	}
 	
