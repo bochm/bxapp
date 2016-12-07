@@ -373,6 +373,7 @@ define('app/datatables',['jquery','app/common','app/api',
 		}
 		DataTable.getTable("#"+tableid).destroy();
 		var default_opt = $.extend(true,{
+			"tableId" : tableid,
 			"processing" : true,
 			"serverSide" : false,
 			"paging": false,
@@ -410,17 +411,20 @@ define('app/datatables',['jquery','app/common','app/api',
 			default_opt.buttons = [];
 			$("#"+(default_opt.toolbar ? default_opt.toolbar : (tableid+"-toolbar"))).children().each(function(){
 				var _btn = $(this);
+				var _btn_type = _btn.data('role');
 				if(_btn.html() != "" && _btn.hasClass("btn")){
 					default_opt.buttons.push({
 						text: _btn.html(),
 						className: _btn.attr("class"),
 						action: function ( e, dt, node, config ) {
-							if(typeof default_opt[_btn.data("role")] === 'function') 
-								default_opt[_btn.data("role")](e,dt, _btn.get());
+							if(_btn_type == 'addRecord') _addEditRecord(e,dt, node,'add');
+							else if(_btn_type == 'saveRecord') _addEditRecord(e,dt, node,'save');
+							else if(_btn_type == 'deleteRecord') _deleteRecord(e,dt, node);
+							else if(typeof default_opt[_btn.data("role")] === 'function') default_opt[_btn.data("role")](e,dt, node);
 						}
 					});
 				}else{
-					default_opt.buttons.push(_btn.data("role"));
+					default_opt.buttons.push(_btn_type);
 				}
 				_btn.remove();
 			});
@@ -610,7 +614,22 @@ define('app/datatables',['jquery','app/common','app/api',
 		}
 		return a;
 	} );
-	
+	/**
+     * 查询方法
+     */
+	DataTable.Api.register( 'query()', function (params,callback) {
+		var opts = this.init();
+		opts.params = params;
+		if(opts.tableType == 'treetable') $("#"+opts.tableId).treetable(opts);
+		else{
+			this.clear().draw();
+			APP.blockUI({'target':$table.get(),'gif':'load-tables'});
+			API.postJson(opts.dataUrl,ajax_params,true,function(ret,status){
+				default_opt.data = ret;
+				APP.unblockUI($table.get());
+			});
+		}
+	} );
 	/**
      * 增加一行数据
      */

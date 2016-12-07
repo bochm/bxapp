@@ -484,7 +484,7 @@ define(['jquery','app/common'],function($,APP) {
     			}
     			pmenu.children("ul.sub-menu").append("<li data-menu-id='"+m.id+"'>" +
     					"<a href="+((APP.isEmpty(m.target) || m.target == '#') ? "'#'" : "'"+m.target+"' class='act-menu'")+">" +
-    					"<i class='"+m.icon+"'></i>"+m.name+"</a></li>");
+    					"<i class='"+m.icon+"'></i> "+m.name+"</a></li>");
     		}
     	}
     }

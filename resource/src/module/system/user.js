@@ -49,15 +49,15 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 				});
 				$('#system-user-list-edit').modal('show');
 			},
-			"updateUser" : _update_user
+			"updateUser" : _update_user,
+			"queryUser" : function(e,dt,node){
+				dt.query({"company_id":"22c2acc32081486e8594ff7d2fadacb3"});
+			}
 		},function(otable){
 			userTable = otable;
 		});
 	}
 	function handleEdit(){
-		$("#system-user-list-edit-btn").click(function(){
-			
-		});
 		$("#system-user-edit-form [name='company.id']").on("change",function(){
 			$("#system-user-edit-form [name='company.name']").val($(this).children(":selected").text());
 		})

@@ -3,11 +3,11 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 	var columns = [
 	    { "data": "id","visible" : false},
 	    { "data": "parentId","visible" : false},
-	    { "data": "name","title":"菜单名称"},
-	    { "data": "icon","title":"图标"},
-	    { "data": "target","title":"链接"},
-	    { "data": "status","title":"状态","render" : function(data){return API.getDictName("on_off",data)}},
-	    { "data": "sort","title":"排序号"}
+	    { "data": "name","title":"菜单名称","width": "30%"},
+	    { "data": "icon","title":"图标","width": "7%"},
+	    { "data": "target","title":"链接","width": "30%"},
+	    { "data": "permission","title":"权限"},
+	    { "data": "status","title":"状态","width": "8%","render" : function(data){return API.getDictName("on_off",data)}}
 	];
 	var columnDefs = [	
 	    {
@@ -31,7 +31,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 	function inti_table(param){
 		$('table.datatable').treetable({
 			"tid":"id","tpid":"parentId",
-			"scrollY": "390px",autoWidth:true,
+			"scrollY": "390px","autoWidth" : true,
 			"expandable": true,"expandBtn" : true,
 			"columns": columns,"columnDefs": columnDefs,
 			"buttons" : ['addRecord','saveRecord','deleteRecord'],
@@ -61,9 +61,14 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 	
 	function handleEdit(){
 		var menuTable = DT.getTable("#table-system-menu-list");
-		$("input[name='type']").on("switch:change",function(e,state){
-			if(state) $("input[name='permission']").removeClass('required');
-			else $("input[name='permission']").addClass('required');
+		$("#system-menu-edit-form input[name='type']").on("switch:change",function(e,state){
+			if(state) {
+				$("#system-menu-edit-form input[name='permission']").removeClass('required');
+				$("#system-menu-edit-form select[name='icon']").addClass('required selectOpt');
+			}else{
+				$("#system-menu-edit-form input[name='permission']").addClass('required');
+				$("#system-menu-edit-form select[name='icon']").removeClass('required selectOpt');
+			}
 		})
 		var act = APP.getParameterByName("act");
 		var _formInitOpt = {

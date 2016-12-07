@@ -22,7 +22,7 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 	function inti_table(param){
 		$('table.datatable').treetable({
 			"tid":"id","tpid":"parentId","expandable": true,"expandBtn" : true,"columns": columns,
-			"scrollY": "390px",
+			"scrollY": "390px","autoWidth" : true,
 			"buttons" : ['addRecord','saveRecord','deleteRecord'],
 			"addEditModal" : {"url" : "pages/system/org/org-edit","id":"system-org-edit"},
 			"deleteRecord" : delete_record
