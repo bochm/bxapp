@@ -646,8 +646,10 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
             	var mbody = _html.first();
         		APP.initComponents(mbody.get());
         		modal.find(".modal-body").append(_html);
+        		console.log(mbody.data("js-module"));
 	            if(mbody.data("js-module")){
 	            	require([mbody.data("js-module")],function(m){
+	            		alert("asd");
 	            		if(mbody.data("js-main")) m[mbody.data("js-main")].apply(this);
 	            		else m.init(data);
 	            	})

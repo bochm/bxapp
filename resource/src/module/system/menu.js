@@ -60,6 +60,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 	}
 	
 	function handleEdit(){
+		alert('7777');
 		var menuTable = DT.getTable("#table-system-menu-list");
 		$("#system-menu-edit-form input[name='type']").on("switch:change",function(e,state){
 			if(state) {
