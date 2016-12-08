@@ -256,7 +256,7 @@ define('app/datatables',['jquery','app/common','app/api',
 					if(_modal.url.indexOf("?") >0) _modal_url = _modal.url + '&act='+type;
 					else _modal_url = _modal.url + '?act='+type;
 				}
-				APP.showModal(_modal_url,_modal.id,_modal);
+				APP.showFormModal(_modal_url,_modal.id,_modal);
 			}else{
 				$(_modal).modal('show');
 			}
@@ -424,10 +424,12 @@ define('app/datatables',['jquery','app/common','app/api',
 			            		});
 			            		queryBtn.on('click',function(){
 			            			queryForm.removeClass("hide");
-				            		APP.createModal(tableid+"-query-modal",$(opts.queryForm),{
+				            		APP.modal(tableid+"-query-modal",{
 					            		title : "<i class='fa fa-search'/></i> 查询",
-					            		buttons : {"text" : "查询","classes" : "btn-primary",action : function(){queryForm.submit()}}
-					            	}).modal('show');
+					            		clear : false,
+					            		buttons : {"text" : "查询","classes" : "btn-primary",action : function(){queryForm.submit()}},
+					            		html : $(opts.queryForm)
+					            	});
 				            		
 				            	})
 			            	}

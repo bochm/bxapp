@@ -613,70 +613,14 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	/**
 	 * 显示模态窗口
 	 * @param  {String} src modal请求url
-	 * @param  {String} mid modal显示div的id,参数不为空则src页面必须为<div class='modal fade'>下的页面
-	 * @param  {opts} mid为空时指定标题,传递参数
+	 * @param  {String} mid modal显示div的id
+	 * @param  {Object} opts 参数 
 	 */
-	APP.showModal = function(src,mid,opts,callback,errorback){
-		opts = opts || {title : '标题'};
-		require(['bootstrap'],function(){
-			$.ajax({
-	            type: "GET",
-	            cache: false,
-	            url: ((src.indexOf("?") >0) ? (src.split("?")[0]+".html?" + src.split("?")[1]) : src+".html"),
-	            data:opts.param,
-	            dataType: "html",
-	            success: function(html) {
-	            	APP.currentUrl = src;
-	            	var _html = $(html);
-            		APP.initComponents(_html.first().get());
-	            	if(mid){
-		            	$('#'+mid).remove();
-		            	$('body').append(_html);
-		            	if($('#'+mid).data("js-module")){
-		            		require([$('#'+mid).data("js-module")],function(m){
-		            			if($('#'+mid).data("js-main")) m[$('#'+mid).data("js-main")].apply(this);
-		            			else m.init(data);
-		            		})
-		            	}else if(typeof callback === 'function'){
-		            		callback.call(this);
-		            	}
-						$('#'+mid).modal('show');
-	            	}else{
-	            		var _modal = $("<div class='modal fade' tabindex='-1' role='dialog' data-backdrop='static'></div>");
-	            		var _modal_width = opts.width ? "style='width:"+opts.width+"px;'" : "";
-	            		var _modal_dialog = $("<div class='modal-dialog' "+_modal_width+"></div>");
-	            		var _modal_context = $("<div class='modal-content'></div>");
-	            		_modal_context.append("<div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'></button>"+
-	            				"<h4 class='modal-title'>"+opts.title+"</h4></div>");
-	            		var _modal_body = $("<div class='modal-body'></div>");
-	            		_modal_body.html(_html);
-	            		_modal_context.append(_modal_body);
-	            		_modal_dialog.append(_modal_context);
-	            		_modal.append(_modal_dialog);
-	            		_modal.modal('show');
-	            		_modal.on('hide.bs.modal', function () {
-	            			_modal.remove();
-	            		 });
-	            	}
-	            	
-	            },
-	            error: function(xhr, ajaxOptions, thrownError) {
-	            	if(typeof errorback === 'function'){
-	            		errorback.call(this,xhr);
-	            	}
-	            	_sysError("页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
-	            }
-	        });
-		})
-	};
-	
-	/**
-	 * 加载模态窗口，src页面为非modal页面是使用，暂时不支持显示页脚按钮
-	 * @param  {String} src modal请求url
-	 * @param  {opts} 标题和参数
-	 */
-	APP.loadModal = function(src,opts){
-		APP.showModal(src,null,opts);
+	APP.showFormModal = function(src,mid,opts,callback,errorback){
+		var options = opts || {};
+		options.url = src;
+		options.buttons = {"text" : "保存","classes" : "btn-primary",action : function(){$("#"+mid).find('form').submit()}};
+		return APP.modal(mid,options,callback,errorback);
 	};
 	//创建按钮 opt : {text:"确认",classes : "btn-sm btn-warning",attr:{"data-role":"###","height":"150px"},action : function(e,btn){}}
 	function _createButton(opt){
@@ -690,33 +634,83 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 		}
 		return btn;
 	}
+	function _loadModal(src,modal,show,callback,errorback){
+		$.ajax({
+            type: "GET",
+            cache: false,
+            url: ((src.indexOf("?") >0) ? (src.split("?")[0]+".html?" + src.split("?")[1]) : src+".html"),
+            dataType: "html",
+            success: function(html) {
+            	APP.currentUrl = src;
+            	var _html = $(html);
+            	var mbody = _html.first();
+        		APP.initComponents(mbody.get());
+        		modal.find(".modal-body").append(_html);
+	            if(mbody.data("js-module")){
+	            	require([mbody.data("js-module")],function(m){
+	            		if(mbody.data("js-main")) m[mbody.data("js-main")].apply(this);
+	            		else m.init(data);
+	            	})
+	            }else if(typeof callback === 'function'){
+	            	callback.call(this);
+	            }
+	            if(show) modal.modal('show');
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+            	if(typeof errorback === 'function'){
+            		errorback.call(this,xhr);
+            	}
+            	_sysError("页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
+            }
+        });
+	}
 	/**
 	 * 创建模态窗口，用于将当前页面HTML元素在modal中显示
-	 * @param  {String} id modal唯一标识,防止重复创建modal
-	 * @param  {String} html html元素或者jquery对象
-	 * @param  {opts} 标题和参数等(包括footer中的按钮属性)
+	 * @param  {String} mid modal唯一标识,防止重复创建modal
+	 * @param  {Object} options 标题和参数等(包括footer中的按钮属性)
+	 * @param  {Function} callback 成功回调
 	 */
-	APP.createModal = function(id,html,opts){
-		if($("#"+id).length > 0) return $("#"+id);
+	APP.modal = function(mid,options,callback,errorback){
+		var opts = $.extend(true,{
+			"title" : "",
+			"show" : true,
+			"clear" : true,
+			"hasFooter" : true
+		},options);
+		
+		if($("#"+mid).length > 0) return $("#"+mid);
 		var _modal_width = opts.width ? "style='width:"+opts.width+"px;'" : "";
-		var _modal = $("<div id='"+id+"' class='modal fade' tabindex='-1' role='dialog' data-backdrop='static'>" +
+		var _modal = $("<div id='"+mid+"' class='modal fade' tabindex='-1' role='dialog' data-backdrop='static'>" +
 				"<div class='modal-dialog' "+_modal_width+"></div></div>");
 		var _modal_content = $("<div class='modal-content'></div>");
 		_modal_content.append("<div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>×</button>"+
-				"<h4 class='modal-title'>"+(opts.title ? opts.title : '')+"</h4></div>"+
-				"<div class='modal-body'></div>" +
-				"<div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>关闭</button></div>");
-		_modal_content.children(".modal-body").append(html);
-		if(opts.buttons){
-			if($.isArray(opts.buttons)){
-				for(var i=0;i<opts.buttons.length;i++){
-					_modal_content.children(".modal-footer").append(_createButton(opts.buttons[i]));
+				"<h4 class='modal-title'>"+opts.title+"</h4></div>"+
+				"<div class='modal-body'></div>");
+		if(opts.hasFooter){
+			_modal_content.append("<div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>关闭</button></div>");
+			if(opts.buttons){
+				if($.isArray(opts.buttons)){
+					for(var i=0;i<opts.buttons.length;i++){
+						_modal_content.children(".modal-footer").append(_createButton(opts.buttons[i]));
+					}
+				}else{
+					_modal_content.children(".modal-footer").append(_createButton(opts.buttons));
 				}
-			}else{
-				_modal_content.children(".modal-footer").append(_createButton(opts.buttons));
 			}
 		}
+		
 		_modal.children(".modal-dialog").append(_modal_content);
+		if(opts.clear){
+			_modal.on('hidden.bs.modal',function(){
+				_modal.remove();
+			})
+		}
+		if(opts.html){
+			_modal_content.children(".modal-body").append(opts.html);
+			if(opts.show) _modal.modal('show');
+		}else if(opts.url){
+			_loadModal(opts.url,_modal,opts.show,callback,errorback);
+		}
 		return _modal;
 	}
 	/**
