@@ -642,7 +642,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 		            	}
 						$('#'+mid).modal('show');
 	            	}else{
-	            		var _modal = $("<div class='modal fade' tabindex='-1' data-focus-on='input:first' role='dialog' data-backdrop='static'></div>");
+	            		var _modal = $("<div class='modal fade' tabindex='-1' role='dialog' data-backdrop='static'></div>");
 	            		var _modal_width = opts.width ? "style='width:"+opts.width+"px;'" : "";
 	            		var _modal_dialog = $("<div class='modal-dialog' "+_modal_width+"></div>");
 	            		var _modal_context = $("<div class='modal-content'></div>");
@@ -678,6 +678,47 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	APP.loadModal = function(src,opts){
 		APP.showModal(src,null,opts);
 	};
+	//创建按钮 opt : {text:"确认",classes : "btn-sm btn-warning",attr:{"data-role":"###","height":"150px"},action : function(e,btn){}}
+	function _createButton(opt){
+		var btn = $("<button type='button' class='btn'>"+(opt.text ? opt.text : '')+"</button>");
+		if(opt.classes) btn.addClass(opt.classes);
+		if(opt.attr) btn.attr(opt.attr);
+		if(typeof opt.action === 'function'){
+			btn.on('click',function(e){
+				opt.action.call(this,btn);
+			})
+		}
+		return btn;
+	}
+	/**
+	 * 创建模态窗口，用于将当前页面HTML元素在modal中显示
+	 * @param  {String} id modal唯一标识,防止重复创建modal
+	 * @param  {String} html html元素或者jquery对象
+	 * @param  {opts} 标题和参数等(包括footer中的按钮属性)
+	 */
+	APP.createModal = function(id,html,opts){
+		if($("#"+id).length > 0) return $("#"+id);
+		var _modal_width = opts.width ? "style='width:"+opts.width+"px;'" : "";
+		var _modal = $("<div id='"+id+"' class='modal fade' tabindex='-1' role='dialog' data-backdrop='static'>" +
+				"<div class='modal-dialog' "+_modal_width+"></div></div>");
+		var _modal_content = $("<div class='modal-content'></div>");
+		_modal_content.append("<div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>×</button>"+
+				"<h4 class='modal-title'>"+(opts.title ? opts.title : '')+"</h4></div>"+
+				"<div class='modal-body'></div>" +
+				"<div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>关闭</button></div>");
+		_modal_content.children(".modal-body").append(html);
+		if(opts.buttons){
+			if($.isArray(opts.buttons)){
+				for(var i=0;i<opts.buttons.length;i++){
+					_modal_content.children(".modal-footer").append(_createButton(opts.buttons[i]));
+				}
+			}else{
+				_modal_content.children(".modal-footer").append(_createButton(opts.buttons));
+			}
+		}
+		_modal.children(".modal-dialog").append(_modal_content);
+		return _modal;
+	}
 	/**
 	 * sweet-alert插件封装，简单的alert
 	 * @param  {String} title 标题

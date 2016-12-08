@@ -388,28 +388,56 @@ define('app/datatables',['jquery','app/common','app/api',
 			//"buttons":[{extend: 'collection',text: '导出', buttons : ['selectAll','selectNone','print']},"addRecord","deleteRecord"],
 			"createdRow": function (nRow, aData, iDataIndex) {},
 	        "initComplete":function(oSettings, json){
+	        	APP.unblockUI(_table.get());
+	        	
 	        	if(oSettings.searching == undefined || oSettings.searching){ //未定义则为默认启用
+	        		var api = _table.dataTable().api();
 	        		var searchHTML = "<label><div class='input-icon left'>" +
 	        				"<input type='search' class='form-control input-sm' placeholder='请输入搜索内容' aria-controls='"+tableid+"'>" +
-	        				"<i class='iconfont icon-search'></i>" +
-	        				"<button class='btn btn-sm green' style='margin-bottom: 2px;'>" +
-	        				"<i class='fa fa-filter fa-lg'/></i></button></div></label>";
-		            $("div#"+tableid+"_wrapper .dataTables_filter").html(searchHTML);
+	        				"<i class='iconfont icon-search'></i></div></label>";
+	        		var _filter = $("div#"+tableid+"_wrapper .dataTables_filter");
+	        		_filter.html(searchHTML);
 		            //搜索事件
-		            $("div#"+tableid+"_wrapper .dataTables_filter input").on('keyup',function(e) {
+	        		_filter.on('keyup','input',function(e) {
 		                if (e.keyCode == 13 || (e.keyCode == 8 && (this.value.length == 0))) {
-		                	_table.dataTable().api().search(this.value).draw();
+		                	api.search(this.value).draw();
 		                }
 		            });
-		            $("div#"+tableid+"_wrapper .dataTables_filter .icon-search").on('click',function(e) {
+	        		_filter.on('click','.icon-search',function(e) {
 		            	var _input = $(this).prev('input');
 		                if (_input.val().length > 0) {
-		                	_table.dataTable().api().search(_input.val()).draw();
+		                	api.search(_input.val()).draw();
 		                }
 		            });
-		            $("div#"+tableid+"_wrapper .dataTables_filter button").on('click',function(e) {
-		            	alert("do filter");
-		            });
+		            //自定义查询表单
+		            if(opts.queryForm || opts.queryPage){
+		            	require(['app/form'],function(FM){
+		            		var queryBtn = $("<button class='btn btn-sm green' style='margin-bottom: 2px;'><i class='fa fa-filter fa-lg'/></i></button>");
+			            	$("#"+tableid+"-query-modal").remove();
+			            	if(opts.queryForm){
+			            		var queryForm = $(opts.queryForm);
+			            		queryForm.initForm({"queryForm" : true,"url" : _table.data('url'),"modal" : "#"+tableid+"-query-modal"},
+			            				function(data){
+			            					api.clear().draw();
+			            					api.rows.add(data).draw();
+			            					$("#"+tableid+"-query-modal").modal('hide');
+			            		});
+			            		queryBtn.on('click',function(){
+			            			queryForm.removeClass("hide");
+				            		APP.createModal(tableid+"-query-modal",$(opts.queryForm),{
+					            		title : "<i class='fa fa-search'/></i> 查询",
+					            		buttons : {"text" : "查询","classes" : "btn-primary",action : function(){queryForm.submit()}}
+					            	}).modal('show');
+				            		
+				            	})
+			            	}
+			            	_filter.find('.input-icon').append(queryBtn);
+		            	})
+		            	
+		            }else{
+		            	_filter.css('margin-right','0');
+		            }
+		            
 	        	}
 	         }
 		},opts);
@@ -590,8 +618,9 @@ define('app/datatables',['jquery','app/common','app/api',
 				APP.blockUI({'target':$table.get(),'gif':'load-tables'});
 				API.postJson(default_opt.dataUrl,ajax_params,true,function(ret,status){
 					default_opt.data = ret;
-					APP.unblockUI($table.get());
 					callback($table.DataTable(default_opt));
+				},function(err){
+					APP.unblockUI($table.get());
 				});
 			}
 		}else{

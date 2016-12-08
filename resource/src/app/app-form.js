@@ -33,7 +33,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	/**
 	 * 日期 bootstrap datePicker
 	 * @param  {Object} opts  设置参数
-	 * @param  {Function} callback  日期变化时调用的函数
+	 * @param  {Function} callback  日期变化时调用的函数(或者在opt中设置onChange)
 	 */
 	$.fn.datePicker = function(opts,callback){
 		var _target = $(this);
@@ -59,6 +59,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(_target.data('date-value') != APP.formatDate('YYYY-MM-DD',e.date)){
 					_target.data('date-value',APP.formatDate('YYYY-MM-DD',e.date));
 					if(typeof callback === 'function') callback(APP.formatDate('YYYY-MM-DD',e.date));
+					else if(typeof opts.onChange === 'function') opts.onChange(APP.formatDate('YYYY-MM-DD',e.date));
 				}
 			})
     	});
@@ -242,7 +243,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 			var _fieldName = formField.attr('name');
 			var _fieldRole = formField.attr('form-role');
 			if(formField.data("init")) formField.val(formField.data("init"));
-
 			if(isInitValue){
 				var _fieldValue = opts.formData[_fieldName];
 				if(_fieldName.indexOf(".") > 0){
@@ -298,7 +298,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 				formField.select(_selectOpt);
 			}
-			if(_fieldRole == 'treeSelect'){
+			else if(_fieldRole == 'treeSelect'){
 				var _treeSelectOpt = opts.fieldOpts[_fieldName] || {};
 				if(formField.data('stmid')) _treeSelectOpt.stmID = formField.data('stmid');
 				if(!formField.attr('id')){
@@ -307,12 +307,20 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 				formField.treeSelect(_treeSelectOpt);
 			}
+			else if(_fieldRole == 'date'){
+				var _dateOpt = opts.fieldOpts[_fieldName] || {};
+				if(formField.data('view-type')) _dateOpt.viewType = formField.data('view-type');
+				if(formField.data('default')) _dateOpt.defaultDate = formField.data('default');
+				if(formField.data('format')) _dateOpt.format = formField.data('format');
+				formField.datePicker(_dateOpt);
+			}
 			
 		});
 		
 		
 		
 		var _in_modal = (_this.parents('.modal-dialog').size() > 0) ? _this.parents('.modal-dialog').get(0) : 'body';
+		
 		//提交是初始化bean的提交类型  add save delete  对应BaseBean 的form_action属性
 		if(opts.formAction){
 			if(_this.children(":hidden[name='form_action']").size()>0){
@@ -321,13 +329,35 @@ define('app/form',["jquery","app/common","app/api","moment",
 				_this.append("<input type='hidden' name='form_action' value='"+opts.formAction+"'>");
 			}
 		}
+		var _query_url = opts.url;
 		var _url = API.ctx + (opts.url || _this.attr('action'));
 		opts.url = API.srv + _url;
 		var form_opt = $.extend(true,{
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
-				APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || '提交中',gif : 'form-submit'});
-				return true;
+				if(opts.modal)_in_modal = $(opts.modal).children(".modal-dialog").get(0);
+				//spring @RequestBody对于form提交的字符解析有问题，暂时使用json提交代替form提交
+				if(opts.queryForm){
+					var params = {};
+					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "查询中",gif : 'form-submit'});
+					for(var i=0;i<formData.length;i++){
+						params[formData[i].name] = formData[i].value;
+					}
+					API.callSrv(_query_url,params,function(data){
+						APP.unblockUI(_in_modal);
+						if(typeof callback === 'function')callback(data);
+					},function(err,status){
+						APP.unblockUI(_in_modal);
+						APP.notice('',err[API.MSG],'warning',_in_modal);
+						if(typeof errorback === 'function')errorback(err,status);
+						else if(opts.onError) opts.onError(err,status);
+					});
+					return false;
+				}else{
+					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
+					return true;
+				}
+				
 			},
 			type : 'post',
 			dataType : 'json',
@@ -338,6 +368,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			},
 			includeHidden : true,
 			error:function(error){
+				if(opts.modal) _in_modal = $(opts.modal).children(".modal-dialog").get(0);
 				if(APP.debug)console.log(error);
 				APP.unblockUI(_in_modal);
 				APP.notice('',"系统错误 错误代码:"+error.status+" 错误名称:"+error.statusText,'error',_in_modal);
@@ -345,6 +376,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				else if(opts.onError) opts.onError(error);
 			},
 			success:function(response, status){
+				if(opts.modal) _in_modal = $(opts.modal).children(".modal-dialog").get(0);
 				if(APP.debug)console.log(response);
 				APP.unblockUI(_in_modal);
 				if(response.OK){
@@ -371,6 +403,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 			}
 		},opts);
+		
 		if(form_opt.ajax) _this.ajaxForm(form_opt);
 	}
 	

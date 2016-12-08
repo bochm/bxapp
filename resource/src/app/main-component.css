@@ -1329,7 +1329,10 @@ Font Awesome 4.x Demo
 .form .form-section:first-child {
   margin-top: 5px;
 }
-
+/* add by bcm 查询表单默认不显示,点击按钮后由modal加载 */
+.query-form{
+	display: none;
+}
 /* Checkboxes */
 .checkbox,
 .form-horizontal .checkbox {

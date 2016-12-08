@@ -38,6 +38,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			"params" : param, //测试
 			"scrollY": "350px",
 			"permission":true,
+			"queryForm" : "#system-user-query-form",
 			"deleteRecord" : {url : 'system/user/delete',id : 'id'},
 			"addRecord" : function(dt){
 				if(!$('#sys-user-password').hasClass('required'))$('#sys-user-password').addClass('required');//新增必须输入密码
@@ -49,10 +50,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 				});
 				$('#system-user-list-edit').modal('show');
 			},
-			"updateUser" : _update_user,
-			"queryUser" : function(e,dt,node){
-				dt.query({"company_id":"d0d128c38b9a400981b6a3ac0e1f805c"});
-			}
+			"updateUser" : _update_user
 		},function(otable){
 			userTable = otable;
 		});
@@ -66,7 +64,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 		inti_table : inti_table,
 		handleEdit : handleEdit,
 		init : function(param){
-			this.inti_table(param);
+			this.inti_table({"company_id" : "1"});
 			this.handleEdit();
 		}
 		

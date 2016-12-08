@@ -1,8 +1,35 @@
 <div class="loading-page" data-js-module="module/system/user" data-permission="sys:user">
+<form class="form-horizontal hide" role="form" id="system-user-query-form" >
+<div class="form-body">
+	<div class="row">
+		<div class="col-md-6">
+			<div class="form-group">
+				<label class="control-label col-md-4">电话</label>
+				<div class="col-md-8"><input type="text" name="tel" class="form-control"></div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="form-group">
+				<label class="control-label col-md-4">手机</label>
+				<div class="col-md-8"><input type="text" name="mobile" class="form-control"></div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="form-group">
+				<label class="control-label col-md-4">创建日期</label>
+				<div class="col-md-8">
+				<input type="text" class="form-control" name="bothdate" readonly="readonly" form-role="date">
+				</div>
+			</div>
+		</div>	
+	</div>
+</div>
+</form>
 <span id="table-system-user-list-toolbar" class="hide">
 <a data-role="excel" data-permission="exportExcel"/>
 <a data-role="addRecord" data-permission="add"/>
-<a class="btn btn-sm btn-primary" data-role="queryUser">查询</a>
 <a class="btn btn-sm btn-primary btn-selectOne" data-role="updateUser" data-permission="save">修改用户</a>
 <a class="btn btn-sm btn-warning btn-selectMore" data-role="deleteRecord" data-permission="delete">删除用户</a>
 </span>

@@ -50,7 +50,7 @@ div.dataTables_length select {
 .dataTables_wrapper .dataTables_filter {
 	float: right;
 	margin-top: 0.3em;
-	margin-right: 2.5em;
+	margin-right: 2.5em;/* bx add 过滤位置 预留出查询按钮位置 */
 	/* margin-right: 15px;bx add 修过滤位置 预留出滚动条位置  已使用dom方式修改 */
 }
 

@@ -150,6 +150,7 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 		    	//后端异常以全局处理,前端跨域无法处理后端异常
 		    	console.log(xhr);
 		    	_sysError("请确认是否存在网络或服务器异常!");
+		    	errorback(xhr,status);
 		    }
 		});
 		return retData;  
