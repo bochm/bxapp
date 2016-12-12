@@ -1,8 +1,7 @@
-
-	   	<form  role="form" class="form-horizontal" id="system-menu-edit-form" data-js-module="module/system/menu" data-js-main="handleEdit">
+<div class="modal fade" id="system-menu-edit" data-backdrop="static" data-width="600" data-js-module="module/system/menu" data-js-main="handleEdit">
+	<form  role="form" class="form-horizontal" id="system-menu-edit-form" data-js-module="module/system/menu" data-js-main="handleEdit">
 	   	<input type="hidden" name="id">
-	   	<div class="form-body">
-	   		<div class="row">
+	   	<div class="row">
 			<div class="col-md-6">
 				<div class="form-group">
 					<label class="control-label col-md-4">菜单名称</label>
@@ -20,59 +19,59 @@
 					</div>
 				</div>
 			</div>
-			</div>
-			<div class="row">
-				<div class="col-md-12">
-					<div class="form-group">
-						<label class="control-label col-md-2">菜单链接</label>
-						<div class="col-md-10"><input type="text" name="target" class="form-control"></div>
-					</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="form-group">
+					<label class="control-label col-md-2">菜单链接</label>
+					<div class="col-md-10"><input type="text" name="target" class="form-control"></div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-md-12">
-					<div class="form-group">
-						<label class="control-label col-md-2">上级菜单</label>
-						<div class="col-md-10">
-						<input type="hidden"  name="parentTree" data-tree-for="parentMenuName"/>
-						<input type='hidden' name='parentId' data-id-for="parentMenuName"/>
-						<input type="text" name="parentMenuName" form-role="treeSelect" tree-key-pid="parent_id"
-						readonly="readonly"  class="form-control"  id="system_menu_forms_parentTree"
-						data-stmid="cn.bx.system.mapper.MenuMapper.selectAllMenuTree"/>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-6">
-					<div class="form-group">
-						<label class="control-label col-md-4">排序号</label>
-						<div class="col-md-8"><input type="text" name="sort" class="form-control required digits"></div>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="form-group">
-						<label class="control-label col-md-4">状态</label>
-						<div class="col-md-8">
-						<input type="checkbox" name="status"  checked class="bs-switch form-control" data-dict-type="on_off">
-						</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="form-group">
+					<label class="control-label col-md-2">上级菜单</label>
+					<div class="col-md-10">
+					<input type="hidden"  name="parentTree" data-tree-for="parentMenuName"/>
+					<input type='hidden' name='parentId' data-id-for="parentMenuName"/>
+					<input type="text" name="parentMenuName" form-role="treeSelect" tree-key-pid="parent_id"
+					readonly="readonly"  class="form-control"  id="system_menu_forms_parentTree"
+					data-stmid="cn.bx.system.mapper.MenuMapper.selectAllMenuTree"/>
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-md-6">
-					<div class="form-group">
-						<label class="control-label col-md-4">菜单类型</label>
-						<div class="col-md-8"><input type="checkbox" name="type" checked
-						class="bs-switch form-control" data-off-color="info" data-dict-type="menu_type"></div>
-					</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<div class="form-group">
+					<label class="control-label col-md-4">排序号</label>
+					<div class="col-md-8"><input type="text" name="sort" class="form-control required digits"></div>
 				</div>
-				<div class="col-md-6">
-					<div class="form-group">
-						<label class="control-label col-md-4">权限标识</label>
-						<div class="col-md-8"><input type="text" name="permission" class="form-control"></div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group">
+					<label class="control-label col-md-4">状态</label>
+					<div class="col-md-8">
+					<input type="checkbox" name="status"  checked class="bs-switch form-control" data-dict-type="on_off">
 					</div>
 				</div>
 			</div>
-	   	</div>	   	
-	   </form>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<div class="form-group">
+					<label class="control-label col-md-4">菜单类型</label>
+					<div class="col-md-8"><input type="checkbox" name="type" checked
+					class="bs-switch form-control" data-off-color="info" data-dict-type="menu_type"></div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group">
+					<label class="control-label col-md-4">权限标识</label>
+					<div class="col-md-8"><input type="text" name="permission" class="form-control"></div>
+				</div>
+			</div>
+		</div>	
+	</form>
+</div>

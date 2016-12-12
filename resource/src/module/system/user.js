@@ -1,4 +1,4 @@
-define('module/system/user',['app/common','app/datatables','app/form'],function(APP,DT,FORM) {
+define('module/system/user',['app/common','app/datatables','app/form'],function(APP,DT,FM) {
 	var userTable;
 	var form_rules = {
 		"loginName":{
@@ -20,17 +20,15 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			return;
 		}
 		$('#sys-user-password').removeClass('required');//密码不填写视为不修改密码
-		$('#system-user-edit-form').initForm({
-			url : "system/user/save.json",clearForm : false,formAction : "save",autoClear : true,type : 'post',rules : form_rules,
-			formData : dt.selectedRows()[0],fieldOpts : field_opts
-		},function(data){
+		FM.editForm({title:'修改用户',rules : form_rules,fieldOpts : field_opts,clearForm : false,formAction : "save",formData : dt.selectedRows()[0],
+			autoClose : true,url : "system/user/save.json",editModal:"#system-user-list-edit"},function(data){
 			dt.updateSelectedRow(data);
 		});
+
 		//修改时密码显示为空
 		$('#sys-user-password').attr('type','text');
 		$('#sys-user-password').val('');
 		$('#sys-user-password').attr('type','password');
-		$('#system-user-list-edit').modal('show');
 	}
 	function inti_table(param){
 		$('table.datatable').initTable({
@@ -38,17 +36,13 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			"params" : param, //测试
 			"scrollY": "350px",
 			"permission":true,
-			"queryForm" : "#system-user-query-form",
+			"queryModal" : "#system-user-query",
 			"deleteRecord" : {url : 'system/user/delete',id : 'id'},
 			"addRecord" : function(dt){
 				if(!$('#sys-user-password').hasClass('required'))$('#sys-user-password').addClass('required');//新增必须输入密码
-				$('#system-user-edit-form').initForm({
-					url : "system/user/add.json",clearForm : true,formAction : "add",autoClear : true,type : 'post',rules : form_rules,
-					fieldOpts : field_opts
-				},function(data){
+				FM.editForm({title:'新增用户',rules : form_rules,fieldOpts : field_opts,url : "system/user/add.json",editModal:"#system-user-list-edit"},function(data){
 					dt.addRow(data);
 				});
-				$('#system-user-list-edit').modal('show');
 			},
 			"updateUser" : _update_user
 		},function(otable){

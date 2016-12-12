@@ -250,16 +250,24 @@ define('app/datatables',['jquery','app/common','app/api',
 			_options.saveRecord(dt,node,e);
 		}else if(!APP.isEmpty(_options.addModal) || !APP.isEmpty(_options.addEditModal) || !APP.isEmpty(_options.editModal)){
 			var _modal =  _options.addEditModal || _options.addModal || _options.editModal;
-			if(_modal.url){
-				var _modal_url = _modal.url;
+			
+			if(_modal.url && _modal.id){
+				var _modalUrl = _modal.url;
 				if(!APP.isEmpty(_options.addEditModal)){ //新增、修改共用modal区分act
-					if(_modal.url.indexOf("?") >0) _modal_url = _modal.url + '&act='+type;
-					else _modal_url = _modal.url + '?act='+type;
+					if(_modal.url.indexOf("?") >0) _modalUrl = _modal.url + '&act='+type;
+					else _modalUrl = _modal.url + '?act='+type;
 				}
-				APP.showFormModal(_modal_url,_modal.id,_modal);
+				var modalOpts = $.extend(true,{
+					buttons : [{"text" : "保存","classes" : "btn-primary",action : function(btn,modal){
+						modal.find('form').submit();
+		    		}}]
+				},_modal);
+				modalOpts.url = _modalUrl;
+				APP.modal(_modal.id,modalOpts);
 			}else{
-				$(_modal).modal('show');
+				alert("请指定modal的url和id属性");
 			}
+
 		}else if(!APP.isEmpty(_options.addForm) || !APP.isEmpty(_options.addEditForm) || !APP.isEmpty(_options.editForm)){
 			var _form = _options.addEditForm || _options.addForm || _options.editForm;
 			var _form_validate = {};
@@ -274,19 +282,19 @@ define('app/datatables',['jquery','app/common','app/api',
 			}
 			var _field_opts = _form.fieldOpts || {};
 			var form_opts = {formAction : type,clearForm : true,autoClear : true,type : 'post',validate : _form_validate,fieldOpts:_field_opts,
-					autoClose : false,rules : _form.rules,formData : null,url:((_form.url || $(_form.el).attr("action")) + "/" + type)};
+					autoClose : false,rules : _form.rules,formData : null,url:((_form.url || $(_form.id).attr("action")) + "/" + type)};
 			if(type == 'save') {
 				form_opts.formData = dt.selectedRows()[0];
 				form_opts.clearForm = false;
 				form_opts.autoClose = true;
 			}
+			form_opts.editModal = _form.editModal;
 			require(['app/form'],function(FORM){
-				$(_form.el).initForm(form_opts,function(data){
+				FORM.editForm(form_opts,function(data){
 					if(type == 'add') dt.addRow(data);
 					else dt.updateSelectedRow(data);
 				});
 			});
-			$(_form.el).closest('.modal.fade').modal('show');
 		}else{
 			alert("请初始化表格参数中的addForm|addEditForm|addModal|addEditModal|addRecord|saveRecord选项");
 		}
@@ -410,29 +418,22 @@ define('app/datatables',['jquery','app/common','app/api',
 		                }
 		            });
 		            //自定义查询表单
-		            if(opts.queryForm || opts.queryPage){
+		            if(opts.queryModal){
 		            	require(['app/form'],function(FM){
-		            		var queryBtn = $("<button class='btn btn-sm green' style='margin-bottom: 2px;'><i class='fa fa-filter fa-lg'/></i></button>");
-			            	$("#"+tableid+"-query-modal").remove();
-			            	if(opts.queryForm){
-			            		var queryForm = $(opts.queryForm);
-			            		queryForm.initForm({"queryForm" : true,"url" : _table.data('url'),"modal" : "#"+tableid+"-query-modal"},
-			            				function(data){
-			            					api.clear().draw();
-			            					api.rows.add(data).draw();
-			            					$("#"+tableid+"-query-modal").modal('hide');
-			            		});
-			            		queryBtn.on('click',function(){
-			            			queryForm.removeClass("hide");
-				            		APP.modal(tableid+"-query-modal",{
-					            		title : "<i class='fa fa-search'/></i> 查询",
-					            		clear : false,
-					            		buttons : {"text" : "查询","classes" : "btn-primary",action : function(){queryForm.submit()}},
-					            		html : $(opts.queryForm)
-					            	});
-				            		
-				            	})
-			            	}
+		            		var queryBtn = $("<button class='btn btn-sm green' style='margin-bottom: 2px;'>" +
+		            				"<i class='fa fa-filter fa-lg'/></i></button>");
+		            		var modalId = opts.queryModal;
+		            		if(typeof opts.queryModal === 'object') modalId = opts.queryModal.id;
+
+		            		FM.queryForm({url:_table.data('url'),queryModal : opts.queryModal},function(data,done){
+		            			api.clear().draw();
+            					api.rows.add(data).draw();
+            					if(typeof done === 'function') done();
+		            		});
+		            		queryBtn.on('click',function(){
+		            			$(modalId).modal('show');
+			            	})
+
 			            	_filter.find('.input-icon').append(queryBtn);
 		            	})
 		            	

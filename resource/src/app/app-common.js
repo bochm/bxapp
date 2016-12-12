@@ -13,6 +13,13 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	};
 	//模态窗口中 select2失去焦点问题
 	$.fn.modal.Constructor.prototype.enforceFocus = function() {};
+	//模态窗口加载
+	$.fn.modal.defaults.spinner = $.fn.modalmanager.defaults.spinner = 
+	    '<div class="loading-spinner" style="width: 200px; margin-left: -100px;">' +
+	        '<div class="progress progress-striped active">' +
+	            '<div class="progress-bar progress-bar-info" style="width: 100%;"><span class="sr-only"> 页面加载中</span>页面加载中</div>' +
+	        '</div>' +
+	    '</div>';
 	//设置moment本地化
 	var moment = require('moment');
 	moment.locale("zh-cn");
@@ -81,7 +88,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	        	if(_is_debug) console.log(obj);
 	        },
 	        getUniqueID: function(prefix) {
-	            return 'webapp_' + Math.floor(Math.random() * (new Date()).getTime());
+	            return 'app_' + Math.floor(Math.random() * (new Date()).getTime());
 	        },
 	        isEmpty : function(v){
 	        	return v === undefined || v === null || $.trim(v) === '';
@@ -105,14 +112,13 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	        	else
 	        		return moment(d,d_patterm).format(patterm);
 	        },
-			loadPage : function(target,url,data,callback,errorback){
+			loadPage : function(target,url,callback,errorback){
 				if(url){
 					APP.blockUI({target:target,message:'页面加载中',});
 					$.ajax({
 			            type: "GET",
 			            cache: false,
 			            url: ((url.indexOf("?") >0) ? (url.split("?")[0]+".html?" + url.split("?")[1]) : url+".html"),
-			            data: data,
 			            dataType: "html",
 			            success: function(res) {
 			            	APP.currentUrl = url;
@@ -135,7 +141,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			            },
 			            error: function(xhr, ajaxOptions, thrownError) {
 			            	if(typeof errorback === 'function'){
-				        		errorback(xhr.status,xhr.statusText);
+				        		errorback(xhr,xhr.status);
 			            	}else{
 			            		APP.unblockUI(target);
 				            	_sysError("页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
@@ -573,8 +579,8 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			type: type ? type : "info",
 			offset: {from: "top",amount: 1},
 			width: 250,
-			delay: 2000,
-			stackup_spacing: 2
+			delay: 1500,
+			stackup_spacing: 1
 		};
 		default_options.width = $(default_options.ele).width();
 		var $alert, css, offsetAmount;
@@ -591,10 +597,9 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	    });
 	    var css = {
 	    	"position": (default_options.ele === "body" ? "fixed" : "absolute"),
-	    	"margin": 1,
 	    	"z-index": "9999999",
 /*	    	"display": "none",*/
-	    	"width" : default_options.width-2 + "px"
+	    	"width" : default_options.width + "px"
 	    };
 	    css[default_options.offset.from] = offsetAmount + "px";
 	    $alert.css(css);
@@ -603,38 +608,27 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	    $alert.css("display","none");
 	    $alert.fadeIn(600);
 	    if (default_options.delay > 0) {
-	    	$alert.delay(default_options.delay).slideUp('500',function() {
+	    	$alert.delay(default_options.delay).slideUp('fast',function() {
 	    		$(this).remove();
-	    		if(autoClose) $(default_options.ele).parent('.modal').modal('hide');
+	    		if(autoClose) $(default_options.ele).closest('.modal').modal('hide');
 	    	});
 	    }
 	};
 	
-	/**
-	 * 显示模态窗口
-	 * @param  {String} src modal请求url
-	 * @param  {String} mid modal显示div的id
-	 * @param  {Object} opts 参数 
-	 */
-	APP.showFormModal = function(src,mid,opts,callback,errorback){
-		var options = opts || {};
-		options.url = src;
-		options.buttons = {"text" : "保存","classes" : "btn-primary",action : function(){$("#"+mid).find('form').submit()}};
-		return APP.modal(mid,options,callback,errorback);
-	};
+
 	//创建按钮 opt : {text:"确认",classes : "btn-sm btn-warning",attr:{"data-role":"###","height":"150px"},action : function(e,btn){}}
-	function _createButton(opt){
+	function _createModalButton(opt,modal){
 		var btn = $("<button type='button' class='btn'>"+(opt.text ? opt.text : '')+"</button>");
 		if(opt.classes) btn.addClass(opt.classes);
 		if(opt.attr) btn.attr(opt.attr);
 		if(typeof opt.action === 'function'){
 			btn.on('click',function(e){
-				opt.action.call(this,btn);
+				opt.action.call(this,btn,modal);
 			})
 		}
 		return btn;
 	}
-	function _loadModal(src,modal,show,callback,errorback){
+	function _loadModal(src,callback,errorback){
 		$.ajax({
             type: "GET",
             cache: false,
@@ -642,21 +636,18 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
             dataType: "html",
             success: function(html) {
             	APP.currentUrl = src;
-            	var _html = $(html);
-            	var mbody = _html.first();
-        		APP.initComponents(mbody.get());
-        		modal.find(".modal-body").append(_html);
-        		console.log(mbody.data("js-module"));
-	            if(mbody.data("js-module")){
-	            	require([mbody.data("js-module")],function(m){
-	            		alert("asd");
-	            		if(mbody.data("js-main")) m[mbody.data("js-main")].apply(this);
-	            		else m.init(data);
-	            	})
-	            }else if(typeof callback === 'function'){
+            	var modal = $(html).filter(".modal");
+        		APP.initComponents(modal.get());
+        		$('body').append(modal);
+        		if(typeof callback === 'function'){
 	            	callback.call(this);
 	            }
-	            if(show) modal.modal('show');
+	            if(modal.data("js-module")){
+	            	require([modal.data("js-module")],function(m){
+	            		if(modal.data("js-main")) m[modal.data("js-main")].apply(this);
+	            		else m.init(data);
+	            	})
+	            } 
             },
             error: function(xhr, ajaxOptions, thrownError) {
             	if(typeof errorback === 'function'){
@@ -665,6 +656,32 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
             	_sysError("页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
             }
         });
+	}
+	
+	function _initModal(mid,opts){
+		var _modal = $(mid);
+		if(_modal.data('modal-init')) return;
+		_modal.attr({"tabindex" : "-1","data-focus-on":"input:first"}).css("display","none");
+		if(_modal.children(".modal-body").length == 0){
+			_modal.children().wrapAll("<div class='modal-body'></div>");
+		}
+		if(_modal.children(".modal-header").length == 0){
+			_modal.prepend("<div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>"+
+					"<h4 class='modal-title'>"+opts.title+"</h4></div>");
+		}
+		if(opts.hasFooter && _modal.children(".modal-footer").length == 0){
+			_modal.append("<div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>关闭</button></div>");
+			if(opts.buttons){
+				if($.isArray(opts.buttons)){
+					for(var i=0;i<opts.buttons.length;i++){
+						_modal.children(".modal-footer").append(_createModalButton(opts.buttons[i],_modal));
+					}
+				}else{
+					_modal.children(".modal-footer").append(_createModalButton(opts.buttons,_modal));
+				}
+			}
+		}
+		_modal.data('modal-init',true)
 	}
 	/**
 	 * 创建模态窗口，用于将当前页面HTML元素在modal中显示
@@ -676,44 +693,34 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 		var opts = $.extend(true,{
 			"title" : "",
 			"show" : true,
-			"clear" : true,
+			"clear" : false,
 			"hasFooter" : true
 		},options);
 		
-		if($("#"+mid).length > 0) return $("#"+mid);
-		var _modal_width = opts.width ? "style='width:"+opts.width+"px;'" : "";
-		var _modal = $("<div id='"+mid+"' class='modal fade' tabindex='-1' role='dialog' data-backdrop='static'>" +
-				"<div class='modal-dialog' "+_modal_width+"></div></div>");
-		var _modal_content = $("<div class='modal-content'></div>");
-		_modal_content.append("<div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>×</button>"+
-				"<h4 class='modal-title'>"+opts.title+"</h4></div>"+
-				"<div class='modal-body'></div>");
-		if(opts.hasFooter){
-			_modal_content.append("<div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>关闭</button></div>");
-			if(opts.buttons){
-				if($.isArray(opts.buttons)){
-					for(var i=0;i<opts.buttons.length;i++){
-						_modal_content.children(".modal-footer").append(_createButton(opts.buttons[i]));
-					}
-				}else{
-					_modal_content.children(".modal-footer").append(_createButton(opts.buttons));
-				}
+		if(opts.url){
+			if($(mid).length > 0){
+				$(mid).remove();
 			}
+			if(opts.show) $('body').modalmanager('loading');
+			_loadModal(opts.url,function(){
+				_initModal(mid,opts);
+				if(opts.clear){
+					$(mid).on('hidden.bs.modal',function(){
+						$(this).remove();
+					})
+				}
+				if(opts.show) $(mid).modal('show');
+				if(typeof callback === 'function') callback.call(this);
+			},errorback);
+			
+		}else{
+			_initModal(mid,opts);
+			if(typeof callback === 'function') callback.call(this);
+			if(opts.show) $(mid).modal('show');
 		}
-		
-		_modal.children(".modal-dialog").append(_modal_content);
-		if(opts.clear){
-			_modal.on('hidden.bs.modal',function(){
-				_modal.remove();
-			})
-		}
-		if(opts.html){
-			_modal_content.children(".modal-body").append(opts.html);
-			if(opts.show) _modal.modal('show');
-		}else if(opts.url){
-			_loadModal(opts.url,_modal,opts.show,callback,errorback);
-		}
-		return _modal;
+	}
+	APP.showModal = function(src,mid,showback){
+		APP.modal(mid,{url:src},showback);
 	}
 	/**
 	 * sweet-alert插件封装，简单的alert

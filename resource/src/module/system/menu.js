@@ -35,7 +35,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 			"expandable": true,"expandBtn" : true,
 			"columns": columns,"columnDefs": columnDefs,
 			"buttons" : ['addRecord','saveRecord','deleteRecord'],
-			"addEditModal" : {"url" : "pages/system/menu/menu-edit","id":"system-menu-edit"},
+			"addEditModal" : {"url" : "pages/system/menu/menu-edit","id":"#system-menu-edit","title":"菜单维护"},
 			"deleteRecord" : function(dt,node,e){
 				APP.confirm('','是否删除选择的菜单及包含的所有子菜单?',function(){
 					API.postJson("system/menu/delete",dt.selectedColumn("id"),null,function(ret,status){
@@ -60,7 +60,6 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 	}
 	
 	function handleEdit(){
-		alert('7777');
 		var menuTable = DT.getTable("#table-system-menu-list");
 		$("#system-menu-edit-form input[name='type']").on("switch:change",function(e,state){
 			if(state) {

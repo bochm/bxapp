@@ -177,7 +177,7 @@ define(['jquery','app/common'],function($,APP) {
         	var url = actMenu.attr("href");
         	//$('.page-content-wrapper>.page-content').children().remove();
         	//$('.page-content-wrapper>.page-content').css('display','none');
-        	APP.loadPage(pageContent,url,{},function(){
+        	APP.loadPage(pageContent,url,function(){
         		if (isInSidebar && actMenu.parents('li.open').size() === 0) {
                     $('.page-sidebar-menu > li.open > a').click();
                 }
@@ -455,7 +455,7 @@ define(['jquery','app/common'],function($,APP) {
     }
     function _showLogin(){
     	$('body').fadeOut('fast',function(){
-    		APP.loadPage('body','login',{},function(){
+    		APP.loadPage('body','login',function(){
     			$('body').removeClass().addClass('login').show();
     			$('.login-page').slideDown('fast',function(){
     				document.forms[0].loginname.focus();
@@ -493,12 +493,12 @@ define(['jquery','app/common'],function($,APP) {
     		APP.initIndex(user);
     	},function(ret,status){
     		if(status == "401") _showLogin();
-    		else APP.error(ret);
+    		//else APP.error(ret);
     	});
     }
     APP.initIndex = function(user){
     	$('body').removeClass().addClass('page-header-fixed page-sidebar-fixed').css('display','none');
-		APP.loadPage('body','main',{},function(){
+		APP.loadPage('body','main',function(){
 			var menus = API.jsonData('system/index/menu/'+user.id);
 			_initMenu(menus);
 			handleFixedSidebar();

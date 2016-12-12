@@ -170,10 +170,7 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 			var nodes = [];
 			var queryContent = $("<div class='input-group'>");
 			queryContent.html("<span class='input-group-btn'>"+
-					"<button type='button' class='btn blue dropdown-toggle' data-toggle='dropdown' tabindex='-1'>"+
-					"<i class='fa fa-angle-down'></i></button><ul class='dropdown-menu' role='menu'>"+
-					"<li><a href='#' class='expand'>展开</a></li>"+
-					"<li><a href='#' class='collapse'>收起</a></li></ul></span>"+
+					"<button type='button' class='btn btn-default btn-expand'><i class='fa fa-plus'></i></button></span>"+
 					"<input type='text' class='form-control'>"+
 					"<span class='input-group-btn'>"+
 					"<button class='btn blue btn-query' type='button'><i class='fa fa-search'></i></button></span>");
@@ -187,8 +184,16 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
                 }
 			});
 			queryContent.find('button.btn-query').on('click',queryTree);
-			queryContent.find('a.expand').on('click',function(){zTree_obj.expandAll(true)});
-			queryContent.find('a.collapse').on('click',function(){zTree_obj.expandAll(false)});
+			queryContent.on('click','.btn-expand',function(){
+				$(this).removeClass("btn-expand").addClass("btn-collapse");
+				$(this).children('i').removeClass("fa-plus").addClass("fa-minus");
+				zTree_obj.expandAll(true)
+			});
+			queryContent.on('click','.btn-collapse',function(){
+				$(this).removeClass("btn-collapse").addClass("btn-expand");
+				$(this).children('i').removeClass("fa-minus").addClass("fa-plus");
+				zTree_obj.expandAll(false)
+			});
 			function updateNodes(highlight) {
 				for( var i=0, l=nodes.length; i<l; i++) {
 					nodes[i].highlight = highlight;

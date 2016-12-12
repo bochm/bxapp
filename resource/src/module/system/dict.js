@@ -5,10 +5,12 @@ define('module/system/dict',['app/common','app/api','app/datatables','app/form']
 			"scrollY": "400px",
 			"autoWidth": true,
 			"order": [2,'asc'],
-			"buttons":["addRecord","saveRecord","deleteRecord"],
+			"queryModal" : {id : "#system-dict-query",url:"pages/system/dict/dict-query"},
 			"deleteRecord" : {"url" : 'system/dict/delete',"id" : 'id'},
 			"addEditForm" : {
-				"el" : "#system-dict-edit-form",
+				"title":"字典维护",
+				"editModal":"#system-dict-list-edit",
+				"url" : "system/dict",
 				"rules":{
 					//joinField可以为数组或单值 为jquery选择器
 					"name":{"checkExists":{stmid:'cn.bx.system.mapper.DictMapper.checkTypes',joinField:["select[name='type']"]},"messages":{"checkExists" : "已存在该名称"}},

@@ -1,6 +1,8 @@
 
 define('app/form',["jquery","app/common","app/api","moment",
                    "jquery/validate","jquery/form","switch"],function($,APP,API) {
+	var moment = require('moment');
+	moment.locale("zh-cn");
 	var FORM = {
 			initDatePicker : function(ct){
 	        	APP.queryContainer(ct).find('[form-role="date"]').each(function(){
@@ -107,18 +109,36 @@ define('app/form',["jquery","app/common","app/api","moment",
                     "daysOfWeek": ["日","一","二","三","四","五","六"],
 			        "monthNames": ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"],
                     "firstDay": 1
-                }                
+                },
+                startName : "startDate",
+                endName : "endDate"
 			},opts);
+			var start_date_field = $("<input type='hidden' name='"+default_opt.startName+"'>");
+			var end_date_field = $("<input type='hidden' name='"+default_opt.endName+"'>");
+			_target.append(start_date_field).append(end_date_field);
 			_target.daterangepicker(default_opt,function(start, end, label){
 				if(typeof callback === 'function'){
 					callback(start, end, label);
 	        	}else{
-	        		_target.children('span').html(start.format('YYYY年MM月DD日') + ' - ' + end.format('YYYY年MM月DD日'));
+	        		var _date_range = start.format('YYYY年MM月DD日') + ' - ' + end.format('YYYY年MM月DD日');
+	        		if(_target.hasClass('input-group')){
+	        			_target.children("input:text").val(_date_range);
+	        		}else{
+	        			_target.children('span').html(_date_range);
+	        		}
+	        		start_date_field.val(start.format(default_opt.format));
+	        		end_date_field.val(end.format(default_opt.format));
 	        		//$(target+' span')
 	        	}
 			});
-			_target.children('span').html(moment().subtract('days', 29).format('YYYY年MM月DD日') + ' - ' + moment().format('YYYY年MM月DD日'));
-			//$(target+' span').html(moment().subtract('days', 29).format('YYYY年MM月DD日') + ' - ' + moment().format('YYYY年MM月DD日'));
+			var _date_range_default = moment(default_opt.startDate).format('YYYY年MM月DD日') + ' - ' + moment(default_opt.endDate).format('YYYY年MM月DD日');
+			if(_target.hasClass('input-group')){
+				_target.children('input:text').val(_date_range_default);
+    		}else{
+    			_target.children('span').html(_date_range_default);
+    		}
+			start_date_field.val(default_opt.startDate);
+    		end_date_field.val(default_opt.endDate);
 			
 		})
 	};
@@ -219,7 +239,87 @@ define('app/form',["jquery","app/common","app/api","moment",
 		}
 		
 	}, "已存在");
-	
+	//初始化表单字段(select 等特殊字段)
+	function _init_field(opts,formField,isInitValue){
+		var _fieldName = formField.attr('name');
+		var _fieldRole = formField.attr('form-role');
+		if(_fieldRole == 'select'){
+			var _selectOpt = opts.fieldOpts[_fieldName] || {};
+			try{
+				if(formField.attr('placeholder') && !isInitValue) _selectOpt.placeholder = JSON.parse(formField.attr('placeholder'));
+			}catch(e){alert("placeholder属性值必须为json字符串");}
+			if(formField.data('json')) _selectOpt.jsonData = formField.data('json');
+			else if(formField.data('stmid')) _selectOpt.stmID = formField.data('stmid');
+			else if(formField.data('dict-type')){
+				_selectOpt.data = API.getDictByType(formField.data('dict-type'));
+				if($.isArray(_selectOpt.data)){
+					for(var i=0;i<_selectOpt.data.length;i++){//select2使用text显示
+						_selectOpt.data[i].id = _selectOpt.data[i].value;
+						_selectOpt.data[i].text = _selectOpt.data[i].name;
+					}
+				}
+				
+			}
+			formField.select(_selectOpt);
+		}
+		else if(_fieldRole == 'treeSelect'){
+			var _treeSelectOpt = opts.fieldOpts[_fieldName] || {};
+			if(formField.data('stmid')) _treeSelectOpt.stmID = formField.data('stmid');
+			if(!formField.attr('id')){
+				alert("请指定treeSelect表单元素的id属性");
+				return;
+			}
+			formField.treeSelect(_treeSelectOpt);
+		}
+		else if(_fieldRole == 'date'){
+			var _dateOpt = opts.fieldOpts[_fieldName] || {};
+			if(formField.data('view-type')) _dateOpt.viewType = formField.data('view-type');
+			if(formField.data('default')) _dateOpt.defaultDate = formField.data('default');
+			if(formField.data('format')) _dateOpt.format = formField.data('format');
+			formField.datePicker(_dateOpt);
+		}else if(_fieldRole == 'dateRange'){
+			var _dateRangeOpt = opts.fieldOpts[_fieldName] || {};
+			if(formField.data('start-date')) _dateRangeOpt.startDate = formField.data('start-date');
+			if(formField.data('end-date')) _dateRangeOpt.endDate = formField.data('end-date');
+			if(formField.data('min-date')) _dateRangeOpt.minDate = formField.data('min-date');
+			if(formField.data('max-date')) _dateRangeOpt.maxDate = formField.data('max-date');
+			if(formField.data('format')) _dateRangeOpt.format = formField.data('format');
+			if(formField.data('start-name')) _dateRangeOpt.startName = formField.data('start-name');
+			if(formField.data('end-name')) _dateRangeOpt.endName = formField.data('end-name');
+			formField.wrap("<div class='input-group'></div>")
+			formField.after("<span class='input-group-btn'><button class='btn default' type='button'>" +
+					"<i class='fa fa-calendar'></i></button></span>");
+			formField.parent().dateRangePicker(_dateRangeOpt);
+		}
+	}
+	//初始化表单字段值 
+	function _init_field_value(opts,formField){
+		var _fieldName = formField.attr('name');
+		var _fieldRole = formField.attr('form-role');
+		var _fieldValue = opts.formData[_fieldName];
+		if(_fieldName.indexOf(".") > 0){
+			var _fieldNameSp = _fieldName.split(".");
+			_fieldValue = opts.formData[_fieldNameSp[0]];
+			for(var i=1;_fieldValue && i<_fieldNameSp.length;i++){
+				_fieldValue = _fieldValue[_fieldNameSp[i]]
+			}
+		}
+		if(_fieldValue != undefined){
+			if(formField.attr('type') == 'checkbox'){
+				var _checked = (_fieldValue == ((formField.data('on-value') !== undefined) ? formField.data('on-value')+'' : '1'));
+				formField.attr('checked',_checked);
+				if(formField.hasClass('bs-switch')){
+					formField.bootstrapSwitch('state', _checked);
+					formField.trigger("switch:change", [_checked]);//强制触发change方法赋值
+				}
+			}else if(_fieldRole == 'select'){
+				formField.val(_fieldValue).trigger("change");
+			}else{
+				formField.val(_fieldValue);
+			}
+			formField.data("original",_fieldValue);//记录该字段的初始值,验证唯一性使用
+		}
+	}
 	/**
 	 * 初始化form
 	 * @param  {Object} opts 初始化参数
@@ -244,32 +344,10 @@ define('app/form',["jquery","app/common","app/api","moment",
 			var _fieldRole = formField.attr('form-role');
 			if(formField.data("init")) formField.val(formField.data("init"));
 			if(isInitValue){
-				var _fieldValue = opts.formData[_fieldName];
-				if(_fieldName.indexOf(".") > 0){
-					var _fieldNameSp = _fieldName.split(".");
-					_fieldValue = opts.formData[_fieldNameSp[0]];
-					for(var i=1;_fieldValue && i<_fieldNameSp.length;i++){
-						_fieldValue = _fieldValue[_fieldNameSp[i]]
-					}
-				}
-				if(_fieldValue != undefined){
-					if(this.type == 'checkbox'){
-						var _checked = (_fieldValue == ((formField.data('on-value') !== undefined) ? formField.data('on-value')+'' : '1'));
-						formField.attr('checked',_checked);
-						if(formField.hasClass('bs-switch')){
-							formField.bootstrapSwitch('state', _checked);
-							formField.trigger("switch:change", [_checked]);//强制触发change方法赋值
-						}
-					}else{
-						formField.val(_fieldValue);
-						if(formField.data("init")) formField.data("init",_fieldValue);
-					}
-					formField.data("original",_fieldValue);//记录该字段的初始值,验证唯一性使用
-				}
+				_init_field_value(opts,formField);
 			}else{
 				formField.removeData("original");
 			}
-			
 			//初始化js定义的验证规则,如有checkExists规则需要将original初始值作为入参
 			if(opts.rules && opts.rules[_fieldName]){
 				formField.rules( "remove");
@@ -278,48 +356,14 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 				formField.rules( "add", opts.rules[_fieldName]);
 			}
+			//初始化过的form不再重复
+			if(_this.data("form-init")) return;
 			
-			if(_fieldRole == 'select'){
-				var _selectOpt = opts.fieldOpts[_fieldName] || {};
-				try{
-					if(formField.attr('placeholder') && !isInitValue) _selectOpt.placeholder = JSON.parse(formField.attr('placeholder'));
-				}catch(e){alert("placeholder属性值必须为json字符串");}
-				if(formField.data('json')) _selectOpt.jsonData = formField.data('json');
-				else if(formField.data('stmid')) _selectOpt.stmID = formField.data('stmid');
-				else if(formField.data('dict-type')){
-					_selectOpt.data = API.getDictByType(formField.data('dict-type'));
-					if($.isArray(_selectOpt.data)){
-						for(var i=0;i<_selectOpt.data.length;i++){//select2使用text显示
-							_selectOpt.data[i].id = _selectOpt.data[i].value;
-							_selectOpt.data[i].text = _selectOpt.data[i].name;
-						}
-					}
-					
-				}
-				formField.select(_selectOpt);
-			}
-			else if(_fieldRole == 'treeSelect'){
-				var _treeSelectOpt = opts.fieldOpts[_fieldName] || {};
-				if(formField.data('stmid')) _treeSelectOpt.stmID = formField.data('stmid');
-				if(!formField.attr('id')){
-					alert("请指定treeSelect表单元素的id属性");
-					return;
-				}
-				formField.treeSelect(_treeSelectOpt);
-			}
-			else if(_fieldRole == 'date'){
-				var _dateOpt = opts.fieldOpts[_fieldName] || {};
-				if(formField.data('view-type')) _dateOpt.viewType = formField.data('view-type');
-				if(formField.data('default')) _dateOpt.defaultDate = formField.data('default');
-				if(formField.data('format')) _dateOpt.format = formField.data('format');
-				formField.datePicker(_dateOpt);
-			}
+			_init_field(opts,formField,isInitValue);
 			
 		});
-		
-		
-		
-		var _in_modal = (_this.parents('.modal-dialog').size() > 0) ? _this.parents('.modal-dialog').get(0) : 'body';
+		//表单显示位置,返回提示使用
+		var _in_modal = (_this.parents('.modal').size() > 0) ? _this.parents('.modal').get(0) : 'body';
 		
 		//提交是初始化bean的提交类型  add save delete  对应BaseBean 的form_action属性
 		if(opts.formAction){
@@ -335,7 +379,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		var form_opt = $.extend(true,{
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
-				if(opts.modal)_in_modal = $(opts.modal).children(".modal-dialog").get(0);
+				if(opts.modal)_in_modal = opts.modal.get();
 				//spring @RequestBody对于form提交的字符解析有问题，暂时使用json提交代替form提交
 				if(opts.queryForm){
 					var params = {};
@@ -368,7 +412,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			},
 			includeHidden : true,
 			error:function(error){
-				if(opts.modal) _in_modal = $(opts.modal).children(".modal-dialog").get(0);
+				if(opts.modal)_in_modal = opts.modal.get();
 				if(APP.debug)console.log(error);
 				APP.unblockUI(_in_modal);
 				APP.notice('',"系统错误 错误代码:"+error.status+" 错误名称:"+error.statusText,'error',_in_modal);
@@ -376,7 +420,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				else if(opts.onError) opts.onError(error);
 			},
 			success:function(response, status){
-				if(opts.modal) _in_modal = $(opts.modal).children(".modal-dialog").get(0);
+				if(opts.modal)_in_modal = opts.modal.get();
 				if(APP.debug)console.log(response);
 				APP.unblockUI(_in_modal);
 				if(response.OK){
@@ -403,7 +447,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 			}
 		},opts);
-		
+		//已初始化标记
+		_this.data("form-init",true);
 		if(form_opt.ajax) _this.ajaxForm(form_opt);
 	}
 	
@@ -770,6 +815,72 @@ define('app/form',["jquery","app/common","app/api","moment",
 		return _this;
 	};
 	
+	function _initModalForm(mid,formOtps,submitback,errorback){
+		var formModal = $(mid);
+		var form = formModal.find('form');
+		formOtps.modal = formModal;
+		form.initForm(formOtps,function(data){
+			if(typeof submitback === 'function') submitback.call(this,data,function(){formModal.modal('hide')});
+			else formModal.modal('hide');
+		},function(err){
+			if(typeof errorback === 'function') errorback.call(this,err);
+		});
+	}
+	FORM.queryForm = function(opts,queryback){
+		var queryOtps = {"queryForm" : true,"url" : opts.url};
+		if(opts.queryForm){
+			$(opts.queryForm).initForm(queryOtps,function(data){
+				if(typeof queryback === 'function') queryback.call(this,data);
+			});
+		}else if(opts.queryModal){
+			var modalId = opts.queryModal;
+			var modalOpts = {
+		    		title : "<i class='fa fa-search'/></i> 查询",
+		    		clear : false,show : false,
+		    		buttons : {"text" : "查询","classes" : "btn-primary",action : function(btn,modal){
+		    			modal.find('form').submit();
+		    		}}
+			}
+			if(typeof opts.queryModal === 'object'){
+				modalOpts.url = opts.queryModal.url;
+				modalId = opts.queryModal.id;
+			}
+			APP.modal(modalId,modalOpts,function(){
+				_initModalForm(modalId,queryOtps,queryback);
+			});
+		}
+		
+	}
+	FORM.editForm = function(opts,editback,errorback){
+		var formOtps = $.extend(true,{
+			"title" : "<i class='fa fa-search'/></i> 编辑",
+			clearForm : true,formAction : "add",autoClear : true,type : 'post',autoClose : false
+		},opts);
+		if(opts.editForm){
+			$(opts.queryForm).initForm(formOtps,function(data){
+				if(typeof editback === 'function') editback.call(this,data);
+			},function(err){
+				if(typeof errorback === 'function') errorback.call(this,data);
+			});
+		}else if(opts.editModal){
+			var modalId = opts.editModal;
+			var modalOpts = {
+		    		title : formOtps.title,
+		    		show : true,
+		    		buttons : {"text" : "保存","classes" : "btn-primary",action : function(btn,modal){
+		    			modal.find('form').submit();
+		    		}}
+			}
+			if(typeof opts.editModal === 'object'){
+				modalOpts.url = opts.editModal.url;
+				modalId = opts.editModal.id;
+			}
+			APP.modal(modalId,modalOpts,function(){
+				_initModalForm(modalId,formOtps,editback,errorback);
+			});
+		}
+		
+	}
 	return FORM;
 });
 

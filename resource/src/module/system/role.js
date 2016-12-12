@@ -5,7 +5,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 	];
 	function permissionRole(e, dt, node){
 		var selectedId = dt.selectedRows()[0].id;
-		APP.showModal("pages/system/role/role-permissions","system-role-permissions",{},function(){
+		APP.showModal("pages/system/role/role-permissions","#system-role-permissions",function(){
 			var tree = $("#system-role-permissions-tree").tree({
 				stmID : "cn.bx.system.mapper.RoleMapper.selectAllMenuTree",
 				param : {"roleId" : selectedId},
@@ -23,17 +23,17 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 						menuIds.push(checkedNode[i].id);
 					}
 					API.callSrv('system/role/menu/'+selectedId,menuIds,function(ret){
-						APP.success(ret,'#system-role-permissions .modal-dialog');
+						APP.success(ret,'#system-role-permissions');
 					})
 				}else{
-					APP.error('请选择需要授权的菜单','#system-role-permissions .modal-dialog');
+					APP.error('请选择需要授权的菜单','#system-role-permissions');
 				}
 			})
 		});
 	}
 	function assignRole(e, dt, node, config){
 		var selectedId = dt.selectedRows()[0].id;
-		APP.showModal("pages/system/role/role-assign","system-role-assign",{},function(){
+		APP.showModal("pages/system/role/role-assign","#system-role-assign",function(){
 			var tree = $("#system-role-assign-tree").tree({
 				stmID : "cn.bx.system.mapper.RoleMapper.selectAllUserTree",
 				param : {"roleId" : selectedId},
@@ -57,10 +57,10 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 						if(checkedNode[i].icons == 'fa fa-user')userIds.push(checkedNode[i].id);
 					}
 					API.callSrv('system/role/user/'+selectedId,userIds,function(ret){
-						APP.success(ret,'#system-role-assign .modal-dialog',true);
+						APP.success(ret,'#system-role-assign',true);
 					})
 				}else{
-					APP.error('请选择需要分配的用户','#system-role-assign .modal-dialog');
+					APP.error('请选择需要分配的用户','#system-role-assign');
 				}
 			})
 		});
@@ -73,7 +73,9 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 			"permission" : true,
 			"deleteRecord" : {"url" : 'system/role/delete',"id" : 'id'},
 			"addEditForm" : {
-				"el" : "#system-role-edit-form",
+				"title":"字典维护",
+				"editModal":"#system-role-list-edit",
+				"id" : "#system-role-edit-form",
 				"rules":{
 					"enname":{"checkExists":{stmid:'cn.bx.system.mapper.RoleMapper.checkEnname'},
 						"messages":{"checkExists" : "已存在该英文名称"}}
