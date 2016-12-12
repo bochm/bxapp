@@ -134,7 +134,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			            	}
 			            	if($('.loading-page').data("js-module")){
 			            		require([$('.loading-page').data("js-module")],function(m){
-			            			m.init(data);
+			            			m.init();
 			            		})
 			            	}
 			            	$('.loading-page').fadeIn('slow');
@@ -318,7 +318,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	        //初始化控件
 	        initComponents: function(target){
 	        	var page_permission = $(target).data("permission");
-	        	if(page_permission){
+	        	if(page_permission && !_is_local_data){
 	        		var pmis = API.getPermission(page_permission);
 	        		$(target).find("[data-permission]").each(function(){
 	        			var pm = $(this).data("permission");

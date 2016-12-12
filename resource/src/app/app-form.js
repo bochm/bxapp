@@ -380,6 +380,20 @@ define('app/form',["jquery","app/common","app/api","moment",
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
 				if(opts.modal)_in_modal = opts.modal.get();
+				//本地数据返回
+				if(_is_local_data){
+					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
+					API.callSrv(_query_url,{},function(data){
+						APP.unblockUI(_in_modal);
+						if(typeof callback === 'function')callback(data);
+					},function(err,status){
+						APP.unblockUI(_in_modal);
+						APP.notice('',err[API.MSG],'warning',_in_modal);
+						if(typeof errorback === 'function')errorback(err,status);
+						else if(opts.onError) opts.onError(err,status);
+					});
+					return false;
+				}
 				//spring @RequestBody对于form提交的字符解析有问题，暂时使用json提交代替form提交
 				if(opts.queryForm){
 					var params = {};

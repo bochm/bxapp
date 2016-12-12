@@ -30,6 +30,8 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 		return storage.setItem('_LOCAL_USER_',JSON.stringify(u));
 	}
 	function _create_header(url,request,errorback){
+		if(_is_local_data) return true;//本地数据模式
+		
 		var _user = _local_user();
 		if(_user == null || _user == undefined){
 			if(errorback && typeof errorback === 'function') errorback({"status":"401" ,"message":"登陆过期失效"},"401");
@@ -113,9 +115,12 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 	 */
 	function _ajax(url,data,type,isSync,callback,errorback,indexLogin){
 		var _url = API.ctx + url;
+		if(_is_local_data) {//本地数据以json形式存在
+			var _local_url = _srv_url + url + ".json"
+			return API.localData(_local_url,isSync,callback,errorback);
+		}
 		var async = true;
 		if(isSync != undefined || isSync != null) async = isSync;
-		
 		var retData;
 		$.ajax({ 
 			type:type, 
@@ -207,18 +212,29 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 	}
 	//首页获取user
 	API.getLoginUser = function(callback,errorback){
-		var _user = _local_user();
-		if(_user == null || _user == undefined){
-			if(typeof errorback == "function") errorback({"status":"401" ,"message":"登陆过期失效"},"401");
-			return null;
-		}else{
-			return _ajax(_login_url+"/"+_user[_user_name],{},'POST',true,function(user){
+		if(_is_local_data){
+			return _ajax(_login_url+"/"+_local_user_name,{},'GET',true,function(user){
 				_store_user(user);
 				if(typeof callback == "function") callback(user);
 			},function(err,status){
 				if(typeof errorback == "function") errorback(err,status);
 			},true);
+		}else{
+			var _user = _local_user();
+			if(_user == null || _user == undefined){
+				if(typeof errorback == "function") errorback({"status":"401" ,"message":"登陆过期失效"},"401");
+				return null;
+			}else{
+				return _ajax(_login_url+"/"+_user[_user_name],{},'POST',true,function(user){
+					_store_user(user);
+					if(typeof callback == "function") callback(user);
+				},function(err,status){
+					if(typeof errorback == "function") errorback(err,status);
+				},true);
+			}
 		}
+		
+		
 		
 	}
 	API.getMapByStmId = function(param){
@@ -254,17 +270,21 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 		if(_dict_map[value]) return _dict_map[value];
 		else return "";
 	}
-	API.localData = function(url){
+	API.localData = function(url,async,callback,errorback){
 		var retData;
 		$.ajax({ 
 		    url : url,
 			contentType : 'application/json;charset=utf-8',
-		    async:false,
+		    async: async ? async : false,
+		    cache: !_is_local_data,
 		    success:function(ret,status){
 		    	retData = ret
+		    	if(typeof callback === 'function') callback.call(this,ret);
 		    },
 		    error:function(xhr,status,error){
-		    	APP.notice('','系统错误,'+url+'数据不存在','error');
+		    	console.log(xhr);
+		    	_sysError(url+"数据不存在");
+		    	if(typeof errorback === 'function') errorback.call(this,xhr,status);
 		    }
 		});
 		return retData;  
