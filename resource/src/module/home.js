@@ -65,14 +65,6 @@ define('module/home',['app/common','echarts'],function(APP,echarts) {
 
 	return {
 		init : function(){
-			
-			$("#test_1").on('click',function(){
-				
-				require(['bootstrap-modal'],function(){
-					
-					$("#stack1").modal();
-				})    
-			})
 			var chart = echarts.init(document.getElementById("home-demo-chart"));
 			chart.setOption(option);
 		}

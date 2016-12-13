@@ -5,7 +5,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 	];
 	function permissionRole(e, dt, node){
 		var selectedId = dt.selectedRows()[0].id;
-		APP.showModal("pages/system/role/role-permissions","#system-role-permissions",function(){
+		APP.showModal("pages/system/role/role-permissions","#system-role-permissions",{},function(){
 			var tree = $("#system-role-permissions-tree").tree({
 				stmID : "cn.bx.system.mapper.RoleMapper.selectAllMenuTree",
 				param : {"roleId" : selectedId},
@@ -33,7 +33,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 	}
 	function assignRole(e, dt, node, config){
 		var selectedId = dt.selectedRows()[0].id;
-		APP.showModal("pages/system/role/role-assign","#system-role-assign",function(){
+		APP.showModal("pages/system/role/role-assign","#system-role-assign",{},function(){
 			var tree = $("#system-role-assign-tree").tree({
 				stmID : "cn.bx.system.mapper.RoleMapper.selectAllUserTree",
 				param : {"roleId" : selectedId},

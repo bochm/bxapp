@@ -113,12 +113,13 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	        	else
 	        		return moment(d,d_patterm).format(patterm);
 	        },
-			loadPage : function(target,url,callback,errorback){
+			loadPage : function(target,url,params,callback,errorback){
 				if(url){
 					APP.blockUI({target:target,message:'页面加载中',});
 					$.ajax({
 			            type: "GET",
 			            cache: false,
+			            //data: params, //静态工程改为直接传递
 			            url: ((url.indexOf("?") >0) ? (url.split("?")[0]+".html?" + url.split("?")[1]) : url+".html"),
 			            dataType: "html",
 			            success: function(res) {
@@ -129,16 +130,20 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			            	$(target).children().each(function(){
 			                    if($(this).attr("id") != "topcontrol") $(this).remove();
 			                });
+			            	
 			            	$(target).append(_html);
 			            	if(typeof callback === 'function'){
 			            		callback(res);
 			            	}
-			            	if($('.loading-page').data("js-module")){
-			            		require([$('.loading-page').data("js-module")],function(m){
-			            			m.init();
+			            	var _loading_page = $(target).children('.loading-page');
+			            	if(_loading_page.data("js-module")){
+			            		require([_loading_page.data("js-module")],function(m){
+			            			if(_loading_page.data("js-main")) m[_loading_page.data("js-main")].call(this,params);
+				            		else m.init(params);
 			            		})
 			            	}
-			            	$('.loading-page').fadeIn('slow');
+			            	_loading_page.fadeIn('slow');
+			            	
 			            },
 			            error: function(xhr, ajaxOptions, thrownError) {
 			            	if(typeof errorback === 'function'){
@@ -360,10 +365,14 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 		APP.notice("系统错误",msg,"error");
 	}
 	
-	APP.loadPortlet = function(_portlet){
+	APP.loadPortlet = function(_portlet,params,callback){
 		var body = _portlet.children('div.portlet-body');
+		if(body.length == 0){
+			body = $("<div class='portlet-body'>");
+			_portlet.append(body);
+		}
 		if (_portlet.attr('data-url')) {
-			APP.loadPage(body,_portlet.attr('data-url'));
+			APP.loadPage(body.get(0),_portlet.attr('data-url'),params,callback);
         }
 	}
 	APP.setPortletTitle = function(_portlet,title){
@@ -631,7 +640,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 		}
 		return btn;
 	}
-	function _loadModal(src,callback,errorback){
+	function _loadModal(src,params,callback,errorback){
 		$.ajax({
             type: "GET",
             cache: false,
@@ -647,8 +656,8 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	            }
 	            if(modal.data("js-module")){
 	            	require([modal.data("js-module")],function(m){
-	            		if(modal.data("js-main")) m[modal.data("js-main")].apply(this);
-	            		else m.init(data);
+	            		if(modal.data("js-main")) m[modal.data("js-main")].call(this,params);
+	            		else m.init(params);
 	            	})
 	            } 
             },
@@ -697,7 +706,8 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			"title" : "",
 			"show" : true,
 			"clear" : false,
-			"hasFooter" : true
+			"hasFooter" : true,
+			"params" : {}
 		},options);
 		
 		if(opts.url){
@@ -705,7 +715,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 				$(mid).remove();
 			}
 			if(opts.show) $('body').modalmanager('loading');
-			_loadModal(opts.url,function(){
+			_loadModal(opts.url,opts.params,function(){
 				_initModal(mid,opts);
 				if(opts.clear){
 					$(mid).on('hidden.bs.modal',function(){
@@ -722,8 +732,8 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			if(opts.show) $(mid).modal('show');
 		}
 	}
-	APP.showModal = function(src,mid,showback){
-		APP.modal(mid,{url:src},showback);
+	APP.showModal = function(src,mid,params,showback){
+		APP.modal(mid,{url:src,params:params},showback);
 	}
 	/**
 	 * sweet-alert插件封装，简单的alert

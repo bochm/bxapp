@@ -260,7 +260,8 @@ define('app/datatables',['jquery','app/common','app/api',
 				var modalOpts = $.extend(true,{
 					buttons : [{"text" : "保存","classes" : "btn-primary",action : function(btn,modal){
 						modal.find('form').submit();
-		    		}}]
+		    		}}],
+		    		params : {"act" : type,"table" : dt} //参数方式传递act和table
 				},_modal);
 				modalOpts.url = _modalUrl;
 				APP.modal(_modal.id,modalOpts);

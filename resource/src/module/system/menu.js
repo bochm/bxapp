@@ -59,8 +59,8 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 		return $("<span align='left'><i class='"+icons+"'></i>&nbsp;"+data.text+"</span>");
 	}
 	
-	function handleEdit(){
-		var menuTable = DT.getTable("#table-system-menu-list");
+	function handleEdit(params){
+		var menuTable = params.table;
 		$("#system-menu-edit-form input[name='type']").on("switch:change",function(e,state){
 			if(state) {
 				$("#system-menu-edit-form input[name='permission']").removeClass('required');
@@ -70,7 +70,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 				$("#system-menu-edit-form select[name='icon']").removeClass('required selectOpt');
 			}
 		})
-		var act = APP.getParameterByName("act");
+		var act = params.act;
 		var _formInitOpt = {
 				 formAction : act,validate : {},clearForm : true,url:"system/menu/"+act,
 				 fieldOpts : {

@@ -31,13 +31,13 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 		});
 	}
 	
-	function handleEdit(){
+	function handleEdit(params){
 		var act = APP.getParameterByName("act");
 		$("#system-org-edit-form [name='master.id']").on("change",function(){
 			$("#system-org-edit-form [name='master.name']").val($(this).children(":selected").text());
 		})
 		
-		var table = DT.getTable('#table-system-org-list');
+		var table = params.table;
 		var _formInitOpt = {
 				 formAction : act,validate : {},clearForm : true,url:"system/org/"+act,
 				 fieldOpts : {
