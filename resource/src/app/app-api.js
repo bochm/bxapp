@@ -116,7 +116,8 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 	function _ajax(url,data,type,isSync,callback,errorback,indexLogin){
 		var _url = API.ctx + url;
 		if(_is_local_data) {//本地数据以json形式存在
-			var _local_url = _srv_url + url + ".json"
+			var _local_url = _srv_url + url;
+			if(_local_url.indexOf(".json") != (_local_url.length -5)) _local_url += ".json";
 			return API.localData(_local_url,isSync,callback,errorback);
 		}
 		var async = true;
@@ -237,14 +238,15 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 		
 		
 	}
-	API.getMapByStmId = function(param){
-		return API.jsonData(_stmid_map_url,param);
+	//以json结尾避免stmid中的.号造成数据丢失
+	API.getMapByStmId = function(stmid,param){
+		return API.jsonData(_stmid_map_url+"/"+stmid+".json",param);
 	}
-	API.getListByStmId = function(param){
-		return API.jsonData(_stmid_list_url,param);
+	API.getListByStmId = function(stmid,param){
+		return API.jsonData(_stmid_list_url+"/"+stmid+".json",param);
 	}
-	API.getMapListByStmId = function(param){
-		return API.jsonData(_stmid_maplist_url,param);
+	API.getMapListByStmId = function(stmid,param){
+		return API.jsonData(_stmid_maplist_url+"/"+stmid+".json",param);
 	}
 	API.getDictByType = function(type){
 		if(API.dict[type] == undefined || API.dict[type] == null) {
@@ -299,6 +301,11 @@ define('app/api',['jquery','app/common','app/digests'],function($,APP,DIGESTS) {
 		//var permissions = ["sys:role:add","sys:role:save","sys:role:delete","sys:role:assignRole"];
 		return permissions;
 	}
+	//本地直接加載所有字典數據
+	if(_is_local_data){
+		API.dict = API.jsonData("dict-map");
+	}
+	
 	return API;
 });
 

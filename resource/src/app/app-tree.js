@@ -104,7 +104,7 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 			if(settings.stmID && settings.async === undefined && zNodes === undefined){//增加stmID选项获取sqlMapper的sqlID获取数组数据
 				var url = settings.url || API.stmidListUrl;
 				var paramData = {};
-				if(settings.stmID) paramData.stmID=settings.stmID;
+				if(settings.stmID) url += ("/" + settings.stmID +".json");
 				if(settings.param) paramData.param=settings.param;
 				settings.async = {
 					'enable' : true,

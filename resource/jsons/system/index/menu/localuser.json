@@ -1,11 +1,17 @@
 [
 {"id":"01","icon":"iconfont icon-home","name":"主页","target":"pages/home","permission":"","type":"0","parent_id":""},
-{"id":"02","icon":"iconfont icon-calendarfull","name":"系统管理","target":"#","permission":"","type":"0","parent_id":""},
+
 {"id":"03","icon":"iconfont icon-component","name":"组件","target":"#","permission":"","type":"0","parent_id":""},
 {"id":"0301","icon":"iconfont icon-table","name":"图标组件","target":"pages/demo/ui-icons","permission":"","type":"0","parent_id":"03"},
 {"id":"0302","icon":"iconfont icon-link","name":"常用组件","target":"pages/demo/base-elements","permission":"","type":"0","parent_id":"03"},
 {"id":"0303","icon":"iconfont icon-table","name":"表格","target":"","permission":"","type":"0","parent_id":"03"},
 {"id":"030301","icon":"fa fa-th-large","name":"普通单表","target":"pages/demo/tables/simple-table","permission":"","type":"0","parent_id":"0303"},
+
+{"id":"0304","icon":"fa fa-id-card-o","name":"portlet组件","target":"","permission":"","type":"0","parent_id":"03"},
+{"id":"030401","icon":"fa fa-address-card-o","name":"静态portlet","target":"pages/demo/portlet/static-portlet","permission":"","type":"0","parent_id":"0304"},
+{"id":"030402","icon":"fa fa-address-card","name":"动态portlet","target":"pages/demo/portlet/ajax-portlet","permission":"","type":"0","parent_id":"0304"},
+
+{"id":"02","icon":"iconfont icon-calendarfull","name":"系统管理","target":"#","permission":"","type":"0","parent_id":""},
 {"id":"0201","icon":"iconfont icon-users","name":"用户管理","target":"pages/system/user/user-list","permission":"","type":"0","parent_id":"02"},
 {"id":"0202","icon":"fa fa-tasks","name":"菜单管理","target":"pages/system/menu/menu-list","permission":"","type":"0","parent_id":"02"},
 {"id":"0203","icon":"fa fa-cogs","name":"字典数据","target":"pages/system/dict/dict-list","permission":"","type":"0","parent_id":"02"},

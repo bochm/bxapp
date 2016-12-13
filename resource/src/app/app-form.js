@@ -234,8 +234,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 		if(!APP.isEmpty(p.url)){
 			return API.postJson(p.url,paramData,false);
 		}else{
-			paramData.stmID = p.stmID || p.stmid || p.stmId;
-			return APP.isEmpty(API.getListByStmId(paramData));
+			var stmid = p.stmID || p.stmid || p.stmId;
+			return APP.isEmpty(API.getListByStmId(stmid,paramData));
 		}
 		
 	}, "已存在");
@@ -380,12 +380,24 @@ define('app/form',["jquery","app/common","app/api","moment",
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
 				if(opts.modal)_in_modal = opts.modal.get();
-				//本地数据返回
+				//本地数据返回不修改任何數據
 				if(_is_local_data){
 					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
 					API.callSrv(_query_url,{},function(data){
 						APP.unblockUI(_in_modal);
-						if(typeof callback === 'function')callback(data);
+						if(opts.queryForm){
+							if(typeof callback === 'function')callback(data);
+						}else{
+							if(data.OK){
+								APP.notice('',data[API.MSG],'success',_in_modal,opts.autoClose);
+								if(typeof callback === 'function')callback(data[API.DATA]);
+								else if(opts.onSuccess) opts.onSuccess(data[API.DATA]);
+							}else{
+								APP.notice('',data[API.MSG],'warning',_in_modal);
+								if(typeof errorback === 'function')errorback(data);
+								else if(opts.onError) opts.onError(data);
+							}
+						}
 					},function(err,status){
 						APP.unblockUI(_in_modal);
 						APP.notice('',err[API.MSG],'warning',_in_modal);
@@ -546,7 +558,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	function _get_options_data(opts){
 		var url = opts.url || API.stmidListUrl;
 		var paramData = {};
-		if(opts.stmID) paramData.stmID=opts.stmID;
+		if(opts.stmID) url += ("/" + opts.stmID+".json");
 		if(opts.param) paramData.param=opts.param;
 		return API.jsonData(url,paramData);
 	}

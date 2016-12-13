@@ -24,6 +24,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	var moment = require('moment');
 	moment.locale("zh-cn");
 	
+	
 	//客户端设备处理,device.js,去除blackberry、fxos、meego 检测
 	var device = {};
 	var _userAgent = window.navigator.userAgent.toLowerCase();
@@ -237,7 +238,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	        	var _tab_toggle = _queryContainer(ct).find('a[data-toggle="tab"]');
 	        	if(_tab_toggle.length == 0) return;
 	        	_tab_toggle.data('show','0');
-	        	_tab_toggle.parent('li').removeClass("active");
+	        	//_tab_toggle.parent('li').removeClass("active");
 	        	_tab_toggle.on('show.bs.tab', function (e) {
 	    	    	var _target = $(e.target);
 	    	    	if(APP.isEmpty(_target.data('url'))){
@@ -254,7 +255,6 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	        		setTimeout(function(){//tab页在首次加载时需要延时，否则无法显示
 	        			_tab_toggle.eq(_default_idx).tab('show');
 	        		},10);
-	        		
 	        	}
 	        },
 	        //tooltip控件
@@ -428,23 +428,26 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 		_queryContainer(ct).find(' div.portlet').each(function(){
 			var _portlet = $(this);
 			var _data_url = _portlet.attr('data-url');
-			if(!APP.isEmpty(_data_url)){
-				var _head = $("<div class='portlet-title'>");
-				
-				_head.append("<div class='caption'><i class='"+(_portlet.attr('panel-icon') ? _portlet.attr('panel-icon') : "fa fa-external-link")+"'></i>" + "<span class='caption-subject bold uppercase'>" + (_portlet.attr('panel-title') ? _portlet.attr('panel-title') : "") + "</span></div>");
-				var _tools = _portlet.attr('panel-tools');
-				
-				if(_tools){
-					var _headtools = $("<div class='tools'>");
-					var toolList = _tools.split(",");
-					for(var i=0;i<toolList.length;i++){
-						_headtools.append("<a class='"+toolList[i]+"' href='#'></a>");
-					}
-					_head.append(_headtools);
-				}else if(_portlet.children('div.actions').length > 0){
-					_head.append(_portlet.children('div.actions'));
+			var _head = $("<div class='portlet-title'>");
+			_head.append("<div class='caption'><i class='"+(_portlet.attr('panel-icon') ? _portlet.attr('panel-icon') : "fa fa-external-link")+"'></i>" + "<span class='caption-subject bold uppercase'>" + (_portlet.attr('panel-title') ? _portlet.attr('panel-title') : "") + "</span></div>");
+			var _tools = _portlet.attr('panel-tools');
+			
+			if(_tools){
+				var _headtools = $("<div class='tools'>");
+				var toolList = _tools.split(",");
+				for(var i=0;i<toolList.length;i++){
+					_headtools.append("<a class='"+toolList[i]+"' href='#'></a>");
 				}
-				_portlet.append(_head);
+				_head.append(_headtools);
+			}
+			if(_portlet.children('div.actions').length > 0){
+				_head.append(_portlet.children('div.actions'));
+			}
+			if(_portlet.children('ul.nav-tabs').length > 0){
+				_head.append(_portlet.children('ul.nav-tabs'));
+			}
+			_portlet.prepend(_head);
+			if(!APP.isEmpty(_data_url)){
 				var _body = $("<div class='portlet-body'>");
 				if(_portlet.attr('data-scroll-height')){
 					var _scroller = $("<div class='scroller' data-scroll-height="+_portlet.attr('data-scroll-height')+" data-always-visible='1' data-rail-visible='0'>");
