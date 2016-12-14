@@ -1,7 +1,7 @@
 define('module/system/dict',['app/common','app/api','app/datatables','app/form'],function(APP,API,DT,FORM) {
 
 	function inti_table(param){
-		$('table.datatable').initTable({
+		$('table#table-system-dict-list').initTable({
 			"scrollY": "400px",
 			"autoWidth": true,
 			"order": [2,'asc'],

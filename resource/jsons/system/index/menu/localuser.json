@@ -5,7 +5,7 @@
 {"id":"0301","icon":"iconfont icon-table","name":"图标组件","target":"pages/demo/ui-icons","permission":"","type":"0","parent_id":"03"},
 {"id":"0302","icon":"iconfont icon-link","name":"常用组件","target":"pages/demo/base-elements","permission":"","type":"0","parent_id":"03"},
 {"id":"0303","icon":"iconfont icon-table","name":"表格","target":"","permission":"","type":"0","parent_id":"03"},
-{"id":"030301","icon":"fa fa-th-large","name":"普通单表","target":"pages/demo/tables/simple-table","permission":"","type":"0","parent_id":"0303"},
+{"id":"030301","icon":"fa fa-th-large","name":"主细表","target":"pages/demo/datatable/main-detail/main-table","permission":"","type":"0","parent_id":"0303"},
 
 {"id":"0304","icon":"fa fa-id-card-o","name":"portlet组件","target":"","permission":"","type":"0","parent_id":"03"},
 {"id":"030401","icon":"fa fa-address-card-o","name":"静态portlet","target":"pages/demo/portlet/static-portlet","permission":"","type":"0","parent_id":"0304"},

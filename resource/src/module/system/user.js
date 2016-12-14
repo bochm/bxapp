@@ -31,7 +31,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 		$('#sys-user-password').attr('type','password');
 	}
 	function inti_table(param){
-		$('table.datatable').initTable({
+		$('table#table-system-user-list').initTable({
 			"title" : "用户表",
 			"params" : param, //测试
 			"scrollY": "350px",
@@ -52,6 +52,9 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 	function handleEdit(){
 		$("#system-user-edit-form [name='company.id']").on("change",function(){
 			$("#system-user-edit-form [name='company.name']").val($(this).children(":selected").text());
+		})
+		$('#test-detail-1111').on('click',function(){
+			APP.loadInnerPage('system-user','pages/demo/datatable/main-detail/detail-table');
 		})
 	}
 	return {

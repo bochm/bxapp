@@ -29,7 +29,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 	    }
 	];
 	function inti_table(param){
-		$('table.datatable').treetable({
+		$('table#table-system-menu-list').treetable({
 			"tid":"id","tpid":"parentId",
 			"scrollY": "390px","autoWidth" : true,
 			"expandable": true,"expandBtn" : true,

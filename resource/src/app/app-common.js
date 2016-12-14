@@ -89,7 +89,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	        	if(_is_debug) console.log(obj);
 	        },
 	        getUniqueID: function(prefix) {
-	            return 'app_' + Math.floor(Math.random() * (new Date()).getTime());
+	            return (prefix || 'app_') + Math.floor(Math.random() * (new Date()).getTime());
 	        },
 	        isEmpty : function(v){
 	        	return v === undefined || v === null || $.trim(v) === '';
@@ -156,6 +156,63 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			            }
 			        });
 				}
+			},
+			loadInnerPage : function(mainid,url,params,callback,errorback){
+				if(url){
+					var pageContent = $('body .page-content');
+					var ownerPage = pageContent.children('#'+mainid);
+					$.ajax({
+			            type: "GET",
+			            cache: false,
+			            //data: params, //静态工程改为直接传递
+			            url: ((url.indexOf("?") >0) ? (url.split("?")[0]+".html?" + url.split("?")[1]) : url+".html"),
+			            dataType: "html",
+			            success: function(res) {
+			            	var _html = $(res);
+		            		APP.initComponents(_html.get());
+			            	
+		            		pageContent.append(_html);
+		            		if(typeof callback === 'function'){
+			            		callback(res);
+			            	}
+		            		
+			            	var _loading_page = pageContent.children('.loading-page:last');
+			            	if(_loading_page.data("js-module")){
+			            		require([_loading_page.data("js-module")],function(m){
+			            			if(_loading_page.data("js-main")) m[_loading_page.data("js-main")].call(this,params);
+				            		else m.init(params);
+			            		})
+			            	}
+		            		ownerPage.slideUp(500,function(){
+		            			_loading_page.fadeIn('fast');
+		            			var _return_id = APP.getUniqueID("return");
+		            			pageContent.find(".page-bar .page-breadcrumb").append("<li><i class='fa fa-angle-right'></i><a id='"+_return_id+"'><i class='fa fa-backward'></i> 返回</a></li>");
+		            			$('#'+_return_id).on('click',function(){
+		            				_loading_page.fadeOut('fast',function(){
+		            					ownerPage.slideDown('fast',function(){
+		            						_loading_page.remove();
+		            						$('#'+_return_id).parent().remove();
+		            					});
+		            				});
+		            			})
+		            		});
+			            	
+			            	
+			            	
+			            },
+			            error: function(xhr, ajaxOptions, thrownError) {
+			            	if(typeof errorback === 'function'){
+				        		errorback(xhr,xhr.status);
+			            	}else{
+				            	_sysError("页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
+			            	}
+			            	
+			            }
+			        });
+				}
+			},
+			returnInnerPage : function(){
+				$('body .page-content').find(".page-bar .page-breadcrumb a:last").click();
 			},
 			getResponsiveBreakpoint: function(size) {
 	            // bootstrap 响应尺寸

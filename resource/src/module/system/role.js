@@ -66,7 +66,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 		});
 	}
 	function inti_table(param){
-		$('table.datatable').initTable({
+		$('table#table-system-role-list').initTable({
 			"scrollY": "400px",
 			"autoWidth": true,
 			"columnDefs" : columnDefs,
