@@ -157,10 +157,10 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			        });
 				}
 			},
-			loadInnerPage : function(mainid,url,params,callback,errorback){
+			loadInnerPage : function(url,params,callback,errorback){
 				if(url){
 					var pageContent = $('body .page-content');
-					var ownerPage = pageContent.children('#'+mainid);
+					var ownerPage = pageContent.children('.loading-page:first');
 					$.ajax({
 			            type: "GET",
 			            cache: false,
@@ -186,7 +186,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 		            		ownerPage.slideUp(500,function(){
 		            			_loading_page.fadeIn('fast');
 		            			var _return_id = APP.getUniqueID("return");
-		            			pageContent.find(".page-bar .page-breadcrumb").append("<li><i class='fa fa-angle-right'></i><a id='"+_return_id+"'><i class='fa fa-backward'></i> 返回</a></li>");
+		            			pageContent.find(".page-bar .page-breadcrumb").append("<li><i class='fa fa-angle-right'></i><a id='"+_return_id+"'><font color='#4B77BE'><i class='fa fa-backward'></i> 返回</font></a></li>");
 		            			$('#'+_return_id).on('click',function(){
 		            				_loading_page.fadeOut('fast',function(){
 		            					ownerPage.slideDown('fast',function(){

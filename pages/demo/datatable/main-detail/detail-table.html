@@ -1,12 +1,43 @@
-<div class="loading-page" style="background-color: gray;" id="detail-table">
-<a class="btn btn-sm btn-primary" id="view-main">主页面</a>
-<script type="text/javascript">
-require(['app/common'],function(APP){
-	
-	$('#view-main').on('click',function(){
-		APP.returnInnerPage();
-		
-	})
-})
-</script>
+<div class="loading-page" data-js-module="module/demo/main-detail-table" data-js-main="initDetail">
+<div class="row">
+	<div class="col-md-12">
+		<div class="tabbable tabbable-custom tabbable-noborder">
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="#tab_demo_main_detail_d_stu" data-toggle="tab">学生</a></li>
+				<li><a href="#tab_demo_main_detail_d_course" data-toggle="tab">课程 </a></li>
+			</ul>
+			<div class="tab-content">
+				<div class="tab-pane active" id="tab_demo_main_detail_d_stu">
+					<table id="table-demo-main-detail-d-stu" class="table datatable table-bordered nowrap"  data-url="demo/datatable/maindetail" 
+						data-paging="true" data-info="true" data-ordering="true">
+							<thead><tr>
+								<th  data-column="className" >班级名称</th>
+								<th  data-column="stuCount" >学生数量</th>
+								<th  data-column="classMaster">班主任</th>
+								<th data-column="courseCount" >课程数量</th>
+								<th data-column="dt-detail" data-width="1%"></th>
+							</tr></thead>
+							<tbody>
+							</tbody>
+					</table>
+				</div>
+				<div class="tab-pane" id="tab_demo_main_detail_d_course">
+					<table id="table-demo-main-detail-d-course" class="table datatable table-bordered nowrap"  data-url="demo/datatable/maindetail" 
+						data-paging="true" data-info="true" data-ordering="true">
+							<thead><tr>
+								<th  data-column="className" >班级名称</th>
+								<th  data-column="stuCount" >学生数量</th>
+								<th  data-column="classMaster">班主任</th>
+								<th data-column="courseCount" >课程数量</th>
+								<th data-column="dt-detail" data-width="1%"></th>
+							</tr></thead>
+							<tbody>
+							</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 </div>

@@ -3,7 +3,8 @@ define('module/demo/main-detail-table',['app/common','app/datatables'],function(
 		$('table#table-demo-main-detail-m').initTable({
 			"title" : "明细测试表",
 			"params" : param,
-			"scrollY": "350px"
+			"scrollY": "350px",
+			"detailPage" : "pages/demo/datatable/main-detail/detail-table"
 		});
 	}
 	function handleEdit(){
@@ -15,6 +16,9 @@ define('module/demo/main-detail-table',['app/common','app/datatables'],function(
 		init : function(param){
 			this.inti_table({"company_id" : "1"});
 			this.handleEdit();
+		},
+		initDetail : function(param){
+			console.log(param.data());
 		}
 		
 	}

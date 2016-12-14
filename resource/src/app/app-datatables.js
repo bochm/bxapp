@@ -564,6 +564,14 @@ define('app/datatables',['jquery','app/common','app/api',
 			otable.on( 'column-sizing.dt', function ( e, settings ) {
 			    console.log( 'Column width recalculated in table' );
 			} );
+			
+			
+			_table.on('click','td a[dt-detail]',function(){
+				var curr_row = otable.row($(this).closest('td'));
+				curr_row.select();
+				if(default_opt.detailPage)
+					APP.loadInnerPage(default_opt.detailPage,curr_row);
+			})
 			if(callback && typeof callback == "function")callback(otable);
 		});
 	};
@@ -581,21 +589,32 @@ define('app/datatables',['jquery','app/common','app/api',
 		
 		
 		if(default_opt.dataUrl != undefined){
-			var columnArray = (default_opt.columns ? default_opt.columns : new Array());
-			$table.find('th[data-column]').each(function(index){
-				columnArray.push({'data' : $(this).data('column')});
-			});
-			//treetable排序使用TreeBean中的treeSort(parentIds + id),否则显示层级不正确
-			if(default_opt.tableType == 'treetable'){
-				default_opt.ordering = true;//暂时只能使用treeSort列排序
-				for(var i=0;i<columnArray.length;i++){
-					columnArray[i].orderable = false;
+			if(default_opt.columns){
+				//treetable排序使用TreeBean中的treeSort(parentIds + id),否则显示层级不正确
+				if(default_opt.tableType == 'treetable'){
+					default_opt.ordering = true;//暂时只能使用treeSort列排序
+					for(var i=0;i<columnArray.length;i++){
+						columnArray[i].orderable = false;
+					}
+					columnArray.push({'data' : 'treeSort','visible' : false,'name':'treeSort'});
+					default_opt.order = [[columnArray.length-1, 'asc']];
 				}
-				columnArray.push({'data' : 'treeSort','visible' : false,'name':'treeSort'});
-				default_opt.order = [[columnArray.length-1, 'asc']];
+			}else{//两种方式并立，不能同时存在，否则列次序混乱
+				var columnArray = (default_opt.columns ? default_opt.columns : new Array());
+				$table.find('th[data-column]').each(function(index){
+					var col_data = $(this).data('column');
+					if(col_data === 'dt-detail'){
+						columnArray.push({'data' : null,'orderable':false,'defaultContent' : "<a dt-detail><i class='iconfont icon-chevronright'></i></a>"});
+					}else if(col_data === ''){
+						columnArray.push({'data' : null,'defaultContent' : '','orderable':false});
+					}else{
+						columnArray.push({'data' : col_data});
+					}
+					
+				});
+				default_opt['columns'] = columnArray;
 			}
 			
-			default_opt['columns'] = columnArray;
 			//启用data-server-side时表格,不启用搜索框,适合于数据量较大，需要物理分页	
 			if(default_opt.serverSide){ 
 				default_opt.ajax = {
