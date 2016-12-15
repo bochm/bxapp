@@ -3,35 +3,73 @@
 	<div class="col-md-12">
 		<div class="tabbable tabbable-custom tabbable-noborder">
 			<ul class="nav nav-tabs">
-				<li class="active"><a href="#tab_demo_main_detail_d_stu" data-toggle="tab">学生</a></li>
-				<li><a href="#tab_demo_main_detail_d_course" data-toggle="tab">课程 </a></li>
+				<li class="active"><a href="#tab_demo_main_detail_d_stu" data-toggle="tab">学生信息</a></li>
+				<li><a href="#tab_demo_main_detail_d_course" data-toggle="tab">课程信息 </a></li>
 			</ul>
 			<div class="tab-content">
 				<div class="tab-pane active" id="tab_demo_main_detail_d_stu">
-					<table id="table-demo-main-detail-d-stu" class="table datatable table-bordered nowrap"  data-url="demo/datatable/maindetail" 
+					<span id="table-demo-main-detail-d-stu-toolbar" class="hide">
+						<a data-role="addRecord" data-permission="add"/>
+						<a data-role="saveRecord" data-permission="save"/>
+						<a data-role="deleteRecord" data-permission="delete"/>
+					</span>
+					<table id="table-demo-main-detail-d-stu" class="table datatable table-bordered nowrap"  
 						data-paging="true" data-info="true" data-ordering="true">
 							<thead><tr>
-								<th  data-column="className" >班级名称</th>
-								<th  data-column="stuCount" >学生数量</th>
-								<th  data-column="classMaster">班主任</th>
-								<th data-column="courseCount" >课程数量</th>
-								<th data-column="dt-detail" data-width="1%"></th>
+								<th>学号</th>
+								<th>学生姓名</th>
+								<th>年龄</th>
+								<th>选修课程</th>
 							</tr></thead>
 							<tbody>
+								<tr>
+									<td>0023</td>
+									<td>XXX</td>
+									<td>21</td>
+									<td>3</td>
+								</tr>
+								<tr>
+									<td>0023</td>
+									<td>XXX</td>
+									<td>21</td>
+									<td>3</td>
+								</tr>
+								<tr>
+									<td>0023</td>
+									<td>XXX</td>
+									<td>21</td>
+									<td>3</td>
+								</tr>
 							</tbody>
 					</table>
 				</div>
 				<div class="tab-pane" id="tab_demo_main_detail_d_course">
-					<table id="table-demo-main-detail-d-course" class="table datatable table-bordered nowrap"  data-url="demo/datatable/maindetail" 
+					<span id="table-demo-main-detail-d-course-toolbar" class="hide">
+						<a data-role="addRecord" data-permission="add"/>
+						<a data-role="saveRecord" data-permission="save"/>
+						<a data-role="deleteRecord" data-permission="delete"/>
+					</span>
+					<table id="table-demo-main-detail-d-course" class="table datatable table-bordered nowrap"  
 						data-paging="true" data-info="true" data-ordering="true">
 							<thead><tr>
-								<th  data-column="className" >班级名称</th>
-								<th  data-column="stuCount" >学生数量</th>
-								<th  data-column="classMaster">班主任</th>
-								<th data-column="courseCount" >课程数量</th>
-								<th data-column="dt-detail" data-width="1%"></th>
+								<th>课程编号</th>
+								<th>课程学分</th>
+								<th>任课老师</th>
+								<th>在学学生</th>
 							</tr></thead>
 							<tbody>
+								<tr>
+									<td>HJ2233</td>
+									<td>2</td>
+									<td>asdasd</td>
+									<td>20</td>
+								</tr>
+								<tr>
+									<td>HYssss</td>
+									<td>1</td>
+									<td>asd</td>
+									<td>16</td>
+								</tr>
 							</tbody>
 					</table>
 				</div>

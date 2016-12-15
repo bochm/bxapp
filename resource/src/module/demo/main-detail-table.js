@@ -19,6 +19,16 @@ define('module/demo/main-detail-table',['app/common','app/datatables'],function(
 		},
 		initDetail : function(param){
 			console.log(param.data());
+			$('table#table-demo-main-detail-d-stu').initTable({
+			"title" : "学生表",
+			"params" : param,
+			"scrollY": "350px"
+			});
+			$('table#table-demo-main-detail-d-course').initTable({
+			"title" : "课程表",
+			"params" : param,
+			"scrollY": "350px"
+		});
 		}
 		
 	}

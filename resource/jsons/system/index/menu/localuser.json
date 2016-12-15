@@ -11,6 +11,11 @@
 {"id":"030401","icon":"fa fa-address-card-o","name":"静态portlet","target":"pages/demo/portlet/static-portlet","permission":"","type":"0","parent_id":"0304"},
 {"id":"030402","icon":"fa fa-address-card","name":"动态portlet","target":"pages/demo/portlet/ajax-portlet","permission":"","type":"0","parent_id":"0304"},
 
+{"id":"0305","icon":"fa fa-id-card-o","name":"tab组件","target":"","permission":"","type":"0","parent_id":"03"},
+{"id":"030501","icon":"fa fa-address-card-o","name":"静态tab","target":"pages/demo/tab/static-tab","permission":"","type":"0","parent_id":"0305"},
+{"id":"030502","icon":"fa fa-address-card","name":"动态tab","target":"pages/demo/tab/ajax-tab","permission":"","type":"0","parent_id":"0305"},
+
+
 {"id":"02","icon":"iconfont icon-calendarfull","name":"系统管理","target":"#","permission":"","type":"0","parent_id":""},
 {"id":"0201","icon":"iconfont icon-users","name":"用户管理","target":"pages/system/user/user-list","permission":"","type":"0","parent_id":"02"},
 {"id":"0202","icon":"fa fa-tasks","name":"菜单管理","target":"pages/system/menu/menu-list","permission":"","type":"0","parent_id":"02"},

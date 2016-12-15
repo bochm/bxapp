@@ -593,11 +593,11 @@ define('app/datatables',['jquery','app/common','app/api',
 				//treetable排序使用TreeBean中的treeSort(parentIds + id),否则显示层级不正确
 				if(default_opt.tableType == 'treetable'){
 					default_opt.ordering = true;//暂时只能使用treeSort列排序
-					for(var i=0;i<columnArray.length;i++){
-						columnArray[i].orderable = false;
+					for(var i=0;i<default_opt.columns.length;i++){
+						default_opt.columns[i].orderable = false;
 					}
-					columnArray.push({'data' : 'treeSort','visible' : false,'name':'treeSort'});
-					default_opt.order = [[columnArray.length-1, 'asc']];
+					default_opt.columns.push({'data' : 'treeSort','visible' : false,'name':'treeSort'});
+					default_opt.order = [[default_opt.columns.length-1, 'asc']];
 				}
 			}else{//两种方式并立，不能同时存在，否则列次序混乱
 				var columnArray = (default_opt.columns ? default_opt.columns : new Array());
