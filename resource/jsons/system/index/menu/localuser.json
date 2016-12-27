@@ -1,9 +1,11 @@
 [
 {"id":"01","icon":"iconfont icon-home","name":"主页","target":"pages/home","permission":"","type":"0","parent_id":""},
 
+
 {"id":"03","icon":"iconfont icon-component","name":"组件","target":"#","permission":"","type":"0","parent_id":""},
 {"id":"0301","icon":"iconfont icon-table","name":"图标组件","target":"pages/demo/ui-icons","permission":"","type":"0","parent_id":"03"},
 {"id":"0302","icon":"iconfont icon-link","name":"常用组件","target":"pages/demo/base-elements","permission":"","type":"0","parent_id":"03"},
+
 {"id":"0303","icon":"iconfont icon-table","name":"表格","target":"","permission":"","type":"0","parent_id":"03"},
 {"id":"030301","icon":"fa fa-th-large","name":"主细表","target":"pages/demo/datatable/main-detail/main-table","permission":"","type":"0","parent_id":"0303"},
 
@@ -14,6 +16,8 @@
 {"id":"0305","icon":"fa fa-id-card-o","name":"tab组件","target":"","permission":"","type":"0","parent_id":"03"},
 {"id":"030501","icon":"fa fa-address-card-o","name":"静态tab","target":"pages/demo/tab/static-tab","permission":"","type":"0","parent_id":"0305"},
 {"id":"030502","icon":"fa fa-address-card","name":"动态tab","target":"pages/demo/tab/ajax-tab","permission":"","type":"0","parent_id":"0305"},
+
+{"id":"0306","icon":"iconfont icon-link","name":"按钮样式","target":"pages/demo/buttons","permission":"","type":"0","parent_id":"03"},
 
 
 {"id":"02","icon":"iconfont icon-calendarfull","name":"系统管理","target":"#","permission":"","type":"0","parent_id":""},

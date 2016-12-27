@@ -21,6 +21,7 @@ require.config({
 		'jquery/blockui':'lib/jquery/blockui/jquery.blockUI',//遮罩
 		'jquery/gritter':'lib/jquery/gritter/jquery.gritter', //弹出提示
 		'jquery/pulsate':'lib/jquery/pulsate/jquery.pulsate', //突出闪动
+		'jquery/colorbox':'lib/jquery/colorbox/jquery.colorbox',//图片展示
 		'jquery/carousel':'lib/jquery/carousel/owl.carousel',//滚动轮播
 		'jquery/form':'lib/jquery/form/jquery.form',//ajax form
 		'jquery/validate':'lib/jquery/validate/jquery.validate',//验证
@@ -42,6 +43,7 @@ require.config({
 		'bootstrap':['jquery'],
 		'jquery/scrolltotop' : ['jquery'],
 		'jquery/gritter':['jquery','css!lib/jquery/gritter/jquery.gritter.css'],
+		'jquery/colorbox':['jquery'],
 		'jquery/carousel':['jquery','css!lib/jquery/carousel/owl.carousel.css'],
 		'jquery/select2':['jquery','css!lib/jquery/select2/select2.css'],
 		'jquery/ztree':['jquery','css!lib/jquery/ztree/metroStyle.css'],
@@ -60,7 +62,7 @@ define(['app/index','moment','jquery/scrolltotop',
         'css!app/main-layout.css',
         'css!app/main-component.css'],function(APP,moment){
 	var _now_hour = moment().format('H');
-	if(_now_hour > 14 || _now_hour < 6){
+	if(_now_hour > 16 || _now_hour < 8){
 		require(['css!app/main-themes-default.css']);
 	}else{
 		require(['css!app/main-themes-light.css']);

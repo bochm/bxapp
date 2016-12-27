@@ -497,7 +497,7 @@ define(['jquery','app/common'],function($,APP) {
     	});
     }
     APP.initIndex = function(user){
-    	$('body').removeClass().addClass('page-header-fixed page-sidebar-fixed').css('display','none');
+    	$('body').removeClass().addClass('page-header-fixed ').css('display','none');
 		APP.loadPage('body','main',{},function(){
 			var menus = API.jsonData('system/index/menu/'+user.id);
 			_initMenu(menus);
@@ -517,7 +517,7 @@ define(['jquery','app/common'],function($,APP) {
 	    		//if($currPage) APP.loadPage('div.page-content',$currPage);
 	    	})
 	    	//主页点击
-	    	//$('.page-sidebar li > a.act-menu:first').click();
+	    	$('.page-sidebar li > a.act-menu:first').click();
 		},function(err){
 			APP.error(err);
 		});
