@@ -46,7 +46,7 @@
 
 <!-- 新增修改 -->
 <div class="modal fade" id="system-user-list-edit" data-backdrop="static" data-width="600">
-<form class="form-horizontal" action="system/user/add.json" role="form" id="system-user-edit-form" >
+<form class="form-horizontal" action="system/user/add.json" role="form" id="system-user-edit-form" enctype="multipart/form-data">
  	<input type="hidden" name="id">
  	<div class="row">
 		<div class="col-md-6">
@@ -125,6 +125,14 @@
 				<div class="col-md-7">
 				<input type="checkbox" name="loginFlag"  checked class="bs-switch form-control">
 				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="form-group">
+				<label class="control-label col-md-2">照片</label>
+				<div class="col-md-10"><input type="file" name="ph" class="form-control"></div>
 			</div>
 		</div>
 	</div>
