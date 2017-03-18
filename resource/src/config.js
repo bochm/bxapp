@@ -1,4 +1,4 @@
-var _is_local_data = false;//本地数据模式,在服务端还不存在的时候使用，json数据通过本地文件的方式请求
+var _is_local_data = true;//本地数据模式,在服务端还不存在的时候使用，json数据通过本地文件的方式请求
 var _local_user_name = "localuser";//本地用户名,不登录默认缓存在本地的用户名称
 var _is_debug = true;
 var require = {

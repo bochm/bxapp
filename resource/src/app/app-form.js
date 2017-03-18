@@ -840,7 +840,14 @@ define('app/form',["jquery","app/common","app/api","moment",
 		});
 		return _this;
 	};
-	
+
+	$.fn.typeaHead = function(options){
+		var default_settings = $.extend(true,{autoSelect: true},options);
+		var input_obj = $(this);
+		require(['bootstrap/typeahead'],function(){
+			input_obj.typeahead(default_settings);
+		})
+	}
 	function _initModalForm(mid,formOtps,submitback,errorback){
 		var formModal = $(mid);
 		var form = formModal.find('form');

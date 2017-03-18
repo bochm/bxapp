@@ -2608,7 +2608,7 @@ Page Loading
 
 
 /*-------------------------------------------------------------------------------------
-DemoÊ¹ÓÃ
+DemoÊ¹ï¿½ï¿½
 -------------------------------------------------------------------------------------*/
 /***
 Demo Utils
@@ -2944,7 +2944,7 @@ General User Record Listing
 }
 
 
-/********************* µÇÂ¼ÑùÊ½ *************************/
+/********************* ï¿½ï¿½Â¼ï¿½ï¿½Ê½ *************************/
 
 .login {
   background-color: #444 !important;
@@ -3137,3 +3137,15 @@ General User Record Listing
 	display: none;
 }
 
+.close-tab {
+  font-size: 10px;
+  position:absolute;
+  right: 8px;
+  top: 5px;
+  padding-left: 23px;
+  z-index: 100;
+  cursor: hand;
+  cursor: pointer;
+  color: indianred;
+  display: none;
+}

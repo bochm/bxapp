@@ -18,7 +18,6 @@
 	<div class="top-menu">
 
 	<ul class="nav navbar-nav pull-right">
-		<li class="dropdown"><a class="dropdown-toggle" data-toggle="refresh-page"><i class="iconfont icon-sync"></i></a><ul></ul></li>
 		<!-- BEGIN NOTIFICATION DROPDOWN -->
 		<li class="dropdown dropdown-extended dropdown-notification" id="header_notification_bar">
 			<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true"><i class="iconfont icon-bell"></i><span class="badge badge-default">2 </span></a>
@@ -86,14 +85,22 @@
 	<!-- END SIDEBAR -->
 	<!-- BEGIN CONTENT -->
 	<div class="page-content-wrapper">
-		<div class="page-content"></div>
+		<div class="page-content">
+			<div class="tabbable-line page-tab">
+				<ul class="nav nav-tabs ">
+					<div class="btn-group pull-right">
+						<button type="button" class="btn btn-info" data-toggle="refresh-page"><i class="iconfont icon-redo"></i></button>
+						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown"><i class="fa fa-angle-down"></i></button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="#" data-toggle="close-all"> 关闭全部 </a></li>
+						</ul>
+					</div>
+				</ul>
+				<div class="tab-content"></div>
+			</div>
+		</div>
 	</div>
 	<!-- END CONTENT -->
 </div>
 <!-- END CONTAINER -->
 
-<!-- BEGIN FOOTER -->
-<div class="page-footer">
-	<div class="page-footer-inner">2016 &copy; Neusoft by bochm.</div>
-</div>
-<!-- END FOOTER -->

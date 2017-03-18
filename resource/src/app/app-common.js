@@ -1,7 +1,11 @@
 /**
  * 通用工具
  */
-define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
+define('app/common',['jquery','app/api','bootstrap','moment',
+	'css!lib/bootstrap/bootstrap.css',
+	'css!lib/font-awesome/font-awesome.css',
+	'css!app/main.css',
+	'css!app/main-component.css'],function($,API) {
 
 	var brandColors = {
 		'blue': '#89C4F4',
@@ -137,10 +141,12 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 							}
 							var _loading_page = $(target).children('.loading-page');
 							if(_loading_page.data("js-module")){
+								requirejs.undef(_loading_page.data("js-module"));
 								require([_loading_page.data("js-module")],function(m){
 									if(_loading_page.data("js-main")) m[_loading_page.data("js-main")].call(this,params);
 									else m.init(params);
 								})
+
 							}
 							_loading_page.fadeIn('slow');
 
@@ -178,6 +184,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 
 							var _loading_page = pageContent.children('.loading-page:last');
 							if(_loading_page.data("js-module")){
+								requirejs.undef(_loading_page.data("js-module"));
 								require([_loading_page.data("js-module")],function(m){
 									if(_loading_page.data("js-main")) m[_loading_page.data("js-main")].call(this,params);
 									else m.init(params);
@@ -196,9 +203,6 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 									});
 								})
 							});
-
-
-
 						},
 						error: function(xhr, ajaxOptions, thrownError) {
 							if(typeof errorback === 'function'){
@@ -556,7 +560,6 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 
 	APP.initDropdowns = function (ct) {
 		_queryContainer(ct).find('.dropdown-menu.hold-on-click').on('click',function(e){
-
 			var _this = $(this);
 			if(_this.hasClass('dropdown-checkboxes')){
 				var _checkbox = $(e.target).prev('[type=checkbox]');
@@ -565,7 +568,6 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 				}
 			}
 			e.stopPropagation();
-
 		});
 	}
 
@@ -641,7 +643,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 	 * @param  {String} ele  显示位置 调用alertS
 	 * @param  {Boolean} autoClose 显示的容器(modal)是否自动关闭
 	 */
-	APP.notice = function(title,text,type,ele,autoClose){
+	APP.notice = function(title,text,type,ele,autoClose,callback){
 		if(!APP.isEmpty(ele)){
 			APP.alertS(title,text,type,ele,autoClose);
 		}else{
@@ -653,6 +655,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 					time: '3000',
 					class_name: 'gritter-'+((type && type != undefined) ? type : 'info')
 				});
+				if(typeof callback === 'function') callback.call(this);
 			})
 		}
 
@@ -736,6 +739,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 					callback.call(this);
 				}
 				if(modal.data("js-module")){
+					requirejs.undef(modal.data("js-module"));
 					require([modal.data("js-module")],function(m){
 						if(modal.data("js-main")) m[modal.data("js-main")].call(this,params);
 						else m.init(params);
@@ -883,7 +887,7 @@ define('app/common',['jquery','app/api','bootstrap','moment'],function($,API) {
 			swal({title : title, text : APP.isEmpty(text) ? '' : text,
 				type: "info",   showCancelButton: true,   closeOnConfirm: false,confirmButtonText:'确定',cancelButtonText : '取消',
 				showLoaderOnConfirm: true},function(){
-				confirmCallBack();
+				confirmCallBack.call(this);
 			});
 		});
 	};

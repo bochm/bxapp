@@ -55,12 +55,11 @@ require.config({
 		
     }
 });
-
-define(['app/index','moment','jquery/scrolltotop',
+/*集成单页面*/
+define(['app/common','moment','jquery/scrolltotop',
         'css!lib/bootstrap/bootstrap.css',
         'css!lib/font-awesome/font-awesome.css',
         'css!app/main.css',
-        'css!app/main-layout.css',
         'css!app/main-component.css'],function(APP,moment){
 	var _now_hour = moment().format('H');
 	if(_now_hour > 16 || _now_hour < 8){
@@ -68,7 +67,10 @@ define(['app/index','moment','jquery/scrolltotop',
 	}else{
 		require(['css!app/main-themes-light.css']);
 	}
-	
-	APP.showIndex();
+	var url = APP.getURLParameter("page");
+	if(!APP.isEmpty(url)) {
+		$("div.page-content").css({"padding-left":"3px","margin":"5px","width":"98%"});
+		APP.loadPage("div.page-content",url);
+	}
 	return APP;
 });
