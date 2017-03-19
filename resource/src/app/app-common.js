@@ -1,11 +1,10 @@
 /**
  * 通用工具
  */
-define('app/common',['jquery','app/api','bootstrap','moment',
+define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 	'css!lib/bootstrap/bootstrap.css',
 	'css!lib/font-awesome/font-awesome.css',
-	'css!app/main.css',
-	'css!app/main-component.css'],function($,API) {
+	'css!app/main.css'],function($,API) {
 
 	var brandColors = {
 		'blue': '#89C4F4',
@@ -137,7 +136,7 @@ define('app/common',['jquery','app/api','bootstrap','moment',
 
 							$(target).append(_html);
 							if(typeof callback === 'function'){
-								callback(res);
+								callback.call(this,res);
 							}
 							var _loading_page = $(target).children('.loading-page');
 							if(_loading_page.data("js-module")){
@@ -153,7 +152,7 @@ define('app/common',['jquery','app/api','bootstrap','moment',
 						},
 						error: function(xhr, ajaxOptions, thrownError) {
 							if(typeof errorback === 'function'){
-								errorback(xhr,xhr.status);
+								errorback.call(this,xhr,xhr.status);
 							}else{
 								APP.unblockUI(target);
 								_sysError("页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
@@ -165,8 +164,9 @@ define('app/common',['jquery','app/api','bootstrap','moment',
 			},
 			loadInnerPage : function(url,params,callback,errorback){
 				if(url){
-					var pageContent = $('body .page-content');
+					var pageContent = $('body .main-page-content.active');
 					var ownerPage = pageContent.children('.loading-page:first');
+					console.log(ownerPage);
 					$.ajax({
 						type: "GET",
 						cache: false,
@@ -179,7 +179,7 @@ define('app/common',['jquery','app/api','bootstrap','moment',
 
 							pageContent.append(_html);
 							if(typeof callback === 'function'){
-								callback(res);
+								callback.call(this,res);
 							}
 
 							var _loading_page = pageContent.children('.loading-page:last');
@@ -190,9 +190,9 @@ define('app/common',['jquery','app/api','bootstrap','moment',
 									else m.init(params);
 								})
 							}
-							ownerPage.slideUp(500,function(){
+							ownerPage.fadeOut(500,function(){
 								_loading_page.fadeIn('fast');
-								var _return_id = APP.getUniqueID("return");
+								/*var _return_id = APP.getUniqueID("return");
 								pageContent.find(".page-bar .page-breadcrumb").append("<li><i class='fa fa-angle-right'></i><a id='"+_return_id+"'><font color='#4B77BE'><i class='fa fa-backward'></i> 返回</font></a></li>");
 								$('#'+_return_id).on('click',function(){
 									_loading_page.fadeOut('fast',function(){
@@ -201,7 +201,7 @@ define('app/common',['jquery','app/api','bootstrap','moment',
 											$('#'+_return_id).parent().remove();
 										});
 									});
-								})
+								})*/
 							});
 						},
 						error: function(xhr, ajaxOptions, thrownError) {
@@ -214,9 +214,6 @@ define('app/common',['jquery','app/api','bootstrap','moment',
 						}
 					});
 				}
-			},
-			returnInnerPage : function(){
-				$('body .page-content').find(".page-bar .page-breadcrumb a:last").click();
 			},
 			getResponsiveBreakpoint: function(size) {
 				// bootstrap 响应尺寸
@@ -403,7 +400,6 @@ define('app/common',['jquery','app/api','bootstrap','moment',
 				APP.initDropdowns(target);
 				APP.initScroll('.scroller',target);
 				APP.initSwitch(target);
-				APP.initImagebox(target);
 				//初始化提交按钮
 				_queryContainer(target).find(".btn[data-submit]").each(function(){
 					var _submit_btn = $(this);
@@ -576,63 +572,58 @@ define('app/common',['jquery','app/api','bootstrap','moment',
 	 * @param  {Object} options target:目标
 	 */
 	APP.blockUI = function(options) {
-		require(['jquery/blockui'],function(){
-			options = $.extend(true, {}, options);
-			var html = "<img src='"+APP.imgPath+"/"+(options.gif ? options.gif :"loading")+".gif' /> "+(options.message ? options.message : "加载中");
+		options = $.extend(true, {}, options);
+		var html = "<img src='"+APP.imgPath+"/"+(options.gif ? options.gif :"loading")+".gif' /> "+(options.message ? options.message : "加载中");
 
-			if (options.target) {
-				var el = $(options.target);
-				if (el.height() <= ($(window).height())) {
-					options.cenrerY = true;
-				}
-				el.block({
-					message: html,
-					baseZ: options.zIndex ? options.zIndex : 1000,
-					centerY: options.cenrerY !== undefined ? options.cenrerY : false,
-					css: {
-						top: '10%',
-						border: '0',
-						padding: '0',
-						backgroundColor: 'none'
-					},
-					overlayCSS: {
-						backgroundColor: options.overlayColor ? options.overlayColor : '#555',
-						opacity: options.boxed ? 0.05 : 0.1,
-						cursor: 'wait'
-					}
-				});
-			} else {
-				$.blockUI({
-					message: html,
-					baseZ: options.zIndex ? options.zIndex : 1000,
-					css: {
-						border: '0',
-						padding: '0',
-						backgroundColor: 'none'
-					},
-					overlayCSS: {
-						backgroundColor: options.overlayColor ? options.overlayColor : '#555',
-						opacity: options.boxed ? 0.05 : 0.1,
-						cursor: 'wait'
-					}
-				});
+		if (options.target) {
+			var el = $(options.target);
+			if (el.height() <= ($(window).height())) {
+				options.cenrerY = true;
 			}
-		})
-
+			el.block({
+				message: html,
+				baseZ: options.zIndex ? options.zIndex : 1000,
+				centerY: options.cenrerY !== undefined ? options.cenrerY : false,
+				css: {
+					top: '10%',
+					border: '0',
+					padding: '0',
+					backgroundColor: 'none'
+				},
+				overlayCSS: {
+					backgroundColor: options.overlayColor ? options.overlayColor : '#555',
+					opacity: options.boxed ? 0.05 : 0.1,
+					cursor: 'wait'
+				}
+			});
+		} else {
+			$.blockUI({
+				message: html,
+				baseZ: options.zIndex ? options.zIndex : 1000,
+				css: {
+					border: '0',
+					padding: '0',
+					backgroundColor: 'none'
+				},
+				overlayCSS: {
+					backgroundColor: options.overlayColor ? options.overlayColor : '#555',
+					opacity: options.boxed ? 0.05 : 0.1,
+					cursor: 'wait'
+				}
+			});
+		}
 	}
 	APP.unblockUI = function(target) {
-		require(['jquery/blockui'],function(){
-			if (target) {
-				$(target).unblock({
-					onUnblock: function() {
-						$(target).css('position', '');
-						$(target).css('zoom', '');
-					}
-				});
-			} else {
-				$.unblockUI();
-			}
-		})
+		if (target) {
+			$(target).unblock({
+				onUnblock: function() {
+					$(target).css('position', '');
+					$(target).css('zoom', '');
+				}
+			});
+		} else {
+			$.unblockUI();
+		}
 	}
 
 	/**

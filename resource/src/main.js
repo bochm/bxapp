@@ -60,8 +60,7 @@ define(['app/index','moment','jquery/scrolltotop',
         'css!lib/bootstrap/bootstrap.css',
         'css!lib/font-awesome/font-awesome.css',
         'css!app/main.css',
-        'css!app/main-layout.css',
-        'css!app/main-component.css'],function(APP,moment){
+        'css!app/main-layout.css'],function(APP,moment){
 	var _now_hour = moment().format('H');
 	if(_now_hour > 16 || _now_hour < 8){
 		require(['css!app/main-themes-default.css']);

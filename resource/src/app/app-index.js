@@ -157,19 +157,21 @@ define(['jquery','app/common'],function($,APP) {
         }
         handleSidebarAndContentHeight();
     }
+    function _toggle_menu_active(actMenu){
+        var menuContainer = $('.page-sidebar ul');
+        menuContainer.children('li.active').removeClass('active');
+        menuContainer.children('.arrow.open').removeClass('open');
+
+        actMenu.parents('li').each(function () {
+            $(this).addClass('active');
+            $(this).children('a > span.arrow').addClass('open');
+        });
+    }
     //点击菜单加载页面
     var handleMenuAction = function(isInSidebar,actMenu){
         var pageContent = 'div.page-content';
         if(isInSidebar){
-            var menuContainer = $('.page-sidebar ul');
-            menuContainer.children('li.active').removeClass('active');
-            menuContainer.children('.arrow.open').removeClass('open');
-
-            actMenu.parents('li').each(function () {
-                $(this).addClass('active');
-                $(this).children('a > span.arrow').addClass('open');
-            });
-
+            _toggle_menu_active(actMenu);
         }
 
         if (APP.getViewPort().width < resBreakpointMd && $('.page-sidebar').hasClass("in")) { //移动端加载页面时隐藏菜单
@@ -256,18 +258,25 @@ define(['jquery','app/common'],function($,APP) {
                 new_tab.remove();
                 $('#'+url_id).remove();
             });
-            $('div.page-tab>div.tab-content').append("<div class='tab-pane' id='"+url_id+"' data-url='"+url+"'></div>");
+            $('div.page-tab>div.tab-content').append("<div class='tab-pane main-page-content' id='"+url_id+"' data-url='"+url+"'></div>");
             tabs_ul.on('mouseover',"li[role='presentation']",function(){
                 $(this).find('.close-tab').show();
             });
             tabs_ul.on('mouseleave',"li[role='presentation']",function(){
                 $(this).find('.close-tab').hide();
             });
+            $("a[href='#"+url_id+"']").on('shown.bs.tab',function(){
+                $currPage = $(this).data('url');
+            })
             APP.loadPage("#"+url_id,url,{},function(){
                 $("a[href='#"+url_id+"']").tab('show');
             },function(){
                 APP.notice("系统错误","页面加载错误","error");
             });
+            $("a[href='#"+url_id+"']").on('shown.bs.tab',function(){
+                _toggle_menu_active(actMenu);
+            })
+
         }
 
 
@@ -581,6 +590,14 @@ define(['jquery','app/common'],function($,APP) {
                 $('div.page-tab>.tab-content>.tab-pane:gt(0)').remove();
                 $('div.page-tab>ul.nav-tabs>li:eq(0)>a').tab('show');
             })
+            //查看页面链接
+            if(APP.debug){
+                var view_link = $("<li><a href='#' data-toggle='view-link'> 查看链接 </a></li>")
+                view_link.click(function(){
+                    APP.info($currPage);
+                });
+                $('.page-content .btn-group.pull-right>.dropdown-menu').append(view_link);
+            }
             //主页点击
             $('.page-sidebar li > a.act-menu:first').click();
         },function(err){
