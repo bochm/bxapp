@@ -893,40 +893,38 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 	 * @param  {int} width  宽度
 	 */
 	APP.popover = function(pobj,content,type,icon,title,placement,width){
-		require(['bootstrap'],function(){
-			if(APP.isEmpty(pobj.attr('id'))) {
-				alert("popover显示对象需要有id属性");
-				return;
-			}
-			var _type = APP.isEmpty(type) ? 'info' : type;
-			var _icon = APP.isEmpty(icon) ? 'fa-info-circle' : icon;
-			var _title = APP.isEmpty(title) ? '提示消息' : title;
-			var _placement = APP.isEmpty(placement) ? 'auto left' : placement;
+		if(APP.isEmpty(pobj.attr('id'))) {
+			alert("popover显示对象需要有id属性");
+			return;
+		}
+		var _type = APP.isEmpty(type) ? 'info' : type;
+		var _icon = APP.isEmpty(icon) ? 'fa-info-circle' : icon;
+		var _title = APP.isEmpty(title) ? '提示消息' : title;
+		var _placement = APP.isEmpty(placement) ? 'auto left' : placement;
 
-			pobj.popover({
-				html: true,
-				trigger: 'manual',
-				title: "<i class='fa "+_icon+"'/> "+_title,
-				container: $(this).attr('id'),
-				content: content,
-				placement: _placement
-			}).on("mouseleave", function () {
-				var _this = this;
-				setTimeout(function () {
-					if (!$(".popover:hover").length) {
-						$(_this).popover("hide")
-					}
-				}, 100);
-			});
-			pobj.popover("show");
-			pobj.siblings('.popover').removeClass("error warning info success").addClass(type);
-			if(!APP.isEmpty(width)){
-				pobj.siblings(".popover").css({"max-width":"600px","width":width+"px"});
-			}
-			pobj.siblings(".popover").on("mouseleave", function () {
-				pobj.popover('hide');
-			});
-		})
+		pobj.popover({
+			html: true,
+			trigger: 'manual',
+			title: "<i class='fa "+_icon+"'/> "+_title,
+			container: $(this).attr('id'),
+			content: content,
+			placement: _placement
+		}).on("mouseleave", function () {
+			var _this = this;
+			setTimeout(function () {
+				if (!$(".popover:hover").length) {
+					$(_this).popover("hide")
+				}
+			}, 100);
+		});
+		pobj.popover("show");
+		pobj.siblings('.popover').removeClass("error warning info success").addClass(type);
+		if(!APP.isEmpty(width)){
+			pobj.siblings(".popover").css({"max-width":"600px","width":width+"px"});
+		}
+		pobj.siblings(".popover").on("mouseleave", function () {
+			pobj.popover('hide');
+		});
 	};
 
 	/**

@@ -1,6 +1,6 @@
 
 define('app/form',["jquery","app/common","app/api","moment",
-                   "jquery/validate","jquery/form","switch"],function($,APP,API) {
+                   "jquery/validate","jquery/form","switch","jquery/summernote"],function($,APP,API) {
 	var moment = require('moment');
 	moment.locale("zh-cn");
 	var FORM = {
@@ -291,6 +291,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 					"<i class='fa fa-calendar'></i></button></span>");
 			formField.parent().dateRangePicker(_dateRangeOpt);
 		}
+		else if(_fieldRole == 'richEdit'){
+			var _richEditOpt = opts.fieldOpts[_fieldName] || {};
+			formField.summerNote(_richEditOpt);
+			if(opts.autoClear){
+				formField.summernote('reset');
+			}
+		}
 	}
 	//初始化表单字段值 
 	function _init_field_value(opts,formField){
@@ -314,6 +321,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 			}else if(_fieldRole == 'select'){
 				formField.val(_fieldValue).trigger("change");
+			}else if(_fieldRole == 'richEdit'){
+				formField.summernote('code',_fieldValue);
 			}else{
 				formField.val(_fieldValue);
 			}
@@ -328,7 +337,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 */
 	$.fn.initForm = function (opts,callback,errorback) {
 		var _this = $(this);
-		
+
 		if(opts.autoClear)_this.clearForm(true); //静态modal中的form 先清空再初始化
 		if(APP.isEmpty(opts)) opts = {};
 		if(APP.isEmpty(opts.fieldOpts)) opts.fieldOpts = {};//fieldOpts表单元素的初始化参数
@@ -848,6 +857,41 @@ define('app/form',["jquery","app/common","app/api","moment",
 			input_obj.typeahead(default_settings);
 		})
 	}
+	/**
+	 * 基于summernote的富文本编辑器
+	 * 定义了默认的onImageUpload回调方法和默认参数
+	 * @param  {Object} options summernote参数
+	 */
+	$.fn.summerNote = function(options){
+		var _this = $(this);
+		var default_settings = $.extend(true,{
+			toolbar: [
+				['style', ['bold', 'italic', 'underline','color', 'clear','strikethrough', 'superscript', 'subscript','fontsize','height']],
+				['para', ['ul', 'ol', 'paragraph']],
+				['insert', ['picture','link','video','table','hr']],
+				['misc', ['undo','redo','codeview']]
+			],
+			lang : 'zh-CN',
+			placeholder : _this.data('placeholder') || '',
+			minHeight : 200,
+			dialogsFade : true,// Add fade effect on dialogs
+			dialogsInBody : true,// Dialogs can be placed in body, not in
+			disableDragAndDrop : true,// default false You can disable drag
+			callbacks : {
+				onImageUpload : function(files) {
+					var $files = $(files);
+					$files.each(function(file) {
+						var data = new FormData();
+						data.append("file", file);
+						console.log(data);
+						//上传文件
+					});
+				}
+			}
+		},options);
+		_this.summernote(default_settings);
+	}
+
 	function _initModalForm(mid,formOtps,submitback,errorback){
 		var formModal = $(mid);
 		var form = formModal.find('form');

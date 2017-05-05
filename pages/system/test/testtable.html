@@ -1,27 +1,39 @@
 <div class="loading-page" data-js-module="module/test/testtable">
-<div class="row">
-    <div class="col-md-4">
+<div class="row scroller">
+    <div class="col-md-3">
         <ul id="tree-system-test-list" class="ztree"></ul>
     </div>
-    <div class="col-md-8">
-        <span id="table-system-test-list-toolbar" class="hide">
-        <a data-role="excel" />
-        <button class="btn btn-sm btn-warning" data-role="testmmmm">sdfsdfsd</button>
-        </span>
-            <table id="table-system-test-list" class="table datatable table-bordered nowrap"  data-url="system/test"
-                   data-paging="true" data-info="true" data-ordering="true">
-                <thead><tr>
-                    <th data-visible='false' data-column="id">id</th>
-                    <th  data-column=loginName >登录账号</th>
-                    <th  data-column="name" >姓名</th>
-                    <th  data-column="no">工号</th>
-                    <th data-column="email" >email</th>
-                    <th  data-column="company.name" >公司</th>
-                    <th  data-column="remarks" >备注</th>
-                </tr></thead>
-                <tbody>
-                </tbody>
-            </table>
+    <div class="col-md-9">
+        <div class="row">
+            <div class="col-sm-12">
+                <span id="table-system-test-list-toolbar" class="hide">
+                <a data-role="excel" />
+                <button class="btn btn-sm btn-warning" id="btn-test-system-test-list" data-role="testmmmm">sdfsdfsd</button>
+                </span>
+                <table id="table-system-test-list" class="table datatable table-bordered nowrap"  data-url="system/test"
+                       data-paging="true" data-info="true" data-ordering="true">
+                    <thead><tr>
+                        <th data-visible='false' data-column="id">id</th>
+                        <th  data-column=loginName >登录账号</th>
+                        <th  data-column="name" >姓名</th>
+                        <th  data-column="no">工号</th>
+                        <th data-column="email" >email</th>
+                        <th  data-column="company.name" >公司</th>
+                        <th  data-column="remarks" >备注</th>
+                    </tr></thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div name="test-edit" data-placeholder="请输入">
+                    <blockquote><p>ddddddd</p><p><b style="background-color: rgb(181, 214, 165);">sssssasdadadadddddd</b></p></blockquote>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>
 </div>
