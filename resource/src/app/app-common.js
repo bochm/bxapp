@@ -642,8 +642,8 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 				$.gritter.add({
 					title: title,
 					text: text,
-					sticky: (type === 'error'),
-					time: '3000',
+					sticky: false,
+					time: (type === 'error' ? '5000' : '3000'),
 					class_name: 'gritter-'+((type && type != undefined) ? type : 'info')
 				});
 				if(typeof callback === 'function') callback.call(this);
@@ -739,9 +739,11 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
 				if(typeof errorback === 'function'){
-					errorback.call(this,xhr);
+					errorback.call(this,xhr,xhr.status);
+				}else{
+					_sysError("页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
 				}
-				_sysError("页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
+
 			}
 		});
 	}

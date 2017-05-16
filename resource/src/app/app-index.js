@@ -555,7 +555,7 @@ define(['jquery','app/common'],function($,APP) {
         API.getLoginUser(function(user){
             APP.initIndex(user);
         },function(ret,status){
-            if(status == "401") _showLogin();
+            if(status == API.http.UNAUTHORIZED.status) _showLogin();
             //else APP.error(ret);
         });
     }
@@ -590,13 +590,26 @@ define(['jquery','app/common'],function($,APP) {
                 $('div.page-tab>.tab-content>.tab-pane:gt(0)').remove();
                 $('div.page-tab>ul.nav-tabs>li:eq(0)>a').tab('show');
             })
-            //查看页面链接
+            //登出
+            $("[data-toggle='logout']").on('click',function(){
+                API.logout();
+                _showLogin();
+            })
+            //查看页面链接,清空本地缓存
             if(APP.debug){
-                var view_link = $("<li><a href='#' data-toggle='view-link'> 查看链接 </a></li>")
+                var view_link = $("<li><a href='#'> 查看链接 </a></li>")
                 view_link.click(function(){
                     APP.info($currPage);
                 });
+                var remove_local_store = $("<li><a href='#'> 清空缓存 </a></li>")
+                remove_local_store.click(function(){
+                    API.clearLocalData();
+                    setTimeout(function(){
+                        window.location.reload();
+                    },500);
+                });
                 $('.page-content .btn-group.pull-right>.dropdown-menu').append(view_link);
+                $('.page-content .btn-group.pull-right>.dropdown-menu').append(remove_local_store);
             }
             //主页点击
             $('.page-sidebar li > a.act-menu:first').click();

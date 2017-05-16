@@ -323,6 +323,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 				formField.val(_fieldValue).trigger("change");
 			}else if(_fieldRole == 'richEdit'){
 				formField.summernote('code',_fieldValue);
+			}else if(formField.attr('type') == 'file'){
+
 			}else{
 				formField.val(_fieldValue);
 			}
@@ -385,6 +387,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 		var _query_url = opts.url;
 		var _url = API.ctx + (opts.url || _this.attr('action'));
 		opts.url = API.srv + _url;
+
+		//表单中存在文件控件，如果opts.formData直接使用则会导致jquery.form插件无法识别文件提交失败
+		//后续考虑使用单独文件上传控件
+		if($('input[type=file]:enabled', _this).length > 0){
+			opts.formData = null;
+		}
+
 		var form_opt = $.extend(true,{
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
@@ -450,7 +459,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(opts.modal)_in_modal = opts.modal.get();
 				if(APP.debug)console.log(error);
 				APP.unblockUI(_in_modal);
-				APP.notice('',"系统错误 错误代码:"+error.status+" 错误名称:"+error.statusText,'error',_in_modal);
+				APP.notice('',"系统错误["+error.status+"] "+error.statusText,'error',_in_modal);
 				if(typeof errorback === 'function')errorback(error);
 				else if(opts.onError) opts.onError(error);
 			},
@@ -474,8 +483,9 @@ define('app/form',["jquery","app/common","app/api","moment",
 					else if(opts.onSuccess) opts.onSuccess(response[API.DATA]);
 				}else{
 					APP.notice('',response[API.MSG],'warning',_in_modal);
-					if(response[API.STATUS] == "401"){
+					if(response[API.STATUS] == API.http.UNAUTHORIZED.status){
 						API.showLogin();
+						return;
 		        	}
 					if(typeof errorback === 'function')errorback(response,status);
 					else if(opts.onError) opts.onError(response,status);
@@ -895,6 +905,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	function _initModalForm(mid,formOtps,submitback,errorback){
 		var formModal = $(mid);
 		var form = formModal.find('form');
+
 		formOtps.modal = formModal;
 		form.initForm(formOtps,function(data){
 			if(typeof submitback === 'function') submitback.call(this,data,function(){formModal.modal('hide')});
@@ -910,20 +921,22 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(typeof queryback === 'function') queryback.call(this,data);
 			});
 		}else if(opts.queryModal){
-			var modalId = opts.queryModal;
-			var modalOpts = {
-		    		title : "<i class='fa fa-search'/></i> 查询",
-		    		clear : false,show : false,
-		    		buttons : {"text" : "查询","classes" : "btn-primary",action : function(btn,modal){
-		    			modal.find('form').submit();
-		    		}}
+			var modalDefOpts = {
+				title : "<i class='fa fa-search'/></i> 查询",
+				clear : false,show : false,
+				buttons : {"text" : "查询","classes" : "btn-primary",action : function(btn,modal){
+					modal.find('form').submit();
+				}}
 			}
-			if(typeof opts.queryModal === 'object'){
-				modalOpts.url = opts.queryModal.url;
-				modalId = opts.queryModal.id;
+			var modalOpts = {};
+			//只指定modal.id的静态modal
+			if(typeof opts.queryModal === 'string'){
+				modalOpts = $.extend(modalDefOpts,{id:opts.queryModal})
+			}else if(typeof opts.queryModal === 'object'){//指定modal初始化参数
+				modalOpts = $.extend(modalDefOpts,opts.queryModal);
 			}
-			APP.modal(modalId,modalOpts,function(){
-				_initModalForm(modalId,queryOtps,queryback);
+			APP.modal(modalOpts.id,modalOpts,function(){
+				_initModalForm(modalOpts.id,queryOtps,queryback);
 			});
 		}
 		
@@ -934,27 +947,30 @@ define('app/form',["jquery","app/common","app/api","moment",
 			clearForm : true,formAction : "add",autoClear : true,type : 'post',autoClose : false
 		},opts);
 		if(opts.editForm){
-			$(opts.queryForm).initForm(formOtps,function(data){
+			$(opts.editForm).initForm(formOtps,function(data){
 				if(typeof editback === 'function') editback.call(this,data);
 			},function(err){
 				if(typeof errorback === 'function') errorback.call(this,data);
 			});
 		}else if(opts.editModal){
-			var modalId = opts.editModal;
-			var modalOpts = {
-		    		title : formOtps.title,
-		    		show : true,
-		    		buttons : {"text" : "保存","classes" : "btn-primary",action : function(btn,modal){
-		    			modal.find('form').submit();
-		    		}}
+			var modalDefOpts = {
+				title : formOtps.title,
+				show : true,
+				buttons : {"text" : "保存","classes" : "btn-primary",action : function(btn,modal){
+					modal.find('form').submit();
+				}}
 			}
-			if(typeof opts.editModal === 'object'){
-				modalOpts.url = opts.editModal.url;
-				modalId = opts.editModal.id;
+			var modalOpts = {};
+			//只指定modal.id的静态modal
+			if(typeof opts.editModal === 'string'){
+				modalOpts = $.extend(modalDefOpts,{id:opts.editModal})
+			}else if(typeof opts.editModal === 'object'){//指定modal初始化参数
+				modalOpts = $.extend(modalDefOpts,opts.editModal);
 			}
-			APP.modal(modalId,modalOpts,function(){
-				_initModalForm(modalId,formOtps,editback,errorback);
+			APP.modal(modalOpts.id,modalOpts,function(){
+				_initModalForm(modalOpts.id,formOtps,editback,errorback);
 			});
+
 		}
 		
 	}

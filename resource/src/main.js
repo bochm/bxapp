@@ -36,7 +36,8 @@ require.config({
 		'datatables/select':'lib/jquery/datatables/dataTables.select',
 		'datatables/responsive':'lib/jquery/datatables/dataTables.responsive',
 		'datatables/fixedHeader':'lib/jquery/datatables/dataTables.fixedHeader',
-		'echarts':'lib/echarts/echarts'
+		'echarts':'lib/echarts/echarts',
+		'store' : 'lib/ie-need/store.everything.min'
 	},
 	map: {
         '*': {'css': 'css-builder'}//css加载css-builder。js
@@ -53,7 +54,6 @@ require.config({
 		'bootstrap/datepicker':['bootstrap','css!lib/bootstrap/datepicker/bootstrap-datepicker3.css'],
 		'sweetalert':['jquery','css!lib/bootstrap/sweetalert/sweet-alert.css'],
     	'bootstrap/typeahead' : ['bootstrap']
-		
     }
 });
 
@@ -68,7 +68,6 @@ define(['app/index','moment','jquery/scrolltotop',
 	}else{
 		require(['css!app/main-themes-light.css']);
 	}
-	
 	APP.showIndex();
 	return APP;
 });
