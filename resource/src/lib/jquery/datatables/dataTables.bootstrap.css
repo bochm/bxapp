@@ -7,7 +7,7 @@
   zoom: 1;
 }
 /*
-* bx add Ôö¼Ó±í¸ñ¹¦ÄÜ°´Å¥ÑùÊ½
+* bx add ï¿½ï¿½ï¿½Ó±ï¿½ï¿½ï¿½Ü°ï¿½Å¥ï¿½ï¿½Ê½
 */
 /* .dataTables_wrapper .dataTables_btn_toolbar{
   float: left;
@@ -19,7 +19,7 @@
   margin-right: 0.15em;
 } */
 /*
-* bx add Ôö¼Ó±í¸ñÎ²²¿·ÖÒ³µÈ¹¦ÄÜÇøÓòÍ³Ò»ÉèÖÃÑùÊ½
+* bx add ï¿½ï¿½ï¿½Ó±ï¿½ï¿½Î²ï¿½ï¿½ï¿½ï¿½Ò³ï¿½È¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í³Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½
 */
 .dataTables_wrapper .table-foot-bar{
 	background-color: #F2F2F2;
@@ -28,9 +28,9 @@
 }
 .dataTables_wrapper .dataTables_length {
    float: left;
-   font-size: 70%;/*bx add ÐÞ¸ÄÃ¿Ò³ÏÔÊ¾ÌõÊý×ÖÌå*/
-   padding-top: 0.2em;/*bx add ÐÞ¸ÄÃ¿Ò³ÏÔÊ¾ÌõÊýÎ»ÖÃ*/
-   margin-left: 0.5em;/*bx add ÐÞ¸ÄÃ¿Ò³ÏÔÊ¾ÌõÊýÎ»ÖÃ*/
+   font-size: 70%;/*bx add ï¿½Þ¸ï¿½Ã¿Ò³ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
+   padding-top: 0.2em;/*bx add ï¿½Þ¸ï¿½Ã¿Ò³ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½*/
+   margin-left: 0.5em;/*bx add ï¿½Þ¸ï¿½Ã¿Ò³ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½*/
 }
 
 div.dataTables_length label {
@@ -50,8 +50,8 @@ div.dataTables_length select {
 .dataTables_wrapper .dataTables_filter {
 	float: right;
 	margin-top: 0.3em;
-	margin-right: 2.5em;/* bx add ¹ýÂËÎ»ÖÃ Ô¤Áô³ö²éÑ¯°´Å¥Î»ÖÃ */
-	/* margin-right: 15px;bx add ÐÞ¹ýÂËÎ»ÖÃ Ô¤Áô³ö¹ö¶¯ÌõÎ»ÖÃ  ÒÑÊ¹ÓÃdom·½Ê½ÐÞ¸Ä */
+	margin-right: 2.5em;/* bx add ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯ï¿½ï¿½Å¥Î»ï¿½ï¿½ */
+	/* margin-right: 15px;bx add ï¿½Þ¹ï¿½ï¿½ï¿½Î»ï¿½ï¿½ Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½  ï¿½ï¿½Ê¹ï¿½ï¿½domï¿½ï¿½Ê½ï¿½Þ¸ï¿½ */
 }
 
 div.dataTables_filter label {
@@ -64,7 +64,7 @@ div.dataTables_filter input {
 	display: inline-block;
 }
 div.dataTables_filter .icon-search {
-	margin-top: -1.3em;/*bx add Í¼±êÎ»ÖÃÉÏÒÆ */
+	margin-top: -1.3em;/*bx add Í¼ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 	cursor: pointer;
 }
 
@@ -73,13 +73,13 @@ div.dataTables_info {
   float: left;
   margin-top: 0.5em;
   margin-left : 0.1em;
-  font-size: 100%;/*bx add ÐÞ¸Ä±í¸ñÒ³ÊýÐÅÏ¢×ÖÌå*/
+  font-size: 100%;/*bx add ï¿½Þ¸Ä±ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½*/
   font-weight: bold;
   color: #364150;
 }
 
 
-/* ÐÞ¸ÄÒ³Ãæ´óÐ¡±ä¸üºó·ÖÒ³»á¹Ì¶¨ÏÔÊ¾ÔÚÓÒÏÂ½Ç */
+/* ï¿½Þ¸ï¿½Ò³ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½Ì¶ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½Â½ï¿½ */
 /* div.dataTables_paginate {
 	margin: 0;
 	white-space: nowrap;
@@ -88,8 +88,8 @@ div.dataTables_info {
 .dataTables_wrapper .dataTables_paginate {
    float: right;
    height: 30px;
-   /* padding-top: 0.1em;bx add ÐÞ¸Ä·ÖÒ³Î»ÖÃ */
-   /* margin-right: 0px;bx add ÐÞ¸Ä·ÖÒ³Î»ÖÃ Ô¤Áô³ö¹ö¶¯ÌõÎ»ÖÃ  ÒÑÊ¹ÓÃdom·½Ê½ÐÞ¸Ä */
+   /* padding-top: 0.1em;bx add ï¿½Þ¸Ä·ï¿½Ò³Î»ï¿½ï¿½ */
+   /* margin-right: 0px;bx add ï¿½Þ¸Ä·ï¿½Ò³Î»ï¿½ï¿½ Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½  ï¿½ï¿½Ê¹ï¿½ï¿½domï¿½ï¿½Ê½ï¿½Þ¸ï¿½ */
 
 }
 div.dataTables_paginate ul.pagination {
@@ -131,7 +131,7 @@ table.dataTable thead .sorting_desc_disabled {
 	position: relative;
 }
 /*
-* bx modify ÐÞ¸ÄimgÂ·¾¶Îªimages
+* bx modify ï¿½Þ¸ï¿½imgÂ·ï¿½ï¿½Îªimages
 */
 /* table.dataTable thead .sorting {
   background: url("images/sort_both.png") no-repeat center right;
@@ -149,7 +149,7 @@ table.dataTable thead .sorting_desc_disabled {
   background: url("images/sort_desc_disabled.png") no-repeat center right;
 } */
 /*
-* bx modify ÐÞ¸ÄÎª×ÖÌåÍ¼±ê
+* bx modify ï¿½Þ¸ï¿½Îªï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 */
 table.dataTable thead .sorting:after,
 table.dataTable thead .sorting_asc:after,
@@ -216,7 +216,11 @@ div.dataTables_scrollBody tbody tr:first-child th,
 div.dataTables_scrollBody tbody tr:first-child td {
 	border-top: none;
 }
-
+/*add by bcm*/
+div.dataTables_scrollFoot{
+    border-top: none;
+    height:35px;
+}
 div.dataTables_scrollFoot table {
 	margin-top: 0 !important;
 	border-top: none;
@@ -268,12 +272,15 @@ div.dataTables_processing {
     background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 25%, rgba(255,255,255,0.9) 75%, rgba(255,255,255,0) 100%);
 }
 
-
+table.dataTable tbody th,
+table.dataTable tbody td {
+    white-space: nowrap;
+}
 
 /*
  * Buttons styles
  */
- /*bx delete infoÌáÊ¾¸ÄÓÃnotice*/
+ /*bx delete infoï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½notice*/
 /* div.dt-button-info {
   position: fixed;
   top: 50%;
@@ -301,17 +308,17 @@ div.dt-button-info > div {
 div.dt-buttons {
    position: relative;
    float: left;
-  /*bx add ÐÞ¸Ä¹¤¾ßÀ¸Î»ÖÃ*/
+  /*bx add ï¿½Þ¸Ä¹ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½*/
   padding-top: 0.25em;
   padding-bottom: 0.15em;
   padding-left: 0.15em;
   
 }
 div.dt-buttons .btn-group{
-   margin-right: 0.15em;/*bx add ×éºÏ°´Å¥¼ä¾à*/
+   margin-right: 0.15em;/*bx add ï¿½ï¿½Ï°ï¿½Å¥ï¿½ï¿½ï¿½*/
 }
 div.dt-buttons a{
-   margin-right: 0.2em;/*bx add ÐÞ¸Ä¹¤¾ßÀ¸Î»ÖÃ*/
+   margin-right: 0.2em;/*bx add ï¿½Þ¸Ä¹ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½*/
 }
 /* ul.dt-button-collection.dropdown-menu {
   display: block;
@@ -379,7 +386,7 @@ div.dt-button-background {
   z-index: 2001;
 } */
 
-/* È¡Ïû°´Å¥¹¤¾ßÀ¸ÏìÓ¦ */
+/* È¡ï¿½ï¿½ï¿½ï¿½Å¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ */
 /* @media screen and (max-width: 767px) {
   div.dt-buttons {
     float: none;
@@ -689,30 +696,32 @@ table.dataTable.order-column.hover tbody > tr > .selected:hover {
   background-color: #007dbb;
 }
 table.dataTable td.select-checkbox {
-  position: relative;
+    position: relative;
+    padding-left: 10px;
+    padding-right: 10px;
 }
-table.dataTable td.select-checkbox:before, table.dataTable td.select-checkbox:after {
-  display: block;
-  position: absolute;
-  top: 1.2em;
-  left: 50%;
-  width: 12px;
-  height: 12px;
-  box-sizing: border-box;
+table.dataTable th.select-checkbox{
+    text-align: center;
+    top: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
-table.dataTable td.select-checkbox:before {
-  content: ' ';
-  margin-top: -6px;
-  margin-left: -6px;
-  border: 1px solid black;
-  border-radius: 3px;
+table.dataTable th.select-checkbox>i{
+    font-size: 1.2em;
 }
-table.dataTable tr.selected td.select-checkbox:after {
-  content: '\2714';
-  margin-top: -11px;
-  margin-left: -4px;
-  text-align: center;
-  text-shadow: 1px 1px #B0BED9, -1px -1px #B0BED9, 1px -1px #B0BED9, -1px 1px #B0BED9;
+table.dataTable td.select-checkbox:after,
+table.dataTable tr.selected td.select-checkbox:after{
+    position: absolute;
+    top: 8px;
+    display: block;
+    font-family: 'FontAwesome';
+    font-size: 1.2em;
+}
+table.dataTable td.select-checkbox:after {
+    content: "\f096";
+}
+table.dataTable tr.selected td.select-checkbox:after{
+    content: "\f046";
 }
 
 div.dataTables_wrapper span.select-info,
@@ -763,7 +772,7 @@ table.dataTable.fixedHeader-locked {
 
 
 /*--------------------------------treetable-------------------------*/
-/* ÎªÍ¼±êÔ¤ÁôËõ½ø¿Õ¼ä */
+/* ÎªÍ¼ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ */
 table.treetable span.indenter {
   display: inline-block;
   margin: 0;

@@ -1,7 +1,7 @@
 /**
  * 通用工具
  */
-define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
+define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/blockui',
 	'css!lib/bootstrap/bootstrap.css',
 	'css!lib/font-awesome/font-awesome.css',
 	'css!app/main.css'],function($,API) {
@@ -27,7 +27,9 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 	var moment = require('moment');
 	moment.locale("zh-cn");
 
-
+	//设置数字格式化工具
+	var numeral = require('numeral');
+	numeral.locale('chs');
 	//客户端设备处理,device.js,去除blackberry、fxos、meego 检测
 	var device = {};
 	var _userAgent = window.navigator.userAgent.toLowerCase();
@@ -116,6 +118,7 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 				else
 					return moment(d,d_patterm).format(patterm);
 			},
+			numeral : numeral,
 			loadPage : function(target,url,params,callback,errorback){
 				if(url){
 					APP.blockUI({target:target,message:'页面加载中',});
@@ -127,28 +130,7 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 						dataType: "html",
 						success: function(res) {
 							APP.currentUrl = url;
-							var _html = $(res);
-							APP.initComponents(_html.get());
-							APP.unblockUI(target);
-							$(target).children().each(function(){
-								if($(this).attr("id") != "topcontrol") $(this).remove();
-							});
-
-							$(target).append(_html);
-							if(typeof callback === 'function'){
-								callback.call(this,res);
-							}
-							var _loading_page = $(target).children('.loading-page');
-							if(_loading_page.data("js-module")){
-								requirejs.undef(_loading_page.data("js-module"));
-								require([_loading_page.data("js-module")],function(m){
-									if(_loading_page.data("js-main")) m[_loading_page.data("js-main")].call(this,params);
-									else m.init(params);
-								})
-
-							}
-							_loading_page.fadeIn('slow');
-
+							APP.initComponents($(res).get(),params,target,callback);
 						},
 						error: function(xhr, ajaxOptions, thrownError) {
 							if(typeof errorback === 'function'){
@@ -174,22 +156,8 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 						url: ((url.indexOf("?") >0) ? (url.split("?")[0]+".html?" + url.split("?")[1]) : url+".html"),
 						dataType: "html",
 						success: function(res) {
-							var _html = $(res);
-							APP.initComponents(_html.get());
-
-							pageContent.append(_html);
-							if(typeof callback === 'function'){
-								callback.call(this,res);
-							}
-
+							APP.initComponents($(res).get(),params,pageContent,callback);
 							var _loading_page = pageContent.children('.loading-page:last');
-							if(_loading_page.data("js-module")){
-								requirejs.undef(_loading_page.data("js-module"));
-								require([_loading_page.data("js-module")],function(m){
-									if(_loading_page.data("js-main")) m[_loading_page.data("js-main")].call(this,params);
-									else m.init(params);
-								})
-							}
 							ownerPage.fadeOut(500,function(){
 								_loading_page.fadeIn('fast');
 								/*var _return_id = APP.getUniqueID("return");
@@ -383,51 +351,90 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 				});
 			},
 			//初始化控件
-			initComponents: function(target){
-				var page_permission = $(target).data("permission");
+			initComponents: function(page,params,target,callback){
+				var page_permission = $(page).data("permission");
 				if(page_permission && !_is_local_data){
-					var pmis = API.getPermission(page_permission);
-					$(target).find("[data-permission]").each(function(){
-						var pm = $(this).data("permission");
-						if($.inArray(page_permission+":"+pm,pmis) === -1) $(this).remove();
-					});
-				}
-				APP.initTab(target,false);
-				APP.initPopover(target);
-				APP.initTooltip(target);
-				APP.initPulsate(target);
-				APP.initPortletPanel(target);
-				APP.initDropdowns(target);
-				APP.initScroll('.scroller',target);
-				APP.initSwitch(target);
-				//初始化提交按钮
-				_queryContainer(target).find(".btn[data-submit]").each(function(){
-					var _submit_btn = $(this);
-					_submit_btn.click(function(){
-						$(_submit_btn.data("submit")).submit();
-					});
-				});
-				//ie对于placeholder的支持
-				if (APP.isIE8 || APP.isIE9) {
-					_queryContainer(target).find('input[placeholder]:not(.placeholder-no-fix), textarea[placeholder]:not(.placeholder-no-fix)').each(function () {
-						var input = $(this);
-						if (input.val() == '' && input.attr("placeholder") != '') {
-							input.addClass("placeholder").val(input.attr('placeholder'));
-						}
-						input.focus(function () {
-							if (input.val() == input.attr('placeholder')) {
-								input.val('');
-							}
+					API.getPermission(page_permission,function(pmis){
+						$(page).find("[data-permission]").each(function(){
+							var pm = $(this).data("permission");
+							if($.inArray(page_permission+":"+pm,pmis) === -1) $(this).remove();
 						});
-						input.blur(function () {
-							if (input.val() == '' || input.val() == input.attr('placeholder')) {
-								input.val(input.attr('placeholder'));
-							}
-						});
+						_initPageComponents(page,params,target,callback);
 					});
+				}else{
+					_initPageComponents(page,params,target,callback);
 				}
+
 			}
 		};
+	}
+	/**
+	 * 初始化页面控件
+	 * @param  {String} page 目标页面DOM
+	 */
+	function _initPageComponents(page,params,target,callback){
+		APP.initTab(page,false);
+		APP.initPopover(page);
+		APP.initTooltip(page);
+		APP.initPulsate(page);
+		APP.initPortletPanel(page);
+		APP.initDropdowns(page);
+		APP.initScroll('.scroller',page);
+		APP.initSwitch(page);
+		//初始化提交按钮
+		_queryContainer(page).find(".btn[data-submit]").each(function(){
+			var _submit_btn = $(this);
+			_submit_btn.click(function(){
+				$(_submit_btn.data("submit")).submit();
+			});
+		});
+		//ie对于placeholder的支持
+		if (APP.isIE8 || APP.isIE9) {
+			_queryContainer(page).find('input[placeholder]:not(.placeholder-no-fix), textarea[placeholder]:not(.placeholder-no-fix)').each(function () {
+				var input = $(this);
+				if (input.val() == '' && input.attr("placeholder") != '') {
+					input.addClass("placeholder").val(input.attr('placeholder'));
+				}
+				input.focus(function () {
+					if (input.val() == input.attr('placeholder')) {
+						input.val('');
+					}
+				});
+				input.blur(function () {
+					if (input.val() == '' || input.val() == input.attr('placeholder')) {
+						input.val(input.attr('placeholder'));
+					}
+				});
+			});
+		}
+		if(target) {
+			APP.unblockUI(target);
+			$(target).children().each(function(){
+				if($(this).attr("id") != "topcontrol") $(this).remove();
+			});
+
+			$(target).append(page);
+			if(typeof callback === 'function'){
+				callback.call(this,page);
+			}
+			var _loading_page = $(target).children('.loading-page:last');
+			_callJsModal(_loading_page,params);
+			_loading_page.fadeIn('slow');
+		}
+
+	}
+	/**
+	 * 执行页面dom中的js-module主文件
+	 * @param  {Object} page 带js-module属性的dom对象
+	 */
+	function _callJsModal(page,params){
+		if(page.data("js-module")){
+			requirejs.undef(page.data("js-module"));
+			require([page.data("js-module")],function(m){
+				if(page.data("js-main")) m[page.data("js-main")].call(this,params);
+				else m.init(params);
+			})
+		}
 	}
 	/**
 	 * 查找dom
@@ -435,7 +442,8 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 	 */
 	function _queryContainer(ct){
 		if(APP.isEmpty(ct)) return $('body');
-		if($(ct).length > 0) return $(ct);
+		var $ct = $(ct);
+		if($ct.length > 0) return $ct;
 		return $('body');
 	}
 	/**
@@ -710,7 +718,7 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 		if(opt.attr) btn.attr(opt.attr);
 		if(typeof opt.action === 'function'){
 			btn.on('click',function(e){
-				opt.action.call(this,btn,modal);
+				opt.action.call(this,e,btn,modal);
 			})
 		}
 		return btn;
@@ -729,13 +737,7 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 				if(typeof callback === 'function'){
 					callback.call(this);
 				}
-				if(modal.data("js-module")){
-					requirejs.undef(modal.data("js-module"));
-					require([modal.data("js-module")],function(m){
-						if(modal.data("js-main")) m[modal.data("js-main")].call(this,params);
-						else m.init(params);
-					})
-				}
+				_callJsModal(modal,params);
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
 				if(typeof errorback === 'function'){
@@ -827,7 +829,7 @@ define('app/common',['jquery','app/api','bootstrap','moment','jquery/blockui',
 		}else{
 			require(['sweetalert'],function(){
 				swal({title : title, text : APP.isEmpty(text) ? '' : text,
-					type : APP.isEmpty(type) ? 'success' : type,
+					type : APP.isEmpty(type) ? 'success' : type,timer:autoClose ? 1000 : null,
 					confirmButtonText:'确定',cancelButtonText : '取消'});
 			});
 		}

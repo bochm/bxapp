@@ -2967,7 +2967,7 @@ body.modal-open,
 }
 
 .modal-body {
-  max-height: none;
+  max-height: 500px;/*mod by bcm*/
   overflow: visible;
 }
 
@@ -4116,6 +4116,9 @@ Default table
 .table.table-bordered thead > tr > th {
   border-bottom: 0;
 }
+.table.table-bordered tfoot > tr > th {
+  border-top: 0;
+}
 .table tr.heading > th {
   background-color: #eee !important;
 }
@@ -4129,7 +4132,7 @@ td,
 .table-bordered {
   border-radius: 0 !important;
 }
-.table thead tr {
+.table thead tr,.table tfoot tr{
   color: #707070;
   font-weight: normal;
   background: #F2F2F2;
@@ -4140,7 +4143,7 @@ td,
     background-repeat: repeat-x; */
   /* filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff8f8f8', endColorstr='#ffececec', GradientType=0); */
 }
-.table thead tr th {
+.table thead tr th,.table tfoot tr th{
   border-color: #DDD;
   font-weight: bold;
 }

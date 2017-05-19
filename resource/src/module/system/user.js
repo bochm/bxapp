@@ -1,5 +1,14 @@
 define('module/system/user',['app/common','app/datatables','app/form'],function(APP,DT,FM) {
 	var userTable;
+	var columns = [
+		{ "data": "id","title":"id","visible":false},
+		{ "data": "loginName","title":"登录账号"},
+		{ "data": "name","title":"姓名"},
+		{ "data": "no","title":"工号"},
+		{ "data": "email","title":"email"},
+		{"data": "company.name","title":"公司"},
+		{"data": "remarks","title":"备注"}
+	];
 	var form_rules = {
 		"loginName":{
 			"checkExists":{
@@ -33,9 +42,12 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 	function inti_table(param){
 		$('table#table-system-user-list').initTable({
 			"title" : "用户表",
+			"columns" : columns,
 			"params" : param, //测试
 			"scrollY": "350px",
 			"permission":true,
+			"checkboxSelect":true,
+			"ordering" : false,
 			"queryModal" : "#system-user-query",
 			"deleteRecord" : {url : 'system/user/delete',id : 'id'},
 			"addRecord" : function(dt){

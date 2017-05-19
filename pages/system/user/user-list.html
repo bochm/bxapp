@@ -30,8 +30,8 @@
 <a class="btn btn-sm btn-warning btn-selectMore" data-role="deleteRecord" data-permission="delete">删除用户</a>
 </span>
 <table id="table-system-user-list" class="table datatable table-bordered nowrap"  data-url="system/user" 
-	data-paging="true" data-info="true" data-ordering="true">
-		<thead><tr>
+	data-paging="false" data-info="true" data-ordering="true" width="100%">
+		<!--<thead><tr>
 			<th data-visible='false' data-column="id">id</th>
 			<th  data-column=loginName >登录账号</th>
 			<th  data-column="name" >姓名</th>
@@ -39,13 +39,23 @@
 			<th data-column="email" >email</th>
 			<th  data-column="company.name" >公司</th>
 			<th  data-column="remarks" >备注</th>
-		</tr></thead>
+		</tr></thead>-->
 		<tbody>
 		</tbody>
+	<tfoot >
+		<tr>
+			<th colspan="3">合计</th>
+			<th data-sum-column="4" data-format="0.0"></th>
+			<th></th>
+			<th></th>
+			<th ></th>
+			<th ></th>
+		</tr>
+	</tfoot>
 </table>	
 
 <!-- 新增修改 -->
-<div class="modal fade" id="system-user-list-edit" data-backdrop="static" data-width="600">
+<div class="modal fade" id="system-user-list-edit" data-backdrop="static" data-width="700" >
 <form class="form-horizontal" method="post" role="form" id="system-user-edit-form" enctype="multipart/form-data">
  	<input type="hidden" name="id">
  	<div class="row">

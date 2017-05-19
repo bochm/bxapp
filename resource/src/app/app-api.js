@@ -127,12 +127,10 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
     	            cache: false,
     	            url: "login-pop.html",
     	            dataType: "html",
+					async:false,
     	            success: function(html) {
     	            	$('body').append(html);
     					$('#sys-login').modal('show');
-    	            	$('#sys-login').on('hide.bs.modal', function () {
-    	            		$('#sys-login').remove();
-               		 	});
     	            	_initLoginForm(url,data,type,isSync,callback,errorback);
     	            },
     	            error: function(xhr, ajaxOptions, thrownError) {
@@ -366,10 +364,16 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
 	 * @param  {String} role 权限前缀 如: sys:role
 	 * @return  {Array} 功能数组 如:["sys:role:add","sys:role:update"]
 	 */
-	API.getPermission = function(role){
-		var permissions = API.jsonData("system/permissions/"+_local_user().id+"/"+role);
+	API.getPermission = function(role,callback){
 		//var permissions = ["sys:role:add","sys:role:save","sys:role:delete","sys:role:assignRole"];
-		return permissions;
+		var _user = _local_user();
+		if(_user == null || _user == undefined){
+			_showLogin(null,null,null,null,function(user){
+				callback.call(this,API.jsonData("system/permissions/"+user.id+"/"+role));
+			})
+		}else{
+			callback.call(this,API.jsonData("system/permissions/"+_local_user().id+"/"+role));
+		}
 	}
 	//本地直接加載所有字典數據
 	if(_is_local_data){

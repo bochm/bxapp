@@ -37,7 +37,8 @@ require.config({
 		'datatables/responsive':'lib/jquery/datatables/dataTables.responsive',
 		'datatables/fixedHeader':'lib/jquery/datatables/dataTables.fixedHeader',
 		'echarts':'lib/echarts/echarts',
-		'store' : 'lib/ie-need/store.everything.min'
+		'store' : 'lib/ie-need/store.everything.min',
+		'numeral' : 'lib/utils/numeral'
 	},
 	map: {
         '*': {'css': 'css-builder'}//css加载css-builder。js
@@ -68,6 +69,13 @@ define(['app/index','moment','jquery/scrolltotop',
 	}else{
 		require(['css!app/main-themes-light.css']);
 	}
-	APP.showIndex();
+	var url = APP.getURLParameter("page");
+	if(!APP.isEmpty(url)) {
+		$("div.page-content").css({"padding-left":"3px","margin":"5px","width":"98%"});
+		APP.loadPage("div.page-content",url);
+	}else{
+		$("div.page-container").remove();
+		APP.showIndex();
+	}
 	return APP;
 });

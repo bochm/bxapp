@@ -71,26 +71,19 @@ define('app/datatables',['jquery','app/common','app/api',
     			if ( ! update ) {
     				var modal = $(
     					'<div class="modal fade" role="dialog">'+
-    						'<div class="modal-dialog" role="document">'+
-    							'<div class="modal-content">'+
-    								'<div class="modal-header">'+
-    									'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
-    								'</div>'+
-    								'<div class="modal-body"/>'+
-    							'</div>'+
-    						'</div>'+
+						'<div class="modal-header">'+
+						'<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>'+
+						'</div>'+
+						'<div class="modal-body"/>'+
     					'</div>'
     				);
 
     				if ( options && options.header ) {
-    					modal.find('div.modal-header')
-    						.append( '<h4 class="modal-title">'+options.header( row )+'</h4>' );
+    					modal.find('div.modal-header').append( '<h4 class="modal-title">'+options.header( row )+'</h4>' );
     				}
 
     				modal.find( 'div.modal-body' ).append( render() );
-    				modal
-    					.appendTo( 'body' )
-    					.modal();
+    				modal.appendTo( 'body' ).modal('show');
     			}
     		}
     	};
@@ -258,7 +251,7 @@ define('app/datatables',['jquery','app/common','app/api',
 					else _modalUrl = _modal.url + '?act='+type;
 				}
 				var modalOpts = $.extend(true,{
-					buttons : [{"text" : "保存","classes" : "btn-primary",action : function(btn,modal){
+					buttons : [{"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
 						modal.find('form').submit();
 		    		}}],
 		    		params : {"act" : type,"table" : dt} //参数方式传递act和table
@@ -317,9 +310,9 @@ define('app/datatables',['jquery','app/common','app/api',
 				API.postJson(_options.deleteRecord.url,dt.selectedColumn(_id_column),null,function(ret,status){
 					if(ret.OK){
 						dt.deleteSelectedRow();
-						APP.success(ret[APP.MSG]);
+						APP.success(ret[APP.MSG],null,true);
 					}else{
-						APP.success(ret[APP.MSG]);
+						APP.error(ret[APP.MSG]);
 					}
 				});
 			})
@@ -374,7 +367,7 @@ define('app/datatables',['jquery','app/common','app/api',
     **/
 	$.fn.initTable = function (opts,callback) {
 		var _table = $(this);
-		
+		if(opts === undefined) opts = {};
 		var tableid = _table.attr('id');
 		if(APP.isEmpty(tableid)){
 			alert("请指定table id");
@@ -393,14 +386,53 @@ define('app/datatables',['jquery','app/common','app/api',
 			"permission" : true, //检测权限,buttons按页面toolbar中的按钮显示
 			"scrollCollapse": true,
 			"select": {style: 'os',info:false},
+			"scrollX" : false,
 			"buttons": [],
 			//"buttons":[{extend: 'collection',text: '导出', buttons : ['selectAll','selectNone','print']},"addRecord","deleteRecord"],
 			"createdRow": function (nRow, aData, iDataIndex) {},
+			"footerCallback": function( tfoot, data, start, end, display ) {
+				if(tfoot){
+					//没有数据不显示footer
+					if(end == 0){
+						$("div#"+tableid+"_wrapper div.dataTables_scrollFoot").hide();
+					} else{
+						$("div#"+tableid+"_wrapper div.dataTables_scrollFoot").show();
+					}
+					//数据汇总
+					var api = this.api();
+					if(typeof opts.footerFormat === 'function') {
+						opts.footerFormat.call(this,api, tfoot, data, start, end, display);
+					}else{
+						//sum类型汇总,带分页且页数大于1则显示当前页和总和
+						$(tfoot).children("th[data-sum-column]").each(function(){
+							var idx = $(this).data("sum-column");
+							var pageTotal = api.column( idx, { page: 'current'} ).data().reduce( function (a, b) {
+								return APP.numeral(a).value()+APP.numeral(b).value();
+							},0);
+							//numeral格式化
+							var format = $(this).data("format") ? $(this).data("format") : '0';
+							if(api.page.info() && api.page.info().pages > 1){
+								var total = api.column( idx ).data().reduce( function (a, b) {
+									return APP.numeral(a).value()+APP.numeral(b).value();
+								},0);
+								$(api.column(idx).footer()).html(APP.numeral(pageTotal).format(format) +
+									'/'+ APP.numeral(total).format(format) );
+							}else{
+								$(api.column(idx).footer()).html(APP.numeral(pageTotal).format(format));
+							}
+
+						});
+					}
+
+				}
+			},
+			"headerCallback": function( thead, data, start, end, display ) {
+			},
 	        "initComplete":function(oSettings, json){
 	        	APP.unblockUI(_table.get());
-	        	
+				var api = _table.dataTable().api();
+				//搜索控件初始化
 	        	if(oSettings.searching == undefined || oSettings.searching){ //未定义则为默认启用
-	        		var api = _table.dataTable().api();
 	        		var searchHTML = "<label><div class='input-icon left'>" +
 	        				"<input type='search' class='form-control input-sm' placeholder='请输入搜索内容' aria-controls='"+tableid+"'>" +
 	        				"<i class='iconfont icon-search'></i></div></label>";
@@ -422,7 +454,7 @@ define('app/datatables',['jquery','app/common','app/api',
 		            if(opts.queryModal){
 		            	require(['app/form'],function(FM){
 		            		var queryBtn = $("<button class='btn btn-sm green' style='margin-bottom: 2px;'>" +
-		            				"<i class='fa fa-filter fa-lg'/></i></button>");
+		            				"<i class='fa fa-ellipsis-h fa-lg'/></i></button>");
 		            		var modalId = opts.queryModal;
 		            		if(typeof opts.queryModal === 'object') modalId = opts.queryModal.id;
 
@@ -431,20 +463,57 @@ define('app/datatables',['jquery','app/common','app/api',
             					api.rows.add(data).draw();
             					if(typeof done === 'function') done();
 		            		});
+
 		            		queryBtn.on('click',function(){
 		            			$(modalId).modal('show');
 			            	})
 
 			            	_filter.find('.input-icon').append(queryBtn);
+							queryBtn.tooltip({"title":"更多查询条件","placement":"auto left"});
 		            	})
 		            	
 		            }else{
 		            	_filter.css('margin-right','0');
 		            }
-		            
 	        	}
+				//当使用footer，表格没有数据时会出现横向滚动条
+				$("div#"+tableid+"_wrapper div.dataTables_scroll").children().css("width","100%");
 	         }
 		},opts);
+		//checkbox选择
+		if(default_opt.checkboxSelect){
+			var checkBoxolumnDefs = [{
+				orderable: false,
+				width : "0.7em",
+				className: 'select-checkbox',
+				targets: 0
+			}];
+			default_opt = $.extend(default_opt,{
+				select: {
+					style:    'multi',
+					selector: 'td:first-child',
+					info : false
+				}}
+			,true);
+			if((default_opt.ordering || _table.data("ordering")) && !$.isArray(default_opt.order)){
+				default_opt.order = [[1,'asc']];
+			}
+			if($.isArray(default_opt.columnDefs)){
+				default_opt.columnDefs = checkBoxolumnDefs.concat(default_opt.columnDefs);
+			}else{
+				default_opt.columnDefs = checkBoxolumnDefs;
+			}
+			if($.isArray(default_opt.columns)){
+				default_opt.columns = [{"data":null,
+					"defaultContent" : "",
+					"title":"<i class='fa fa-square-o'></i>"}].concat(default_opt.columns);
+			}else{
+				var _checkboxSelect = $("<th data-column='select-checkbox'><i class='fa fa-square-o'></i></th>");
+				_table.find("thead>tr").prepend(_checkboxSelect);
+			}
+			console.log(default_opt);
+		}
+
 		//检测权限,buttons清空,按页面toolbar中的按钮显示
 		if(default_opt.permission){
 			default_opt.buttons = [];
@@ -572,6 +641,21 @@ define('app/datatables',['jquery','app/common','app/api',
 				if(default_opt.detailPage)
 					APP.loadInnerPage(default_opt.detailPage,curr_row);
 			})
+			//checkbox选择
+			if(default_opt.checkboxSelect){
+				$(otable.column('.select-checkbox').header()).click(function(){
+					if(otable.rows().count() > 0){
+						var _sel_all = $(this).children('i');
+						if(_sel_all.hasClass('fa-square-o')){
+							otable.rows().select();
+							_sel_all.removeClass('fa-square-o').addClass('fa-check-square-o');
+						}else{
+							otable.rows().deselect();
+							_sel_all.removeClass('fa-check-square-o').addClass('fa-square-o');
+						}
+					}
+				});
+			}
 			if(callback && typeof callback == "function")callback(otable);
 		});
 	};
@@ -600,13 +684,15 @@ define('app/datatables',['jquery','app/common','app/api',
 					default_opt.order = [[default_opt.columns.length-1, 'asc']];
 				}
 			}else{//两种方式并立，不能同时存在，否则列次序混乱
-				var columnArray = (default_opt.columns ? default_opt.columns : new Array());
-				$table.find('th[data-column]').each(function(index){
+				var columnArray = new Array();
+				$table.find('thead th[data-column]').each(function(index){
 					var col_data = $(this).data('column');
 					if(col_data === 'dt-detail'){
 						columnArray.push({'data' : null,'orderable':false,'defaultContent' : "<a dt-detail><i class='iconfont icon-chevronright'></i></a>"});
 					}else if(col_data === ''){
 						columnArray.push({'data' : null,'defaultContent' : '','orderable':false});
+					}else if(col_data ==='select-checkbox'){
+						columnArray.push({'data' : null,'defaultContent' : ''});
 					}else{
 						columnArray.push({'data' : col_data});
 					}
@@ -614,7 +700,7 @@ define('app/datatables',['jquery','app/common','app/api',
 				});
 				default_opt['columns'] = columnArray;
 			}
-			
+
 			//启用data-server-side时表格,不启用搜索框,适合于数据量较大，需要物理分页	
 			if(default_opt.serverSide){ 
 				default_opt.ajax = {

@@ -171,7 +171,7 @@ define('app/form',["jquery","app/common","app/api","moment",
             } else if(element.siblings("i.validate-icon").size() > 0){//图标方式提示错误
             	var icon = element.siblings("i.validate-icon");
                 icon.removeClass('fa-check').addClass("fa-warning");  
-                icon.attr("data-original-title", error.text()).tooltip();
+                icon.attr("data-original-title", error.text()).tooltip({placement:'auto left'});
             }else {
                 error.insertAfter(element);
             }
@@ -297,6 +297,9 @@ define('app/form',["jquery","app/common","app/api","moment",
 			if(opts.autoClear){
 				formField.summernote('reset');
 			}
+			if(isInitValue){
+				formField.summernote('code',formField.data('original'));
+			}
 		}
 	}
 	//初始化表单字段值 
@@ -321,14 +324,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 			}else if(_fieldRole == 'select'){
 				formField.val(_fieldValue).trigger("change");
-			}else if(_fieldRole == 'richEdit'){
-				formField.summernote('code',_fieldValue);
-			}else if(formField.attr('type') == 'file'){
+			}else if(formField.attr('type') == 'file' || formField.attr('type') == 'richEdit'){
 
 			}else{
 				formField.val(_fieldValue);
 			}
-			formField.data("original",_fieldValue);//记录该字段的初始值,验证唯一性使用
+			//记录该字段的初始值,验证唯一性和初始化特殊控件（summernode）使用
+			formField.data("original",_fieldValue);
 		}
 	}
 	/**
@@ -565,6 +567,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 * 
 	 * @return {Object} select控件
 	 */
+	function _clear_select_validate(select){
+		if(select.val() != '-1' && select.val() != ''){
+			select.closest('.form-group').removeClass('has-error');
+			select.siblings("span#"+select.attr("id")+"-error").remove();
+			select.siblings("i.validate-icon").removeClass("fa-check fa-warning").removeAttr("data-original-title");
+		}
+	}
 	function _fill_options(_select,opt_data){
 		_select.empty();
 		if($.isArray(opt_data)){
@@ -573,6 +582,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}
 		}
 		_select.change();
+		_clear_select_validate(_select);
 	}
 	function _get_options_data(opts){
 		var url = opts.url || API.stmidListUrl;
@@ -659,12 +669,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 			else _select.val(_select.val()).trigger("change");
 			//避免单页面时重复执行事件
 			if(APP.isEmpty(_select.data("event-init"))){
-				_select.on("select2:select", function (e) { 
-					if(_select.val() != '-1' && _select.val() != ''){
-						_select.closest('.form-group').removeClass('has-error');
-						_select.siblings("span#"+_select.attr("id")+"-error").remove();
-						_select.siblings("i.validate-icon").removeClass("fa-check fa-warning").removeAttr("data-original-title");
-					}
+				_select.on("select2:select", function (e) {
+					_clear_select_validate(_select);
 				});
 			}
 			
@@ -924,7 +930,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			var modalDefOpts = {
 				title : "<i class='fa fa-search'/></i> 查询",
 				clear : false,show : false,
-				buttons : {"text" : "查询","classes" : "btn-primary",action : function(btn,modal){
+				buttons : {"text" : "查询","classes" : "btn-primary",action : function(e,btn,modal){
 					modal.find('form').submit();
 				}}
 			}
@@ -956,7 +962,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			var modalDefOpts = {
 				title : formOtps.title,
 				show : true,
-				buttons : {"text" : "保存","classes" : "btn-primary",action : function(btn,modal){
+				buttons : {"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
 					modal.find('form').submit();
 				}}
 			}
