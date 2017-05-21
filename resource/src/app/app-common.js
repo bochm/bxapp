@@ -47,6 +47,39 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 	device.windowsPhone = function () {return device.windows() && _findDevice('phone');};
 	device.windowsTablet = function () {return device.windows() && (_findDevice('touch') && !device.windowsPhone());};
 
+	$.fn.sidebar = function(options) {
+		var self = this;
+		var settings = $.extend({
+			speed: 200,
+			side: "right"
+		}, options);
+
+		self.on("sidebar:open", function(ev, data) {
+			var properties = {};
+			properties[settings.side] = 0;
+			self.stop().animate(properties, $.extend({}, settings, data).speed, function() {
+				self.trigger("sidebar:opened");
+			});
+		});
+		self.on("sidebar:close", function(ev, data) {
+			var properties = {};
+			if (settings.side === "left" || settings.side === "right") {
+				properties[settings.side] = -self.outerWidth();
+			} else {
+				properties[settings.side] = -self.outerHeight();
+			}
+			self.stop().animate(properties, $.extend({}, settings, data).speed, function() {
+				self.trigger("sidebar:closed");
+			});
+		});
+
+		self.trigger("sidebar:close", [{
+			speed: 0
+		}]);
+		self.data("sidebar", settings);
+		return self;
+	};
+
 	if(! ('APP' in window) ){
 		window['APP'] = {
 			"isIE8" : false,
@@ -58,6 +91,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			"isMobile" :  (device.androidPhone() || device.iphone() || device.ipod() || device.windowsPhone()),
 			"isTablet" : (device.ipad() || device.androidTablet() || device.windowsTablet()),
 			"currentUrl" : "index",
+			"pageContainer" : ".loading-page",//页面容器
 			getParameterByName : function(name) {
 				name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
 				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -130,7 +164,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 						dataType: "html",
 						success: function(res) {
 							APP.currentUrl = url;
-							APP.initComponents($(res).get(),params,target,callback);
+							APP.initComponents($(res),params,target,callback);
 						},
 						error: function(xhr, ajaxOptions, thrownError) {
 							if(typeof errorback === 'function'){
@@ -144,11 +178,8 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 					});
 				}
 			},
-			loadInnerPage : function(url,params,callback,errorback){
+			loadInnerPage : function(target,url,params,callback,errorback){
 				if(url){
-					var pageContent = $('body .main-page-content.active');
-					var ownerPage = pageContent.children('.loading-page:first');
-					console.log(ownerPage);
 					$.ajax({
 						type: "GET",
 						cache: false,
@@ -156,11 +187,20 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 						url: ((url.indexOf("?") >0) ? (url.split("?")[0]+".html?" + url.split("?")[1]) : url+".html"),
 						dataType: "html",
 						success: function(res) {
-							APP.initComponents($(res).get(),params,pageContent,callback);
-							var _loading_page = pageContent.children('.loading-page:last');
-							ownerPage.fadeOut(500,function(){
+							var page = $(res);
+							page.css({"width":$(target).outerWidth()+18,"top":$(target).offset().top});
+							page.prepend("<div class='return-page'>返回</div>");
+							page.on('click','.return-page',function(){
+								page.trigger("sidebar:close");
+								page.on('sidebar:closed',function(){
+									page.remove();
+								})
+							})
+
+							APP.initComponents(page,params,target,callback);
+							/*ownerPage.fadeOut(500,function(){
 								_loading_page.fadeIn('fast');
-								/*var _return_id = APP.getUniqueID("return");
+								/!*var _return_id = APP.getUniqueID("return");
 								pageContent.find(".page-bar .page-breadcrumb").append("<li><i class='fa fa-angle-right'></i><a id='"+_return_id+"'><font color='#4B77BE'><i class='fa fa-backward'></i> 返回</font></a></li>");
 								$('#'+_return_id).on('click',function(){
 									_loading_page.fadeOut('fast',function(){
@@ -169,8 +209,8 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 											$('#'+_return_id).parent().remove();
 										});
 									});
-								})*/
-							});
+								})*!/
+							});*/
 						},
 						error: function(xhr, ajaxOptions, thrownError) {
 							if(typeof errorback === 'function'){
@@ -352,10 +392,10 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			},
 			//初始化控件
 			initComponents: function(page,params,target,callback){
-				var page_permission = $(page).data("permission");
+				var page_permission = page.data("permission");
 				if(page_permission && !_is_local_data){
 					API.getPermission(page_permission,function(pmis){
-						$(page).find("[data-permission]").each(function(){
+						page.find("[data-permission]").each(function(){
 							var pm = $(this).data("permission");
 							if($.inArray(page_permission+":"+pm,pmis) === -1) $(this).remove();
 						});
@@ -382,7 +422,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		APP.initScroll('.scroller',page);
 		APP.initSwitch(page);
 		//初始化提交按钮
-		_queryContainer(page).find(".btn[data-submit]").each(function(){
+		page.find(".btn[data-submit]").each(function(){
 			var _submit_btn = $(this);
 			_submit_btn.click(function(){
 				$(_submit_btn.data("submit")).submit();
@@ -390,7 +430,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		});
 		//ie对于placeholder的支持
 		if (APP.isIE8 || APP.isIE9) {
-			_queryContainer(page).find('input[placeholder]:not(.placeholder-no-fix), textarea[placeholder]:not(.placeholder-no-fix)').each(function () {
+			page.find('input[placeholder]:not(.placeholder-no-fix), textarea[placeholder]:not(.placeholder-no-fix)').each(function () {
 				var input = $(this);
 				if (input.val() == '' && input.attr("placeholder") != '') {
 					input.addClass("placeholder").val(input.attr('placeholder'));
@@ -408,18 +448,24 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			});
 		}
 		if(target) {
-			APP.unblockUI(target);
-			$(target).children().each(function(){
-				if($(this).attr("id") != "topcontrol") $(this).remove();
-			});
+			if(!page.hasClass('inner')){
+				APP.unblockUI(target);
+				$(target).children().each(function(){
+					if($(this).attr("id") != "topcontrol") $(this).remove();
+				});
+			}
 
 			$(target).append(page);
 			if(typeof callback === 'function'){
 				callback.call(this,page);
 			}
-			var _loading_page = $(target).children('.loading-page:last');
-			_callJsModal(_loading_page,params);
-			_loading_page.fadeIn('slow');
+			_callJsModal(page,params);
+			page.fadeIn('slow');
+			if(page.hasClass('inner')){
+				page.sidebar({});
+				page.trigger("sidebar:open");
+
+			}
 		}
 
 	}
@@ -442,6 +488,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 	 */
 	function _queryContainer(ct){
 		if(APP.isEmpty(ct)) return $('body');
+		if(ct instanceof $ && ct.length > 0) return ct;
 		var $ct = $(ct);
 		if($ct.length > 0) return $ct;
 		return $('body');
@@ -732,7 +779,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			success: function(html) {
 				APP.currentUrl = src;
 				var modal = $(html).filter(".modal");
-				APP.initComponents(modal.get());
+				APP.initComponents(modal);
 				$('body').append(modal);
 				if(typeof callback === 'function'){
 					callback.call(this);

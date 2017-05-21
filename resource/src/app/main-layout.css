@@ -3002,12 +3002,34 @@ General User Record Listing
 .close-tab {
   font-size: 10px;
   position:absolute;
-  right: 8px;
+  right: -2px;
   top: 5px;
-  padding-left: 23px;
+  /*padding-left: 23px;*/
   z-index: 100;
   cursor: hand;
   cursor: pointer;
   color: #337ab7;
   display: none;
+}
+
+.loading-page.inner{
+   position: fixed;
+   right: 2px;
+   bottom: 2px;
+   z-index: 1000;
+   display: block;
+   padding: 5px;
+   overflow-x: hidden;
+   overflow-y: auto;
+   background-color: #ffffff;
+   border-right: 1px solid #eee;
+   box-shadow: 0 0 5px rgba(0, 0, 0, 0.64);
+ }
+.loading-page.inner > .return-page{
+  left:0px;
+  cursor: pointer;
+  width:18px;
+  height:200px;
+  z-index: 1001;
+  background-color: #1b6d85;
 }

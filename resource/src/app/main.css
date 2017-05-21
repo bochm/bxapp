@@ -4723,7 +4723,7 @@ Customized Bootstrap Tabs
   -ms-border-radius: 0 0 4px 4px;
   -o-border-radius: 0 0 4px 4px;
   border-radius: 0 0 4px 4px;
-  border-color: transparent #ddd #ddd #ddd;
+  border-color: transparent #ddd #ddd #ddd !important;/*mod by bcm 和bs冲突*/
 }
 
 /***

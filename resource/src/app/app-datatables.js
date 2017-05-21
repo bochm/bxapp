@@ -633,13 +633,13 @@ define('app/datatables',['jquery','app/common','app/api',
 			otable.on( 'column-sizing.dt', function ( e, settings ) {
 			    console.log( 'Column width recalculated in table' );
 			} );
-			
-			
+
+
 			_table.on('click','td a[dt-detail]',function(){
 				var curr_row = otable.row($(this).closest('td'));
 				curr_row.select();
 				if(default_opt.detailPage)
-					APP.loadInnerPage(default_opt.detailPage,curr_row);
+					APP.loadInnerPage(_table.closest(APP.pageContainer).get(),default_opt.detailPage,curr_row);
 			})
 			//checkbox选择
 			if(default_opt.checkboxSelect){
