@@ -490,10 +490,12 @@ define(['jquery','app/common'],function($,APP) {
     function _initLoginForm(){
         require(['app/form'],function(FM){
             $('form.login-form').initForm({
-                headers : {},
+                beforeSend : function(request){
+                    return API.createLoginHeader(request,$('form.login-form'));
+                },
                 beforeSubmit : function(formData, jqForm, options){
                     APP.blockUI({target:'.login-page',message:'登陆中',gif : 'form-submit'});
-                    options.url = (options.url + "/" + formData[0].value);
+                    /*options.url = (options.url + "/" + formData[0].value);*/
                     return true;
                 },
                 success:function(response, status){
@@ -553,15 +555,18 @@ define(['jquery','app/common'],function($,APP) {
     }
     APP.showIndex = function(){
         API.getLoginUser(function(user){
+            
             APP.initIndex(user);
-        },function(ret,status){
-            if(status == API.http.UNAUTHORIZED.status) _showLogin();
+        },function(ret){
+            if(API.isUnAuthorized(ret)) _showLogin();
             //else APP.error(ret);
         });
     }
     APP.initIndex = function(user){
         $('body').removeClass().addClass('page-header-fixed page-sidebar-fixed').css('display','none');
+
         APP.loadPage('body','main',{},function(){
+
             var menus = API.jsonData('system/index/menu/'+user.id);
             _initMenu(menus);
             handleFixedSidebar();

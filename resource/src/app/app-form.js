@@ -1,6 +1,7 @@
 
 define('app/form',["jquery","app/common","app/api","moment",
-                   "jquery/validate","jquery/form","switch","jquery/summernote"],function($,APP,API) {
+                   "jquery/validate","jquery/form",
+					"switch","jquery/select2","jquery/summernote","bootstrap/typeahead"],function($,APP,API) {
 	var moment = require('moment');
 	moment.locale("zh-cn");
 	var FORM = {
@@ -232,7 +233,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}
 		}
 		if(!APP.isEmpty(p.url)){
-			return API.postJson(p.url,paramData,false);
+			return API.jsonData(p.url,paramData);
 		}else{
 			var stmid = p.stmID || p.stmid || p.stmId;
 			return APP.isEmpty(API.getListByStmId(stmid,paramData));
@@ -401,28 +402,28 @@ define('app/form',["jquery","app/common","app/api","moment",
 			beforeSubmit : function(formData, jqForm, options){
 				if(opts.modal)_in_modal = opts.modal.get();
 				//本地数据返回不修改任何數據
-				if(_is_local_data){
+				if(_CONFIG.isLocalData){
 					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
-					API.callSrv(_query_url,{},function(data){
+					API.getJson(_query_url,{},true,function(data){
 						APP.unblockUI(_in_modal);
 						if(opts.queryForm){
 							if(typeof callback === 'function')callback(data);
 						}else{
-							if(data.OK){
-								APP.notice('',data[API.MSG],'success',_in_modal,opts.autoClose);
-								if(typeof callback === 'function')callback(data[API.DATA]);
-								else if(opts.onSuccess) opts.onSuccess(data[API.DATA]);
-							}else{
+							if(API.isError(data)){
 								APP.notice('',data[API.MSG],'warning',_in_modal);
 								if(typeof errorback === 'function')errorback(data);
 								else if(opts.onError) opts.onError(data);
+							}else{
+								APP.notice('',data[API.MSG],'success',_in_modal,opts.autoClose);
+								if(typeof callback === 'function')callback(API.respData(response));
+								else if(opts.onSuccess) opts.onSuccess(API.respData(response));
 							}
 						}
 					},function(err,status){
 						APP.unblockUI(_in_modal);
 						APP.notice('',err[API.MSG],'warning',_in_modal);
-						if(typeof errorback === 'function')errorback(err,status);
-						else if(opts.onError) opts.onError(err,status);
+						if(typeof errorback === 'function')errorback(err);
+						else if(opts.onError) opts.onError(err);
 					});
 					return false;
 				}
@@ -433,14 +434,14 @@ define('app/form',["jquery","app/common","app/api","moment",
 					for(var i=0;i<formData.length;i++){
 						params[formData[i].name] = formData[i].value;
 					}
-					API.callSrv(_query_url,params,function(data){
+					API.getJson(_query_url,params,true,function(data){
 						APP.unblockUI(_in_modal);
-						if(typeof callback === 'function')callback(data);
+						if(typeof callback === 'function')callback(API.respData(data));
 					},function(err,status){
 						APP.unblockUI(_in_modal);
 						APP.notice('',err[API.MSG],'warning',_in_modal);
-						if(typeof errorback === 'function')errorback(err,status);
-						else if(opts.onError) opts.onError(err,status);
+						if(typeof errorback === 'function')errorback(err);
+						else if(opts.onError) opts.onError(err);
 					});
 					return false;
 				}else{
@@ -469,7 +470,15 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(opts.modal)_in_modal = opts.modal.get();
 				if(APP.debug)console.log(response);
 				APP.unblockUI(_in_modal);
-				if(response.OK){
+				if(API.isError(response)){
+					APP.notice('',response[API.MSG],'warning',_in_modal);
+					if(API.isUnAuthorized(response)){
+						API.showLogin();
+						return;
+					}
+					if(typeof errorback === 'function')errorback(response,status);
+					else if(opts.onError) opts.onError(response,status);
+				}else{
 					APP.notice('',response[API.MSG],'success',_in_modal,opts.autoClose);
 					//动态更新规格，否则会造成重复提交验证不通过
 					_this.find('.checkExists').each(function(){
@@ -481,16 +490,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 							_c_form_field.rules( "add", opts.rules[_c_field_name]);
 						}
 					});
-					if(typeof callback === 'function')callback(response[API.DATA]);
-					else if(opts.onSuccess) opts.onSuccess(response[API.DATA]);
-				}else{
-					APP.notice('',response[API.MSG],'warning',_in_modal);
-					if(response[API.STATUS] == API.http.UNAUTHORIZED.status){
-						API.showLogin();
-						return;
-		        	}
-					if(typeof errorback === 'function')errorback(response,status);
-					else if(opts.onError) opts.onError(response,status);
+					if(typeof callback === 'function')callback(API.respData(response));
+					else if(opts.onSuccess) opts.onSuccess(API.respData(response));
 				}
 			}
 		},opts);
@@ -585,117 +586,110 @@ define('app/form',["jquery","app/common","app/api","moment",
 		_clear_select_validate(_select);
 	}
 	function _get_options_data(opts){
-		var url = opts.url || API.stmidListUrl;
+		var url = opts.url || API.urls.stmListUrl;
 		var paramData = {};
-		if(opts.stmID) url += ("/" + opts.stmID+".json");
+		if(opts.stmID) url += ("/" + opts.stmID);
 		if(opts.param) paramData.param=opts.param;
 		return API.jsonData(url,paramData);
 	}
 	$.fn.select = function ( opts ) {
 		var _select = $(this);
-		
-		require(['jquery/select2'],function(){
-			select2_default_opts.data = null;
-			select2_default_opts.ajax = null;
-			
-			if(opts){
-				if((opts.jsonData||opts.stmID) && opts.data === undefined){//增加jsonData选项获取静态.json文件或者直接通过sqlMapper的sqlID获取数组数据
-					if(APP.isEmpty(opts.param)) opts.param = {};
-					if(_select.data("parent-for")){
-						var _parent_sel = $(_select.data("parent-for"));
-						opts.param[_parent_sel.attr("name").replace(".","_")] = _parent_sel.val();//替换参数中的. 否则mapper文件会无法识别
-					}
-					
-					if(opts.jsonData && opts.jsonData != ""){
-						opts.data = API.localData(opts.jsonData);
-					}else{
-						opts.data = _get_options_data(opts);
-					}
-					
-				}else if(opts.url && opts.ajax === undefined){//默认ajax方法
-					opts.ajax = {
-						delay: 250,
-						url : opts.url,
-						data: function (params) {
-						    var queryParameters = {
-						      q: params.term
-						    }
-						    return queryParameters;
-						}
-					};
+		select2_default_opts.data = null;
+		select2_default_opts.ajax = null;
+
+		if(opts){
+			if((opts.jsonData||opts.stmID) && opts.data === undefined){//增加jsonData选项获取静态.json文件或者直接通过sqlMapper的sqlID获取数组数据
+				if(APP.isEmpty(opts.param)) opts.param = {};
+				if(_select.data("parent-for")){
+					var _parent_sel = $(_select.data("parent-for"));
+					opts.param[_parent_sel.attr("name").replace(".","_")] = _parent_sel.val();//替换参数中的. 否则mapper文件会无法识别
 				}
-			}
-			//允许增加选项
-			if(opts.allowAdd || _select.data("allow-add")){
-				if(_select.parent('.input-group').length > 0){
-					_select.nextAll(".input-group-btn").remove();
-					_select.unwrap();
+
+				if(opts.jsonData && opts.jsonData != ""){
+					opts.data = API.localData(opts.jsonData);
+				}else{
+					opts.data = _get_options_data(opts);
 				}
-				var _add_btn_id = "select-add-btn-"+new Date().getTime();
-				var _add_btn = $("<span class='input-group-btn' id='"+_add_btn_id+"'><a class='btn blue'><i class='fa fa-plus'></i></a></span>");
-				_select.wrap("<div class='input-group'></div>");
-				_add_btn.insertAfter(_select);
-				_add_btn.click(function(){
-					var _this = $(this);
-					var _adddiv = $("<div>");
-					var _addform = $("<div class='row'><div class='col-md-12'><div class='form-group'><label class='control-label col-md-3'>代码</label><div class='col-md-9'><input type='text' name='_select_type_code' class='form-control input-small'></div></div></div></div>"+
-							"<div class='row'><div class='col-md-12'><div class='form-group'><label class='control-label col-md-3'>名称</label><div class='col-md-9'><input type='text' name='_select_type_name' class='form-control input-small'></div></div></div></div>"+
-					        "<a class='btn blue btn-block'> <i class='fa fa-plus'></i> 增加 </a>");
-					_adddiv.append(_addform);
-					_adddiv.children(".btn").click(function(){
-						var _code = _adddiv.find("input[name='_select_type_code']").val();
-						var _name = _adddiv.find("input[name='_select_type_name']").val();
-						if($.trim(_code) == "" || $.trim(_name) == ""){
-							_adddiv.closest(".popover").removeClass("info").addClass("error");
-							_adddiv.closest(".popover-content").prev().html("<i class='fa fa-plus'/> 代码或名称不能为空");
-							return;
+
+			}else if(opts.url && opts.ajax === undefined){//默认ajax方法
+				opts.ajax = {
+					delay: 250,
+					url : opts.url,
+					data: function (params) {
+						var queryParameters = {
+							q: params.term
 						}
-						if(_select.children("option[value='"+_code+"']").length > 0){
-							_adddiv.closest(".popover").removeClass("info").addClass("error");
-							_adddiv.closest(".popover-content").prev().html("<i class='fa fa-plus'/> 代码已存在")
-							return;
-						}
-						_adddiv.closest(".popover").removeClass("error");
-						_select.append("<option value='"+_code+"'>"+_name+"</option>");
-						_select.val(_code).trigger("change");
-						_this.popover('destroy');
-					})
-					APP.popover(_this,_adddiv.get(),"info","fa-plus","增加选择","auto right",235);
-				});
+						return queryParameters;
+					}
+				};
 			}
-			var default_opt = $.extend(true,select2_default_opts,opts);
-			_select.select2(default_opt);
-			if(_select.data("original") || _select.data("init")) _select.val((_select.data("original") || _select.data("init"))).trigger("change");
-			else _select.val(_select.val()).trigger("change");
-			//避免单页面时重复执行事件
-			if(APP.isEmpty(_select.data("event-init"))){
-				_select.on("select2:select", function (e) {
-					_clear_select_validate(_select);
-				});
+		}
+		//允许增加选项
+		if(opts.allowAdd || _select.data("allow-add")){
+			if(_select.parent('.input-group').length > 0){
+				_select.nextAll(".input-group-btn").remove();
+				_select.unwrap();
 			}
-			
-			//级联下拉框
-			if(_select.data("parent-for") && APP.isEmpty(_select.data("event-init"))){//避免单页面时重复执行事件
-				$(_select.data("parent-for")).on("change",function(){
-					opts.param[$(this).attr("name").replace(".","_")] = $(this).val(); //替换参数中的. 否则mapper文件会无法识别
-					_fill_options(_select,_get_options_data(opts));
-				});
-			}
-			_select.data("event-init","init");
-		});
+			var _add_btn_id = "select-add-btn-"+new Date().getTime();
+			var _add_btn = $("<span class='input-group-btn' id='"+_add_btn_id+"'><a class='btn blue'><i class='fa fa-plus'></i></a></span>");
+			_select.wrap("<div class='input-group'></div>");
+			_add_btn.insertAfter(_select);
+			_add_btn.click(function(){
+				var _this = $(this);
+				var _adddiv = $("<div>");
+				var _addform = $("<div class='row'><div class='col-md-12'><div class='form-group'><label class='control-label col-md-3'>代码</label><div class='col-md-9'><input type='text' name='_select_type_code' class='form-control input-small'></div></div></div></div>"+
+					"<div class='row'><div class='col-md-12'><div class='form-group'><label class='control-label col-md-3'>名称</label><div class='col-md-9'><input type='text' name='_select_type_name' class='form-control input-small'></div></div></div></div>"+
+					"<a class='btn blue btn-block'> <i class='fa fa-plus'></i> 增加 </a>");
+				_adddiv.append(_addform);
+				_adddiv.children(".btn").click(function(){
+					var _code = _adddiv.find("input[name='_select_type_code']").val();
+					var _name = _adddiv.find("input[name='_select_type_name']").val();
+					if($.trim(_code) == "" || $.trim(_name) == ""){
+						_adddiv.closest(".popover").removeClass("info").addClass("error");
+						_adddiv.closest(".popover-content").prev().html("<i class='fa fa-plus'/> 代码或名称不能为空");
+						return;
+					}
+					if(_select.children("option[value='"+_code+"']").length > 0){
+						_adddiv.closest(".popover").removeClass("info").addClass("error");
+						_adddiv.closest(".popover-content").prev().html("<i class='fa fa-plus'/> 代码已存在")
+						return;
+					}
+					_adddiv.closest(".popover").removeClass("error");
+					_select.append("<option value='"+_code+"'>"+_name+"</option>");
+					_select.val(_code).trigger("change");
+					_this.popover('destroy');
+				})
+				APP.popover(_this,_adddiv.get(),"info","fa-plus","增加选择","auto right",235);
+			});
+		}
+		var default_opt = $.extend(true,select2_default_opts,opts);
+		_select.select2(default_opt);
+		if(_select.data("original") || _select.data("init")) _select.val((_select.data("original") || _select.data("init"))).trigger("change");
+		else _select.val(_select.val()).trigger("change");
+		//避免单页面时重复执行事件
+		if(APP.isEmpty(_select.data("event-init"))){
+			_select.on("select2:select", function (e) {
+				_clear_select_validate(_select);
+			});
+		}
+
+		//级联下拉框
+		if(_select.data("parent-for") && APP.isEmpty(_select.data("event-init"))){//避免单页面时重复执行事件
+			$(_select.data("parent-for")).on("change",function(){
+				opts.param[$(this).attr("name").replace(".","_")] = $(this).val(); //替换参数中的. 否则mapper文件会无法识别
+				_fill_options(_select,_get_options_data(opts));
+			});
+		}
+		_select.data("event-init","init");
 		
 		return _select;
 	};
 	
 	FORM.getSelectedVal = function(sel){
-		require(['jquery/select2'],function(){
-			return $(sel).val();
-		})
+		return $(sel).val();
 	}
 	FORM.getSelectedText = function(sel){
-		require(['jquery/select2'],function(){
-			return $(sel).find("option:selected").text();
-		})
+		return $(sel).find("option:selected").text();
 	}
 	/**
 	 * 基于ztree的treeSelect
@@ -869,9 +863,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	$.fn.typeaHead = function(options){
 		var default_settings = $.extend(true,{autoSelect: true},options);
 		var input_obj = $(this);
-		require(['bootstrap/typeahead'],function(){
-			input_obj.typeahead(default_settings);
-		})
+		input_obj.typeahead(default_settings);
 	}
 	/**
 	 * 基于summernote的富文本编辑器

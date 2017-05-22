@@ -30,7 +30,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 		}
 		$('#sys-user-password').removeClass('required');//密码不填写视为不修改密码
 		FM.editForm({title:'修改用户',rules : form_rules,fieldOpts : field_opts,clearForm : false,formAction : "save",formData : dt.selectedRows()[0],
-			autoClose : true,url : "system/user/save.json",editModal:"#system-user-list-edit"},function(data){
+			autoClose : true,url : "system/user/save",editModal:"#system-user-list-edit"},function(data){
 			dt.updateSelectedRow(data);
 		});
 
@@ -52,7 +52,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			"deleteRecord" : {url : 'system/user/delete',id : 'id'},
 			"addRecord" : function(dt){
 				if(!$('#sys-user-password').hasClass('required'))$('#sys-user-password').addClass('required');//新增必须输入密码
-				FM.editForm({title:'新增用户',rules : form_rules,fieldOpts : field_opts,url : "system/user/add.json",editModal:"#system-user-list-edit"},function(data){
+				FM.editForm({title:'新增用户',rules : form_rules,fieldOpts : field_opts,url : "system/user/add",editModal:"#system-user-list-edit"},function(data){
 					dt.addRow(data);
 				});
 			},

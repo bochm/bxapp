@@ -86,12 +86,12 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			"isIE9" : false,
 			"isIE10": false,
 			"isRTL" : false,
-			"debug" : _is_debug,
+			"debug" : _CONFIG.debug,
 			"device" : device,
 			"isMobile" :  (device.androidPhone() || device.iphone() || device.ipod() || device.windowsPhone()),
 			"isTablet" : (device.ipad() || device.androidTablet() || device.windowsTablet()),
 			"currentUrl" : "index",
-			"pageContainer" : ".loading-page",//页面容器
+			"pageContainer" : _CONFIG.pageContainer,//页面容器
 			getParameterByName : function(name) {
 				name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
 				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -125,7 +125,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 				};
 			},
 			log : function(obj){
-				if(_is_debug) console.log(obj);
+				if(_CONFIG.debug) console.log(obj);
 			},
 			getUniqueID: function(prefix) {
 				return (prefix || 'app_') + Math.floor(Math.random() * (new Date()).getTime());
@@ -133,9 +133,9 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			isEmpty : function(v){
 				return v === undefined || v === null || $.trim(v) === '';
 			},
-			jsPath:_app_js_base_url,
+			jsPath:_CONFIG.jsBaseUrl,
 
-			imgPath:_app_img_base_url,
+			imgPath:_CONFIG.imgBaseUrl,
 
 			queryContainer : _queryContainer,
 			/**
@@ -393,7 +393,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			//初始化控件
 			initComponents: function(page,params,target,callback){
 				var page_permission = page.data("permission");
-				if(page_permission && !_is_local_data){
+				if(page_permission && !_CONFIG.isLocalData){
 					API.getPermission(page_permission,function(pmis){
 						page.find("[data-permission]").each(function(){
 							var pm = $(this).data("permission");

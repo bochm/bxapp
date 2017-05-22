@@ -308,11 +308,11 @@ define('app/datatables',['jquery','app/common','app/api',
 			APP.confirm('','是否删除选择的记录?',function(){
 				var _id_column = _options.deleteRecord.id ? _options.deleteRecord.id : 'id';
 				API.postJson(_options.deleteRecord.url,dt.selectedColumn(_id_column),null,function(ret,status){
-					if(ret.OK){
-						dt.deleteSelectedRow();
-						APP.success(ret[APP.MSG],null,true);
+					if(API.isError(ret)){
+						APP.error(ret[API.MSG]);
 					}else{
-						APP.error(ret[APP.MSG]);
+						dt.deleteSelectedRow();
+						APP.success(ret[API.MSG],null,true);
 					}
 				});
 			})
