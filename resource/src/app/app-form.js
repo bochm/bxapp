@@ -226,6 +226,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 			}else{
 				var joinField = $(p.joinField);
+				console.log(joinField);
+				console.log(joinField.val());
 				paramData.param[joinField.attr("name")] = joinField.val();
 				if(joinField.data("original") && joinField.data("original") != joinField.val()) {//当参与验证字段值发生变化的时候，则取消当前字段的初始值验证
 					paramData.param["o_"+element.name] = "";
@@ -404,24 +406,24 @@ define('app/form',["jquery","app/common","app/api","moment",
 				//本地数据返回不修改任何數據
 				if(_CONFIG.isLocalData){
 					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
-					API.getJson(_query_url,{},true,function(data){
+					API.ajax(_query_url,{},true,function(data){
 						APP.unblockUI(_in_modal);
 						if(opts.queryForm){
-							if(typeof callback === 'function')callback(data);
+							if(typeof callback === 'function')callback.call(API.respData(data));
 						}else{
 							if(API.isError(data)){
-								APP.notice('',data[API.MSG],'warning',_in_modal);
-								if(typeof errorback === 'function')errorback(data);
+								APP.notice('',API.respMsg(data),'warning',_in_modal);
+								if(typeof errorback === 'function')errorback.call(this,data);
 								else if(opts.onError) opts.onError(data);
 							}else{
-								APP.notice('',data[API.MSG],'success',_in_modal,opts.autoClose);
-								if(typeof callback === 'function')callback(API.respData(response));
-								else if(opts.onSuccess) opts.onSuccess(API.respData(response));
+								APP.notice('',API.respMsg(data),'success',_in_modal,opts.autoClose);
+								if(typeof callback === 'function')callback.call(this,API.respData(response));
+								else if(typeof opts.onSuccess === 'function') opts.onSuccess.call(this,API.respData(response));
 							}
 						}
 					},function(err,status){
 						APP.unblockUI(_in_modal);
-						APP.notice('',err[API.MSG],'warning',_in_modal);
+						APP.notice('',API.respMsg(data),'warning',_in_modal);
 						if(typeof errorback === 'function')errorback(err);
 						else if(opts.onError) opts.onError(err);
 					});
@@ -434,14 +436,14 @@ define('app/form',["jquery","app/common","app/api","moment",
 					for(var i=0;i<formData.length;i++){
 						params[formData[i].name] = formData[i].value;
 					}
-					API.getJson(_query_url,params,true,function(data){
+					API.ajax(_query_url,params,true,function(data){
 						APP.unblockUI(_in_modal);
-						if(typeof callback === 'function')callback(API.respData(data));
+						if(typeof callback === 'function')callback.call(this,API.respData(data));
 					},function(err,status){
 						APP.unblockUI(_in_modal);
-						APP.notice('',err[API.MSG],'warning',_in_modal);
-						if(typeof errorback === 'function')errorback(err);
-						else if(opts.onError) opts.onError(err);
+						APP.notice('',API.respMsg(data),'warning',_in_modal);
+						if(typeof errorback === 'function')errorback.call(this,err);
+						else if(typeof opts.onError === 'function') opts.onError.call(this,err);
 					});
 					return false;
 				}else{
@@ -471,15 +473,15 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(APP.debug)console.log(response);
 				APP.unblockUI(_in_modal);
 				if(API.isError(response)){
-					APP.notice('',response[API.MSG],'warning',_in_modal);
+					APP.notice('',API.respMsg(response),'warning',_in_modal);
 					if(API.isUnAuthorized(response)){
 						API.showLogin();
 						return;
 					}
-					if(typeof errorback === 'function')errorback(response,status);
-					else if(opts.onError) opts.onError(response,status);
+					if(typeof errorback === 'function')errorback.call(this,response,status);
+					else if(typeof opts.onError  === 'function') opts.onError.call(this,response,status);
 				}else{
-					APP.notice('',response[API.MSG],'success',_in_modal,opts.autoClose);
+					APP.notice('',API.respMsg(response),'success',_in_modal,opts.autoClose);
 					//动态更新规格，否则会造成重复提交验证不通过
 					_this.find('.checkExists').each(function(){
 						var _c_form_field = $(this);
@@ -490,8 +492,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 							_c_form_field.rules( "add", opts.rules[_c_field_name]);
 						}
 					});
-					if(typeof callback === 'function')callback(API.respData(response));
-					else if(opts.onSuccess) opts.onSuccess(API.respData(response));
+					if(typeof callback === 'function')callback.call(this,API.respData(response));
+					else if(typeof opts.onSuccess === 'function') opts.onSuccess.call(this,API.respData(response));
 				}
 			}
 		},opts);
@@ -588,7 +590,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	function _get_options_data(opts){
 		var url = opts.url || API.urls.stmListUrl;
 		var paramData = {};
-		if(opts.stmID) url += ("/" + opts.stmID);
+		if(opts.stmID) url += ("/" + opts.stmID+_CONFIG.HTTP.SUFFIX);
 		if(opts.param) paramData.param=opts.param;
 		return API.jsonData(url,paramData);
 	}

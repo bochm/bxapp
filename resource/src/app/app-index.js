@@ -500,13 +500,14 @@ define(['jquery','app/common'],function($,APP) {
                 },
                 success:function(response, status){
                     APP.unblockUI('.login-page');
-                    if(response.ERROR){
+                    if(API.isError(response)){
                         APP.error(response);
                     }else{
-                        API.storeUser(response);
+                        var _user = API.respData(response);
+                        API.storeUser(_user);
                         $('.login-page').slideUp('slow',function() {
                             $(this).remove();
-                            APP.initIndex(response);
+                            APP.initIndex(_user);
                         });
                     }
                 },
@@ -555,7 +556,6 @@ define(['jquery','app/common'],function($,APP) {
     }
     APP.showIndex = function(){
         API.getLoginUser(function(user){
-            
             APP.initIndex(user);
         },function(ret){
             if(API.isUnAuthorized(ret)) _showLogin();

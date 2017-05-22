@@ -3019,17 +3019,24 @@ General User Record Listing
    z-index: 1000;
    display: block;
    padding: 5px;
+    padding-left: 30px;
    overflow-x: hidden;
    overflow-y: auto;
    background-color: #ffffff;
    border-right: 1px solid #eee;
-   box-shadow: 0 0 5px rgba(0, 0, 0, 0.64);
+   box-shadow: 0 0 5px rgba(0, 0, 0, 0.16);
  }
 .loading-page.inner > .return-page{
+  position: absolute;
   left:0px;
+  top: 0px;
   cursor: pointer;
-  width:18px;
-  height:200px;
+  width:29px;
+  height:100%;
   z-index: 1001;
-  background-color: #1b6d85;
+  background-color: #89C4F4;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.16);
+  vertical-align:middle;
+  text-align: center;
+  color: #ffffff;
 }

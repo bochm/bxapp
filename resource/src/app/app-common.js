@@ -188,7 +188,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 						dataType: "html",
 						success: function(res) {
 							var page = $(res);
-							page.css({"width":$(target).outerWidth()+18,"top":$(target).offset().top});
+							page.css({"width":$(target).outerWidth()+30,"top":$(target).offset().top});
 							page.prepend("<div class='return-page'>返回</div>");
 							page.on('click','.return-page',function(){
 								page.trigger("sidebar:close");
@@ -196,6 +196,9 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 									page.remove();
 								})
 							})
+							$(target).resize(function(){
+								alert("asdasd");
+							});
 
 							APP.initComponents(page,params,target,callback);
 							/*ownerPage.fadeOut(500,function(){

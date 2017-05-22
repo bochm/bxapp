@@ -22,7 +22,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 					for(var i=0;i<l;i++){
 						menuIds.push(checkedNode[i].id);
 					}
-					API.callSrv('system/role/menu/'+selectedId,menuIds,function(ret){
+					API.ajax('system/role/menu/'+selectedId,menuIds,true,function(ret){
 						APP.success(ret,'#system-role-permissions');
 					})
 				}else{
@@ -56,7 +56,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 					for(var i=0;i<l;i++){
 						if(checkedNode[i].icons == 'fa fa-user')userIds.push(checkedNode[i].id);
 					}
-					API.callSrv('system/role/user/'+selectedId,userIds,function(ret){
+					API.ajax('system/role/user/'+selectedId,userIds,true,function(ret){
 						APP.success(ret,'#system-role-assign',true);
 					})
 				}else{

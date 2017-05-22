@@ -13,8 +13,8 @@ define('module/system/dict',['app/common','app/api','app/datatables','app/form']
 				"url" : "system/dict",
 				"rules":{
 					//joinField可以为数组或单值 为jquery选择器
-					"name":{"checkExists":{stmid:'cn.bx.system.mapper.DictMapper.checkTypes',joinField:["select[name='type']"]},"messages":{"checkExists" : "已存在该名称"}},
-					"value":{"checkExists":{stmid:'cn.bx.system.mapper.DictMapper.checkTypes',joinField:"select[name='type']"},"messages":{"checkExists" : "已存在该值"}}
+					"name":{"checkExists":{stmid:'cn.bx.system.mapper.DictMapper.checkTypes',joinField:["#system-dict-edit-form-type"]},"messages":{"checkExists" : "已存在该名称"}},
+					"value":{"checkExists":{stmid:'cn.bx.system.mapper.DictMapper.checkTypes',joinField:"#system-dict-edit-form-type"},"messages":{"checkExists" : "已存在该值"}}
 				}
 			}
 		},function(dt){

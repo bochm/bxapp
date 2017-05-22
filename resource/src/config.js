@@ -1,5 +1,5 @@
 var _CONFIG = {
-	"isLocalData" : false,//本地数据模式,在服务端还不存在的时候使用，json数据通过本地文件的方式请求
+	"isLocalData" : true,//本地数据模式,在服务端还不存在的时候使用，json数据通过本地文件的方式请求
 	"localUserName" : "localuser",//本地用户名,不登录默认缓存在本地的用户名称
 	"debug" : true,
 	"srvUrl" : "http://localhost:9080",
@@ -44,8 +44,8 @@ var _CONFIG = {
 		"BAD_REQUEST" : {"status":"400","message":"请求参数错误"},
 		/** 401没有登录 */
 		"UNAUTHORIZED" : {"status":"401","message":"登陆过期失效"},
-		/** 403没有权限 */
-		"FORBIDDEN" : {"status":"403","message":"未授权操作"},
+		/** 421没有权限 */
+		"FORBIDDEN" : {"status":"421","message":"未授权操作"},
 		/** 404找不到页面 */
 		"NOT_FOUND" : {"status":"404","message":"页面不存在"},
 		/** 408请求超时 */

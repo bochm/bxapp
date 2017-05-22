@@ -24,7 +24,7 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
 			"srv" : _CONFIG.srvUrl,
 			"urls" : _CONFIG.URLS,
 			"defaultError" : function(error,status){
-				_sysError('系统错误['+status+']',error[API.MSG]);
+				_sysError('系统错误['+error[API.STATUS]+']',error[API.MSG]);
 			},
 			"getLocalData" : function(key, callback) {
 				var data = STORE.get(key);
@@ -47,17 +47,23 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
 			"logout" : function(){
 				STORE.remove(_key_user);
 			},
+			"isForbidden" : function(response){
+				if(response[API.STATUS] === undefined) return false;
+				return response[API.STATUS] === _CONFIG.HTTP.FORBIDDEN.status;
+			},
 			"isUnAuthorized" : function(response){
-				return response[API.STATUS] === _CONFIG.HTTP.UNAUTHORIZED.status
+				if(response[API.STATUS] === undefined) return false;
+				return response[API.STATUS] === _CONFIG.HTTP.UNAUTHORIZED.status;
 			},
 			"isError" : function(response){
-				return (response[API.ERROR] ||
-					response[API.STATUS] !== _CONFIG.HTTP.OK.status ||
-					response[API.CODE] !== _CONFIG.HTTP.OK.status);
-
+				if(response[API.STATUS] === undefined) return false;
+				return response[API.STATUS] !== _CONFIG.HTTP.OK.status ;
 			},
 			"respData" : function(response){
 				return response[API.DATA];
+			},
+			"respMsg" : function(response){
+				return response[API.MSG];
 			},
 			createHeader : _create_header,
 			ajax : _ajax,
@@ -152,12 +158,12 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
         		if(API.isError(response)){
         			$('.login-form').prepend("<div class='alert alert-danger'>" +
         					"<button class='close' type='button' data-dismiss='alert'>×</button>" +
-        					"<span></span>"+response[API.MSG]+"</div>");
+        					"<span></span>"+API.respMsg(response)+"</div>");
         		}else{
-        			API.storeUser(response);
+        			API.storeUser(API.respData(response));
         			$('#sys-login').modal('hide');
         			if(url != undefined && url != null)_ajax(url,data,type,isSync,callback,errorback);
-        			else if(typeof callback == 'function') callback(response);
+        			else if(typeof callback == 'function') callback.call(this,API.respData(response));
         		}
         		
         	},
@@ -177,7 +183,7 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
 	 * @param  {Function} errorback 失败回调函数
 	 * @param  {Boolean} indexLogin 是否首页登录调用
 	 */
-	function _ajax(url,data,type,isSync,callback,errorback,indexLogin){
+	function _ajax(url,data,isSync,callback,errorback,indexLogin){
 		var _url = _CONFIG.ctx + url;
 		var _errorback = errorback || API.defaultError;
 		if(_CONFIG.isLocalData) {//本地数据以json形式存在
@@ -187,7 +193,7 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
 		if(isSync != undefined || isSync != null) async = isSync;
 		var retData;
 		$.ajax({ 
-			type:type, 
+			type:'POST',//统一为post请求，get请求会在url后加参数导致请求失败
 			/*url: _CONFIG.ctx+((url.indexOf("?") >0) ? (url.split("?")[0]+_CONFIG.HTTP.SUFFIX+"?" + url.split("?")[1])
 				: url+_CONFIG.HTTP.SUFFIX),*/
 		    url : _CONFIG.srvUrl + _url,
@@ -198,15 +204,18 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
 		    	return _create_header(_url,request,_errorback);
 			},
 		    success:function(ret,status){
+
 		    	if(API.isError(ret)){
 		    		if(API.isUnAuthorized(ret) && indexLogin === undefined){
 		    			_showLogin(url,data,type,isSync,callback,_errorback);
 						return;
-		        	}
+		        	}else if(API.isForbidden(ret)){
+						_sysError("未授权","禁止访问!!");
+					}
 					_errorback(ret);
 		    	}else{
 		    		if(typeof callback === 'function'){
-			    		callback(ret);
+			    		callback.call(this,ret);
 			        }else{
 			        	retData = ret;
 			        }
@@ -215,29 +224,17 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
 		    error:function(xhr,status,error){
 		    	//后端异常以全局处理,前端跨域无法处理后端异常
 		    	console.error(xhr);
-				_sysError("系统错误["+xhr[API.MSG]+"]","服务网络异常!!");
+				_sysError("系统错误["+xhr[API.STATUS]+"]","服务网络异常!!");
 		    }
 		});
 		return retData;  
-	}
-	/**
-	 * json数据提交,服务接收JSON格式的对象,返回服务处理结果,用于非查询类操作
-	 */
-	API.postJson = function(url,param,isSync,callback,errorback){
-		return _ajax(url,param,'POST',isSync,callback,errorback);  
-	}
-	/**
-	 * json数据获取,返回数据查询结果,用于简单查询类操作
-	 */
-	API.getJson = function(url,param,isSync,callback,errorback){
-		return _ajax(url,param,'POST',isSync,callback,errorback);
 	}
 	/**
 	 * json数据同步获取,返回数据查询结果,用于查询类操作
 	 */
 	API.jsonData = function(url,param){
 		var _data;
-		this.getJson(url,param || {},false,function(ret){
+		_ajax(url,param || {},false,function(ret){
 			_data = API.respData(ret);
 		});
 		return _data;
@@ -259,20 +256,23 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
 	//首页获取user
 	API.getLoginUser = function(callback,errorback){
 		if(_CONFIG.isLocalData){
-			return _ajax(_CONFIG.AUTH.loginUrl+"/"+_CONFIG.localUserName,{},'GET',true,function(user){
-				_store_user(user);
-				if(typeof callback == "function") callback(user);
+			return _ajax(_CONFIG.AUTH.loginUrl+"/"+_CONFIG.localUserName,{},true,function(ret){
+				var _user = API.respData(ret);
+				_store_user(_user);
+				if(typeof callback == "function") callback(_user);
 			},function(err,status){
-				if(typeof errorback == "function") errorback(err,status);
+				if(typeof errorback == "function") errorback.call(this,err,status);
 			},true);
 		}else{
 			var _user = _local_user();
+
 			if(_user == null || _user == undefined){
 				if(typeof errorback == "function") errorback(_CONFIG.HTTP.UNAUTHORIZED,_CONFIG.HTTP.UNAUTHORIZED.status);
 				return null;
 			}else{
-				return _ajax(_CONFIG.AUTH.loginUrl,{},'POST',true,function(user){
-					var _user = API.respData(user);
+
+				return _ajax(_CONFIG.AUTH.loginUrl,{},true,function(ret){
+					var _user = API.respData(ret);
 					_store_user(_user);
 					if(typeof callback == "function") callback.call(this,_user);
 				},function(err,status){
@@ -286,15 +286,16 @@ define('app/api',['jquery','store','app/digests'],function($,STORE,DIGESTS) {
 	}
 	/*
 	 * 根据后端sqlmap ID获取数据
+	 * 加上后缀避免sqlmap中的 . 造成路径错误
 	 */
 	API.getMapByStmId = function(stmid,param){
-		return API.jsonData(_CONFIG.URLS.stmMapUrl+"/"+stmid,param);
+		return API.jsonData(_CONFIG.URLS.stmMapUrl+"/"+stmid+_CONFIG.HTTP.SUFFIX,param);
 	}
 	API.getListByStmId = function(stmid,param){
-		return API.jsonData(_CONFIG.URLS.stmListUrl+"/"+stmid,param);
+		return API.jsonData(_CONFIG.URLS.stmListUrl+"/"+stmid+_CONFIG.HTTP.SUFFIX,param);
 	}
 	API.getMapListByStmId = function(stmid,param){
-		return API.jsonData(_CONFIG.URLS.stmMapListUrl+"/"+stmid,param);
+		return API.jsonData(_CONFIG.URLS.stmMapListUrl+"/"+stmid+_CONFIG.HTTP.SUFFIX,param);
 	}
 	/*
 	 * 根据类型获取后端字典数据,本地缓存

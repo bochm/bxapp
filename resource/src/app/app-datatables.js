@@ -307,12 +307,12 @@ define('app/datatables',['jquery','app/common','app/api',
 		}else if(!APP.isEmpty(_options.deleteRecord) && !APP.isEmpty(_options.deleteRecord.url)){
 			APP.confirm('','是否删除选择的记录?',function(){
 				var _id_column = _options.deleteRecord.id ? _options.deleteRecord.id : 'id';
-				API.postJson(_options.deleteRecord.url,dt.selectedColumn(_id_column),null,function(ret,status){
+				API.ajax(_options.deleteRecord.url,dt.selectedColumn(_id_column),null,function(ret,status){
 					if(API.isError(ret)){
-						APP.error(ret[API.MSG]);
+						APP.error(API.respMsg(ret));
 					}else{
 						dt.deleteSelectedRow();
-						APP.success(ret[API.MSG],null,true);
+						APP.success(API.respMsg(ret),null,true);
 					}
 				});
 			})
@@ -511,7 +511,6 @@ define('app/datatables',['jquery','app/common','app/api',
 				var _checkboxSelect = $("<th data-column='select-checkbox'><i class='fa fa-square-o'></i></th>");
 				_table.find("thead>tr").prepend(_checkboxSelect);
 			}
-			console.log(default_opt);
 		}
 
 		//检测权限,buttons清空,按页面toolbar中的按钮显示
@@ -725,8 +724,8 @@ define('app/datatables',['jquery','app/common','app/api',
 			//先从服务器加载数据，然后再绘制表格
 			else{
 				APP.blockUI({'target':$table.get(),'gif':'load-tables'});
-				API.postJson(default_opt.dataUrl,ajax_params,true,function(ret,status){
-					default_opt.data = ret;
+				API.ajax(default_opt.dataUrl,ajax_params,true,function(ret,status){
+					default_opt.data = API.respData(ret);
 					callback($table.DataTable(default_opt));
 				},function(err){
 					APP.unblockUI($table.get());
@@ -774,8 +773,8 @@ define('app/datatables',['jquery','app/common','app/api',
 		}else{
 			_table.clear().draw();
 			APP.blockUI({'target':$table,'gif':'load-tables'});
-			API.postJson(opts.dataUrl,params,true,function(ret,status){
-				_table.rows.add(ret).draw();
+			API.ajax(opts.dataUrl,params,true,function(ret,status){
+				_table.rows.add(API.respData(ret)).draw();
 				APP.unblockUI($table);
 			});
 		}

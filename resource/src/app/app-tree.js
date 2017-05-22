@@ -49,11 +49,11 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 		var _tmpV = data.getRoot(setting)._ver;
 		API.ajax(tools.apply(setting.async.url, [setting.treeId, node], setting.async.url),
 				setting.async.contentType.indexOf('application/json') > -1 ? JSON.stringify(tmpParam) : tmpParam,
-				setting.async.type,
-				true,function(msg) {
+				true,function(ret) {
 					if (_tmpV != data.getRoot(setting)._ver) {
 						return;
 					}
+					var msg = API.respData(ret);
 					var newNodes = [];
 					try {
 						if (!msg || msg.length == 0) {
@@ -104,7 +104,7 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 			if(settings.stmID && settings.async === undefined && zNodes === undefined){//增加stmID选项获取sqlMapper的sqlID获取数组数据
 				var url = settings.url || API.urls.stmListUrl;
 				var paramData = {};
-				if(settings.stmID) url += ("/" + settings.stmID);
+				if(settings.stmID) url += ("/" + settings.stmID+_CONFIG.HTTP.SUFFIX);
 				if(settings.param) paramData.param=settings.param;
 				settings.async = {
 					'enable' : true,
