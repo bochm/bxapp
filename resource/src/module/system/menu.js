@@ -38,7 +38,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 			"addEditModal" : {"url" : "pages/system/menu/menu-edit","id":"#system-menu-edit","title":"菜单维护"},
 			"deleteRecord" : function(dt,node,e){
 				APP.confirm('','是否删除选择的菜单及包含的所有子菜单?',function(){
-					API.ajax("system/menu/delete",dt.selectedColumn("id"),null,function(ret,status){
+					API.ajax("ADMIN/system/menu/delete",dt.selectedColumn("id"),null,function(ret,status){
 						if(API.isError(ret)){
 							APP.error(API.respMsg(ret));
 						}else{
@@ -62,7 +62,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 	function handleEdit(params){
 		var menuTable = params.table;
 		$("#system-menu-edit-form input[name='type']").on("switch:change",function(e,state){
-			if(state) {
+			if(!state) {
 				$("#system-menu-edit-form input[name='permission']").removeClass('required');
 				$("#system-menu-edit-form select[name='icon']").addClass('required selectOpt');
 			}else{
@@ -72,7 +72,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 		})
 		var act = params.act;
 		var _formInitOpt = {
-				 formAction : act,validate : {},clearForm : true,url:"system/menu/"+act,
+				 formAction : act,validate : {},clearForm : true,url:"ADMIN/system/menu/"+act,
 				 fieldOpts : {
 					 "icon" : {"templateResult" : sys_menuedit_formatResult, "templateSelection":sys_menuedit_formatResult},
 					 "parentMenuName" : {"view" : {"selectedMulti": false},"queryTools" : true}

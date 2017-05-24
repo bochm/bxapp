@@ -6,11 +6,11 @@ define('module/system/dict',['app/common','app/api','app/datatables','app/form']
 			"autoWidth": true,
 			"order": [2,'asc'],
 			"queryModal" : {id : "#system-dict-query",url:"pages/system/dict/dict-query"},
-			"deleteRecord" : {"url" : 'system/dict/delete',"id" : 'id'},
+			"deleteRecord" : {"url" : 'ADMIN/system/dict/delete',"id" : 'id'},
 			"addEditForm" : {
 				"title":"字典维护",
 				"editModal":"#system-dict-list-edit",
-				"url" : "system/dict",
+				"url" : "ADMIN/system/dict",
 				"rules":{
 					//joinField可以为数组或单值 为jquery选择器
 					"name":{"checkExists":{stmid:'cn.bx.system.mapper.DictMapper.checkTypes',joinField:["#system-dict-edit-form-type"]},"messages":{"checkExists" : "已存在该名称"}},

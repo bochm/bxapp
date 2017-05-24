@@ -194,9 +194,18 @@ define('app/form',["jquery","app/common","app/api","moment",
             }
 		}
 	};
-	
-	
-	
+
+	//小数位数验证
+	$.validator.addMethod("decimal",function(value, element){
+		if(APP.isEmpty(value)) return true;
+		if(!$.isNumeric(value)) return false;
+		var default_digit = $(element).data('digit') || 2;//默认输入两位
+		var str_decimal = value.split(".");
+		if(str_decimal.length === 2){
+			return str_decimal[1].length <= default_digit;
+		}
+		return true;
+	},"小数格式不正确");
 	//jquery.validate增加select2验证方法
 	$.validator.addMethod("selectOpt", function(value, element) {   
 		return this.optional(element) || (value != "-1");
@@ -389,9 +398,10 @@ define('app/form',["jquery","app/common","app/api","moment",
 				_this.append("<input type='hidden' name='form_action' value='"+opts.formAction+"'>");
 			}
 		}
-		var _query_url = opts.url;
-		var _url = API.ctx + (opts.url || _this.attr('action'));
-		opts.url = API.srv + _url;
+		var _form_url = opts.url || _this.attr('action');
+		var _srv = API.getServerByUrl(_form_url);
+		var _url = _srv.getUrl(_form_url);
+		opts.url = _srv.srvUrl + _url;
 
 		//表单中存在文件控件，如果opts.formData直接使用则会导致jquery.form插件无法识别文件提交失败
 		//后续考虑使用单独文件上传控件
@@ -404,12 +414,12 @@ define('app/form',["jquery","app/common","app/api","moment",
 			beforeSubmit : function(formData, jqForm, options){
 				if(opts.modal)_in_modal = opts.modal.get();
 				//本地数据返回不修改任何數據
-				if(_CONFIG.isLocalData){
+				if(_srv.isLocalData){
 					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
-					API.ajax(_query_url,{},true,function(data){
+					API.ajax(_form_url,{},true,function(data){
 						APP.unblockUI(_in_modal);
 						if(opts.queryForm){
-							if(typeof callback === 'function')callback.call(API.respData(data));
+							if(typeof callback === 'function')callback.call(this,API.respData(data));
 						}else{
 							if(API.isError(data)){
 								APP.notice('',API.respMsg(data),'warning',_in_modal);
@@ -436,7 +446,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 					for(var i=0;i<formData.length;i++){
 						params[formData[i].name] = formData[i].value;
 					}
-					API.ajax(_query_url,params,true,function(data){
+					API.ajax(_form_url,params,true,function(data){
 						APP.unblockUI(_in_modal);
 						if(typeof callback === 'function')callback.call(this,API.respData(data));
 					},function(err,status){
@@ -456,7 +466,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			dataType : 'json',
 			beforeSend : function(request){
 				if(!opts.headers){
-					return API.createHeader(_url,request,errorback);
+					return API.createHeader(_srv,_url,request,errorback);
 				}
 			},
 			includeHidden : true,
@@ -468,16 +478,21 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(typeof errorback === 'function')errorback(error);
 				else if(opts.onError) opts.onError(error);
 			},
-			success:function(response, status){
+			success:function(resp, status){
+				var response = _srv.resp(resp);
 				if(opts.modal)_in_modal = opts.modal.get();
 				if(APP.debug)console.log(response);
 				APP.unblockUI(_in_modal);
 				if(API.isError(response)){
-					APP.notice('',API.respMsg(response),'warning',_in_modal);
 					if(API.isUnAuthorized(response)){
-						API.showLogin();
+						if(_srv.useLoginForm) {
+							API.showLogin();
+						}else{
+							API.backLogin(_srv,null,_this.get());
+						}
 						return;
 					}
+					APP.notice('',API.respMsg(response),'warning',_in_modal);
 					if(typeof errorback === 'function')errorback.call(this,response,status);
 					else if(typeof opts.onError  === 'function') opts.onError.call(this,response,status);
 				}else{
@@ -943,9 +958,9 @@ define('app/form',["jquery","app/common","app/api","moment",
 	}
 	FORM.editForm = function(opts,editback,errorback){
 		var formOtps = $.extend(true,{
-			"title" : "<i class='fa fa-search'/></i> 编辑",
 			clearForm : true,formAction : "add",autoClear : true,type : 'post',autoClose : false
 		},opts);
+		formOtps.title = "<i class='fa fa-edit'/></i> " + (opts.title || "编辑");
 		if(opts.editForm){
 			$(opts.editForm).initForm(formOtps,function(data){
 				if(typeof editback === 'function') editback.call(this,data);

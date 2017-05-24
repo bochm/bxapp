@@ -47,39 +47,6 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 	device.windowsPhone = function () {return device.windows() && _findDevice('phone');};
 	device.windowsTablet = function () {return device.windows() && (_findDevice('touch') && !device.windowsPhone());};
 
-	$.fn.sidebar = function(options) {
-		var self = this;
-		var settings = $.extend({
-			speed: 200,
-			side: "right"
-		}, options);
-
-		self.on("sidebar:open", function(ev, data) {
-			var properties = {};
-			properties[settings.side] = 0;
-			self.stop().animate(properties, $.extend({}, settings, data).speed, function() {
-				self.trigger("sidebar:opened");
-			});
-		});
-		self.on("sidebar:close", function(ev, data) {
-			var properties = {};
-			if (settings.side === "left" || settings.side === "right") {
-				properties[settings.side] = -self.outerWidth();
-			} else {
-				properties[settings.side] = -self.outerHeight();
-			}
-			self.stop().animate(properties, $.extend({}, settings, data).speed, function() {
-				self.trigger("sidebar:closed");
-			});
-		});
-
-		self.trigger("sidebar:close", [{
-			speed: 0
-		}]);
-		self.data("sidebar", settings);
-		return self;
-	};
-
 	if(! ('APP' in window) ){
 		window['APP'] = {
 			"isIE8" : false,
@@ -167,10 +134,10 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 							APP.initComponents($(res),params,target,callback);
 						},
 						error: function(xhr, ajaxOptions, thrownError) {
+							APP.unblockUI(target);
 							if(typeof errorback === 'function'){
 								errorback.call(this,xhr,xhr.status);
 							}else{
-								APP.unblockUI(target);
 								_sysError("页面加载错误:状态["+xhr.status+"]错误["+xhr.statusText+"]");
 							}
 
@@ -189,31 +156,15 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 						success: function(res) {
 							var page = $(res);
 							page.css({"width":$(target).outerWidth()+30,"top":$(target).offset().top});
-							page.prepend("<div class='return-page'>返回</div>");
-							page.on('click','.return-page',function(){
-								page.trigger("sidebar:close");
-								page.on('sidebar:closed',function(){
+							page.prepend("<div class='return-page'><span>返回</span></div>");
+							page.on('click','.return-page>span',function(){
+								page.trigger("innerpage:close");
+								page.on('innerpage:closed',function(){
 									page.remove();
 								})
 							})
-							$(target).resize(function(){
-								alert("asdasd");
-							});
 
 							APP.initComponents(page,params,target,callback);
-							/*ownerPage.fadeOut(500,function(){
-								_loading_page.fadeIn('fast');
-								/!*var _return_id = APP.getUniqueID("return");
-								pageContent.find(".page-bar .page-breadcrumb").append("<li><i class='fa fa-angle-right'></i><a id='"+_return_id+"'><font color='#4B77BE'><i class='fa fa-backward'></i> 返回</font></a></li>");
-								$('#'+_return_id).on('click',function(){
-									_loading_page.fadeOut('fast',function(){
-										ownerPage.slideDown('fast',function(){
-											_loading_page.remove();
-											$('#'+_return_id).parent().remove();
-										});
-									});
-								})*!/
-							});*/
 						},
 						error: function(xhr, ajaxOptions, thrownError) {
 							if(typeof errorback === 'function'){
@@ -372,10 +323,24 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 						if(_this.data("dict-type")){//按字典数据初始化
 							var _dict_data = API.getDictByType(_this.data("dict-type"));
 							if($.isArray(_dict_data) && _dict_data.length == 2){
-								_this.data("on-value",_dict_data[0].value);
-								_this.data("on-text",_dict_data[0].name);
-								_this.data("off-value",_dict_data[1].value);
-								_this.data("off-text",_dict_data[1].name);
+								if(_this.data("on-value") !== undefined){
+									if(_this.data("on-value") == _dict_data[0].value){
+										_this.data("on-text",_dict_data[0].name);
+										_this.data("off-value",_dict_data[1].value);
+										_this.data("off-text",_dict_data[1].name);
+									}
+									if(_this.data("on-value") == _dict_data[1].value){
+										_this.data("on-text",_dict_data[1].name);
+										_this.data("off-value",_dict_data[0].value);
+										_this.data("off-text",_dict_data[0].name);
+									}
+								}else{
+									_this.data("on-value",_dict_data[0].value);
+									_this.data("on-text",_dict_data[0].name);
+									_this.data("off-value",_dict_data[1].value);
+									_this.data("off-text",_dict_data[1].name);
+								}
+
 							}
 						}
 						_this.bootstrapSwitch({
@@ -396,12 +361,14 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			//初始化控件
 			initComponents: function(page,params,target,callback){
 				var page_permission = page.data("permission");
-				if(page_permission && !_CONFIG.isLocalData){
-					API.getPermission(page_permission,function(pmis){
-						page.find("[data-permission]").each(function(){
-							var pm = $(this).data("permission");
-							if($.inArray(page_permission+":"+pm,pmis) === -1) $(this).remove();
-						});
+				if(page_permission){
+					API.getPermission(page_permission,function(pmis,localData){
+						if(!localData){
+							page.find("[data-permission]").each(function(){
+								var pm = $(this).data("permission");
+								if($.inArray(page_permission+":"+pm,pmis) === -1) $(this).remove();
+							});
+						}
 						_initPageComponents(page,params,target,callback);
 					});
 				}else{
@@ -465,8 +432,8 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			_callJsModal(page,params);
 			page.fadeIn('slow');
 			if(page.hasClass('inner')){
-				page.sidebar({});
-				page.trigger("sidebar:open");
+				page.innerPage({});
+				page.trigger("innerpage:open");
 
 			}
 		}
@@ -802,7 +769,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 
 	function _initModal(mid,opts){
 		var _modal = $(mid);
-		if(_modal.data('modal-init')) return;
+
 		_modal.attr({"tabindex" : "-1","data-focus-on":"input:first"}).css("display","none");
 		if(_modal.children(".modal-body").length == 0){
 			_modal.children().wrapAll("<div class='modal-body'></div>");
@@ -813,17 +780,19 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		}
 		if(opts.hasFooter && _modal.children(".modal-footer").length == 0){
 			_modal.append("<div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>关闭</button></div>");
+			var _footer = _modal.children(".modal-footer");
 			if(opts.buttons){
 				if($.isArray(opts.buttons)){
 					for(var i=0;i<opts.buttons.length;i++){
-						_modal.children(".modal-footer").append(_createModalButton(opts.buttons[i],_modal));
+						_footer.append(_createModalButton(opts.buttons[i],_modal));
 					}
 				}else{
-					_modal.children(".modal-footer").append(_createModalButton(opts.buttons,_modal));
+					_footer.append(_createModalButton(opts.buttons,_modal));
 				}
 			}
 		}
-		_modal.data('modal-init',true)
+
+
 	}
 	/**
 	 * 创建模态窗口，用于将当前页面HTML元素在modal中显示
@@ -1098,6 +1067,39 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			_queryContainer(ct).find('.video-box-button').colorbox({iframe:true, innerWidth:640, innerHeight:480});
 		});
 	}
+   //内置明细页面
+	$.fn.innerPage = function(options) {
+		var self = this;
+		var settings = $.extend({
+			speed: 200,
+			side: "right"
+		}, options);
+
+		self.on("innerpage:open", function(ev, data) {
+			var properties = {};
+			properties[settings.side] = 0;
+			self.stop().animate(properties, $.extend({}, settings, data).speed, function() {
+				self.trigger("innerpage:opened");
+			});
+		});
+		self.on("innerpage:close", function(ev, data) {
+			var properties = {};
+			if (settings.side === "left" || settings.side === "right") {
+				properties[settings.side] = -self.outerWidth();
+			} else {
+				properties[settings.side] = -self.outerHeight();
+			}
+			self.stop().animate(properties, $.extend({}, settings, data).speed, function() {
+				self.trigger("innerpage:closed");
+			});
+		});
+
+		self.trigger("innerpage:close", [{
+			speed: 0
+		}]);
+		self.data("innerpage", settings);
+		return self;
+	};
 	return APP;
 });
 

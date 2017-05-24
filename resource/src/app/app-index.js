@@ -272,6 +272,8 @@ define(['jquery','app/common'],function($,APP) {
                 $("a[href='#"+url_id+"']").tab('show');
             },function(){
                 APP.notice("系统错误","页面加载错误","error");
+                new_tab.remove();
+                $('#'+url_id).remove();
             });
             $("a[href='#"+url_id+"']").on('shown.bs.tab',function(){
                 _toggle_menu_active(actMenu);
@@ -491,7 +493,7 @@ define(['jquery','app/common'],function($,APP) {
         require(['app/form'],function(FM){
             $('form.login-form').initForm({
                 beforeSend : function(request){
-                    return API.createLoginHeader(request,$('form.login-form'));
+                    return API.createLoginHeader(request,$('form.login-form'),$('form.login-form').attr('action'));
                 },
                 beforeSubmit : function(formData, jqForm, options){
                     APP.blockUI({target:'.login-page',message:'登陆中',gif : 'form-submit'});
@@ -504,7 +506,7 @@ define(['jquery','app/common'],function($,APP) {
                         APP.error(response);
                     }else{
                         var _user = API.respData(response);
-                        API.storeUser(_user);
+                        API.storeUser(_user,API.getServerByUrl($('form.login-form').attr('action')).KEY);
                         $('.login-page').slideUp('slow',function() {
                             $(this).remove();
                             APP.initIndex(_user);
@@ -567,7 +569,7 @@ define(['jquery','app/common'],function($,APP) {
 
         APP.loadPage('body','main',{},function(){
 
-            var menus = API.jsonData('system/index/menu/'+user.id);
+            var menus = API.jsonData(API.urls.menuUrl+user.id);
             _initMenu(menus);
             handleFixedSidebar();
             handleOnResize();
@@ -618,6 +620,11 @@ define(['jquery','app/common'],function($,APP) {
             }
             //主页点击
             $('.page-sidebar li > a.act-menu:first').click();
+            $('.navbar-collapse').on('show.bs.collapse', function () {
+                alert("asd");
+
+            });
+
         },function(err){
             APP.error(err);
         });

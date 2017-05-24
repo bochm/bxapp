@@ -9,7 +9,7 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 	];
 	function delete_record(dt,node,e){
 		APP.confirm('','是否删除选择的组织及包含的所有子组织?',function(){
-			API.ajax("system/org/delete",dt.selectedColumn("id"),null,function(ret,status){
+			API.ajax("ADMIN/system/org/delete",dt.selectedColumn("id"),null,function(ret,status){
 				if(!API.isError(ret)){
 					dt.deleteSelectedRow();
 					APP.success(API.respMsg(ret));
@@ -39,7 +39,7 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 		
 		var table = params.table;
 		var _formInitOpt = {
-				 formAction : act,validate : {},clearForm : true,url:"system/org/"+act,
+				 formAction : act,validate : {},clearForm : true,url:"ADMIN/system/org/"+act,
 				 fieldOpts : {
 					 "parentOrgName" : {"view" : {"selectedMulti": false}}
 				 },

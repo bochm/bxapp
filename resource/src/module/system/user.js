@@ -12,7 +12,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 	var form_rules = {
 		"loginName":{
 			"checkExists":{
-				"url":"system/user/checkLoginName"
+				"url":"ADMIN/system/user/checkLoginName"
 			},
 			"messages":{
 				"checkExists" : "登录名已存在"
@@ -30,7 +30,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 		}
 		$('#sys-user-password').removeClass('required');//密码不填写视为不修改密码
 		FM.editForm({title:'修改用户',rules : form_rules,fieldOpts : field_opts,clearForm : false,formAction : "save",formData : dt.selectedRows()[0],
-			autoClose : true,url : "system/user/save",editModal:"#system-user-list-edit"},function(data){
+			autoClose : true,url : "ADMIN/system/user/save",editModal:"#system-user-list-edit"},function(data){
 			dt.updateSelectedRow(data);
 		});
 
@@ -49,10 +49,10 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			"checkboxSelect":true,
 			"ordering" : false,
 			"queryModal" : "#system-user-query",
-			"deleteRecord" : {url : 'system/user/delete',id : 'id'},
+			"deleteRecord" : {url : 'ADMIN/system/user/delete',id : 'id'},
 			"addRecord" : function(dt){
 				if(!$('#sys-user-password').hasClass('required'))$('#sys-user-password').addClass('required');//新增必须输入密码
-				FM.editForm({title:'新增用户',rules : form_rules,fieldOpts : field_opts,url : "system/user/add",editModal:"#system-user-list-edit"},function(data){
+				FM.editForm({title:'新增用户',rules : form_rules,fieldOpts : field_opts,url : "ADMIN/system/user/add",editModal:"#system-user-list-edit"},function(data){
 					dt.addRow(data);
 				});
 			},

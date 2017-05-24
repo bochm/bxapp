@@ -1,0 +1,10 @@
+{
+  "status":"200",
+  "data":{
+    "company_id":"1","no":"0001","remarks":"本地测试账号","dept_name":"X省直属研发部",
+    "login_ip":"127.0.0.1","password":"1234567890",
+    "photo":"","id":"localuser","loginname":"localuser",
+    "dept_id":"1001","rsToken":"1234567890",
+    "company_name":"X省公司","name":"本地测试账号"
+  }
+}

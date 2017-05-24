@@ -1,24 +1,23 @@
 var _CONFIG = {
-	"isLocalData" : true,//本地数据模式,在服务端还不存在的时候使用，json数据通过本地文件的方式请求
-	"localUserName" : "localuser",//本地用户名,不登录默认缓存在本地的用户名称
 	"debug" : true,
-	"srvUrl" : "http://localhost:9080",
-	"ctx" : "/xsrv/",
 	"jsBaseUrl" : "resource/src",//datatable引用的swf路径
 	"imgBaseUrl" : "resource/src/images",//图片路径
+	"localDataUrl" : "resource/jsons/",//本地数据路径
 	"pageContainer" : ".loading-page",//页面容器
-	"AUTH" : {
-		"rpToken" : "rp_token",//服务端token名称,服务端验证header中的token名称
-		"userName" : "loginname",//服务端用户登陆名称,header中的名称
-		"pwd" : "password",//服务端用户登陆密码,header中的密码
-		"usToken" : "rsToken", //服务端返回token名称,user对象的getRsToken
-		"loginUrl" : "login"//获取服务端user对象的URL
-	},
 	"URLS" : {
-		"dictUrl" : "system/dict/query/",//服务端字典数据获取URL
-		"stmMapUrl" : "app/common/selectMapByStmID",//服务端根据sqlmapper ID获取map数据URL
-		"stmListUrl" : "app/common/selectArrayByStmID",//服务端根据sqlmapper ID获取List数据URL
-		"stmMapListUrl" : "app/common/selectMapListByStmID"//服务端根据sqlmapper ID获取mapList数据URL,需要在param中指定key
+		"menuUrl" : "ADMIN/system/index/menu/",//菜单获取Url
+		"permissionUrl" : "ADMIN/system/permissions/",//权限获取Url
+		"dictUrl" : "ADMIN/system/dict/query/",//服务端字典数据获取URL
+		/*sqlmapper ID请求必须在同一个server*/
+		"stmMapUrl" : "ADMIN/app/common/selectMapByStmID",//服务端根据sqlmapper ID获取map数据URL
+		"stmListUrl" : "ADMIN/app/common/selectArrayByStmID",//服务端根据sqlmapper ID获取List数据URL
+		"stmMapListUrl" : "ADMIN/app/common/selectMapListByStmID"//服务端根据sqlmapper ID获取mapList数据URL,需要在param中指定key
+	},
+	//服务配置,不同的前缀可以访问不同的server服务，如'ADMIN/system/user'为ADMIN server的system/user服务
+	"SERVERS" : {
+		"LIST" : ["ADMIN","WEIXIN"],//启用服务列表
+		"LOCAL_DATA" : [],
+		"DEFAULT" : "ADMIN"
 	},
 	"KEYS" : {
 		"DATA" : "data",//ajax返回json数据对象{"data":[{},{}]}
@@ -33,6 +32,7 @@ var _CONFIG = {
 
 	},
 	"HTTP" : {
+		/*sqlmapper ID 公共请求的后缀*/
 		"SUFFIX": ".json",
 		/** 200请求成功 */
 		"OK" : {"status":"200","message":"处理成功"},
@@ -53,10 +53,6 @@ var _CONFIG = {
 		/** 500服务器出错 */
 		"SERVER_ERROR" : {"status":"500","message":"服务器系统错误"}
 	},
-}
-if(_CONFIG.isLocalData){
-	_CONFIG.srvUrl = "resource/jsons/";
-	_CONFIG.ctx = "";
 }
 var require = {
 	waitSeconds: 15,

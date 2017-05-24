@@ -1,0 +1,165 @@
+{
+	"status":"200",
+	"data":[
+		{
+			"id": "1d9163d05d6c40cbac3c489f6ba923cd",
+			"remarks": "",
+			"sort": 11,
+			"status": "1",
+			"value": "0",
+			"name": "停用",
+			"type": "on_off",
+			"typeDesc": "系统状态"
+		},
+		{
+			"id": "222ff664a503449f8fdbb62864e2c2c9",
+			"remarks": "",
+			"sort": 11,
+			"status": "1",
+			"value": "2",
+			"name": "普通",
+			"type": "sys_role_type",
+			"typeDesc": "角色类型"
+		},
+		{
+			"id": "242b4e6b1e264496943b2d7c1def3556",
+			"remarks": "",
+			"sort": 15,
+			"status": "1",
+			"value": "6",
+			"name": "仅本人数据",
+			"type": "sys_data_scope",
+			"typeDesc": "数据范围"
+		},
+		{
+			"id": "25d64bd8d16743cd9f431081812ac50d",
+			"remarks": "",
+			"sort": 10,
+			"status": "1",
+			"value": "1",
+			"name": "启用",
+			"type": "on_off",
+			"typeDesc": "系统状态"
+		},
+		{
+			"id": "40fa002242a0468699d2d982117f86be",
+			"remarks": "",
+			"sort": 10,
+			"status": "1",
+			"value": "1",
+			"name": "管理员",
+			"type": "sys_role_type",
+			"typeDesc": "角色类型"
+		},
+		{
+			"id": "53280efdcbb94ba896a6cfaddcc77f89",
+			"remarks": "",
+			"sort": 14,
+			"status": "1",
+			"value": "5",
+			"name": "所在部门数据",
+			"type": "sys_data_scope",
+			"typeDesc": "数据范围"
+		},
+		{
+			"id": "6729e9dce26646e084189907c0964c67",
+			"remarks": "",
+			"sort": 12,
+			"status": "1",
+			"value": "3",
+			"name": "所在公司数据",
+			"type": "sys_data_scope",
+			"typeDesc": "数据范围"
+		},
+		{
+			"id": "6bd00890a80b42b9b3fd54ecee1a461a",
+			"remarks": "",
+			"sort": 19,
+			"status": "1",
+			"value": "9",
+			"name": "按明细设置",
+			"type": "sys_data_scope",
+			"typeDesc": "数据范围"
+		},
+		{
+			"id": "7955269493ca46e4875c66bb69ec0914",
+			"remarks": "",
+			"sort": 11,
+			"status": "1",
+			"value": "2",
+			"name": "所在公司及以下数据",
+			"type": "sys_data_scope",
+			"typeDesc": "数据范围"
+		},
+		{
+			"id": "866429ec66da43ccb6505cc888668a9f",
+			"remarks": "",
+			"sort": 13,
+			"status": "1",
+			"value": "4",
+			"name": "所在部门及以下数据",
+			"type": "sys_data_scope",
+			"typeDesc": "数据范围"
+		},
+		{
+			"id": "86838195fcd540268ef9f541132536c0",
+			"remarks": "",
+			"sort": 10,
+			"status": "1",
+			"value": "1",
+			"name": "所有数据",
+			"type": "sys_data_scope",
+			"typeDesc": "数据范围"
+		},
+		{
+			"id": "95abf2746ab14a6f873bda88f09b7705",
+			"remarks": "",
+			"sort": 10,
+			"status": "1",
+			"value": "1",
+			"name": "公司",
+			"type": "sys_org_type",
+			"typeDesc": "组织类型"
+		},
+		{
+			"id": "9b0a535f917449f484cf3df3c32af583",
+			"remarks": "测试",
+			"sort": 11,
+			"status": "1",
+			"value": "1",
+			"name": "功能",
+			"type": "menu_type",
+			"typeDesc": "菜单类型"
+		},
+		{
+			"id": "b520adc80c314643820f59980cf91faa",
+			"remarks": "",
+			"sort": 12,
+			"status": "1",
+			"value": "2",
+			"name": "部门",
+			"type": "sys_org_type",
+			"typeDesc": "组织类型"
+		},
+		{
+			"id": "c2e954e7bb104a55af991b58702da840",
+			"remarks": "",
+			"sort": 10,
+			"status": "1",
+			"value": "0",
+			"name": "模块",
+			"type": "menu_type",
+			"typeDesc": "菜单类型"
+		},
+		{
+			"id": "fb8404860ce0486297c07d391e086e40",
+			"remarks": "",
+			"sort": 12,
+			"status": "1",
+			"value": "3",
+			"name": "其它",
+			"type": "sys_role_type",
+			"typeDesc": "角色类型"
+		}
+	]
+}

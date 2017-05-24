@@ -3030,13 +3030,16 @@ General User Record Listing
   position: absolute;
   left:0px;
   top: 0px;
-  cursor: pointer;
   width:29px;
   height:100%;
   z-index: 1001;
   background-color: #89C4F4;
+  border-left: 1px solid #eee;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.16);
-  vertical-align:middle;
-  text-align: center;
   color: #ffffff;
+  text-align: center;
+  line-height:20px;
+}
+.loading-page.inner > .return-page >span{
+  cursor: pointer;
 }

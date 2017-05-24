@@ -238,9 +238,9 @@ define('app/datatables',['jquery','app/common','app/api',
 	function _addEditRecord(e,dt, node,type){
 		var _options = dt.init();
 		if(typeof _options.addRecord === 'function' && type == 'add'){
-			_options.addRecord(dt,node,e);
+			_options.addRecord.call(this,dt,node,e);
 		}else if(typeof _options.saveRecord === 'function' && type == 'save'){
-			_options.saveRecord(dt,node,e);
+			_options.saveRecord.call(this,dt,node,e);
 		}else if(!APP.isEmpty(_options.addModal) || !APP.isEmpty(_options.addEditModal) || !APP.isEmpty(_options.editModal)){
 			var _modal =  _options.addEditModal || _options.addModal || _options.editModal;
 			
@@ -275,8 +275,10 @@ define('app/datatables',['jquery','app/common','app/api',
 				_form_validate = _form.validate;
 			}
 			var _field_opts = _form.fieldOpts || {};
+			var _form_url = _form[type+'Url'] || _form.url || $(_form.id).attr("action") + "/" + type;
 			var form_opts = {formAction : type,clearForm : true,autoClear : true,type : 'post',validate : _form_validate,fieldOpts:_field_opts,
-					autoClose : false,rules : _form.rules,formData : null,url:((_form.url || $(_form.id).attr("action")) + "/" + type)};
+					autoClose : false,rules : _form.rules,formData : null,url:_form_url,title : _form.title};
+			if(_form.contentType) form_opts["contentType"] = _form.contentType;
 			if(type == 'save') {
 				form_opts.formData = dt.selectedRows()[0];
 				form_opts.clearForm = false;
@@ -303,7 +305,7 @@ define('app/datatables',['jquery','app/common','app/api',
 		}
 		var _options = dt.init();
 		if(typeof _options.deleteRecord === 'function'){
-			_options.deleteRecord(dt,node,e);
+			_options.deleteRecord.call(this,dt,node,e);
 		}else if(!APP.isEmpty(_options.deleteRecord) && !APP.isEmpty(_options.deleteRecord.url)){
 			APP.confirm('','是否删除选择的记录?',function(){
 				var _id_column = _options.deleteRecord.id ? _options.deleteRecord.id : 'id';
@@ -513,29 +515,27 @@ define('app/datatables',['jquery','app/common','app/api',
 			}
 		}
 
-		//检测权限,buttons清空,按页面toolbar中的按钮显示
-		if(default_opt.permission){
-			default_opt.buttons = [];
-			$("#"+(default_opt.toolbar ? default_opt.toolbar : (tableid+"-toolbar"))).children().each(function(){
-				var _btn = $(this);
-				var _btn_type = _btn.data('role');
-				if(_btn.html() != "" && _btn.hasClass("btn")){
-					default_opt.buttons.push({
-						text: _btn.html(),
-						className: _btn.attr("class"),
-						action: function ( e, dt, node, config ) {
-							if(_btn_type == 'addRecord') _addEditRecord(e,dt, node,'add');
-							else if(_btn_type == 'saveRecord') _addEditRecord(e,dt, node,'save');
-							else if(_btn_type == 'deleteRecord') _deleteRecord(e,dt, node);
-							else if(typeof default_opt[_btn.data("role")] === 'function') default_opt[_btn.data("role")](e,dt, node);
-						}
-					});
-				}else{
-					default_opt.buttons.push(_btn_type);
-				}
-				_btn.remove();
-			});
-		}
+		//buttons清空,按页面toolbar中的按钮显示
+		default_opt.buttons = [];
+		$("#"+(default_opt.toolbar ? default_opt.toolbar : (tableid+"-toolbar"))).children().each(function(){
+			var _btn = $(this);
+			var _btn_type = _btn.data('role');
+			if(_btn.html() != "" && _btn.hasClass("btn")){
+				default_opt.buttons.push({
+					text: _btn.html(),
+					className: _btn.attr("class"),
+					action: function ( e, dt, node, config ) {
+						if(_btn_type == 'addRecord') _addEditRecord(e,dt, node,'add');
+						else if(_btn_type == 'saveRecord') _addEditRecord(e,dt, node,'save');
+						else if(_btn_type == 'deleteRecord') _deleteRecord(e,dt, node);
+						else if(typeof default_opt[_btn.data("role")] === 'function') default_opt[_btn.data("role")].call(this,e,dt, node);
+					}
+				});
+			}else{
+				default_opt.buttons.push(_btn_type);
+			}
+			_btn.remove();
+		});
 		return _getDataTable(_table,default_opt,function(otable){
 			//初始化表格工具栏 ，增加ID约束
 			var toolbar = $("div#"+tableid+"_wrapper>div.dt-buttons");
@@ -610,7 +610,7 @@ define('app/datatables',['jquery','app/common','app/api',
 					}
 				}
 			});
-			
+
 			//按钮使用文字标识，暂时不使用title
 			/*$('a.buttons-copy.buttons-flash').attr("title","复制");
 			$('a.buttons-excel.buttons-flash').attr("title","导出为Excel");
@@ -729,6 +729,7 @@ define('app/datatables',['jquery','app/common','app/api',
 					callback($table.DataTable(default_opt));
 				},function(err){
 					APP.unblockUI($table.get());
+					APP.notice("系统错误","表格数据获取错误:"+API.respMsg(err),'error');
 				});
 			}
 		}else{

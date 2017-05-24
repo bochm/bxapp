@@ -1,0 +1,32 @@
+{
+	"message": "保存成功",
+	"data": {
+		"id": "123456789",
+		"remarks": "1111",
+		"sort": 0,
+		"status": "1",
+		"company": {
+			"id": "35c673b0d83a4557a5da599b522cb4b7",
+			"name": "Y省公司"
+		},
+		"dept": {
+			"id": "51de85b9e00047d09a1fe9ac3a451110",
+			"name": ""
+		},
+		"loginName": "rrrrr",
+		"password": "",
+		"no": "",
+		"name": "rrrrr",
+		"email": "",
+		"tel": "",
+		"mobile": "",
+		"userType": "",
+		"loginIp": "",
+		"loginDate": "",
+		"loginFlag": "1",
+		"photo": ""
+	},
+	"status": "seccuss",
+	"OK": true,
+	"ERROR": false
+}

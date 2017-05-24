@@ -22,7 +22,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 					for(var i=0;i<l;i++){
 						menuIds.push(checkedNode[i].id);
 					}
-					API.ajax('system/role/menu/'+selectedId,menuIds,true,function(ret){
+					API.ajax('ADMIN/system/role/menu/'+selectedId,menuIds,true,function(ret){
 						APP.success(ret,'#system-role-permissions');
 					})
 				}else{
@@ -56,7 +56,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 					for(var i=0;i<l;i++){
 						if(checkedNode[i].icons == 'fa fa-user')userIds.push(checkedNode[i].id);
 					}
-					API.ajax('system/role/user/'+selectedId,userIds,true,function(ret){
+					API.ajax('ADMIN/system/role/user/'+selectedId,userIds,true,function(ret){
 						APP.success(ret,'#system-role-assign',true);
 					})
 				}else{
@@ -71,9 +71,9 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 			"autoWidth": true,
 			"columnDefs" : columnDefs,
 			"permission" : true,
-			"deleteRecord" : {"url" : 'system/role/delete',"id" : 'id'},
+			"deleteRecord" : {"url" : 'ADMIN/system/role/delete',"id" : 'id'},
 			"addEditForm" : {
-				"title":"字典维护",
+				"title":"角色维护",
 				"editModal":"#system-role-list-edit",
 				"id" : "#system-role-edit-form",
 				"rules":{

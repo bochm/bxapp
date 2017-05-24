@@ -2,6 +2,7 @@ require.config({
 	paths:{
 		'app/index':'app/app-index',
 		'app/common':'app/app-common',
+		'app/servers':'app/app-servers',
 		'app/api':'app/app-api',
 		'app/digests':'app/app-digests',
 		'app/form':'app/app-form',
