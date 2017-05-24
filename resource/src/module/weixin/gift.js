@@ -27,7 +27,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
             "id" : "#weixin-gift-edit-form",
             "addUrl" : "WEIXIN/gift/add",
             "saveUrl" : "WEIXIN/gift/update",
-            "contentType" : 'application/json;charset=utf-8',
+            "submitJson" : true,
             /*"rules" : {
                 "giftName":{
                     "checkExists":{

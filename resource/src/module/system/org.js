@@ -39,7 +39,7 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 		
 		var table = params.table;
 		var _formInitOpt = {
-				 formAction : act,validate : {},clearForm : true,url:"ADMIN/system/org/"+act,
+				 validate : {},clearForm : true,url:"ADMIN/system/org/"+act,
 				 fieldOpts : {
 					 "parentOrgName" : {"view" : {"selectedMulti": false}}
 				 },

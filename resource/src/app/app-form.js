@@ -389,15 +389,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		});
 		//表单显示位置,返回提示使用
 		var _in_modal = (_this.parents('.modal').size() > 0) ? _this.parents('.modal').get(0) : 'body';
-		
-		//提交是初始化bean的提交类型  add save delete  对应BaseBean 的form_action属性
-		if(opts.formAction){
-			if(_this.children(":hidden[name='form_action']").size()>0){
-				_this.children(":hidden[name='form_action']").val(opts.formAction);
-			}else{
-				_this.append("<input type='hidden' name='form_action' value='"+opts.formAction+"'>");
-			}
-		}
+
 		var _form_url = opts.url || _this.attr('action');
 		var _srv = API.getServerByUrl(_form_url);
 		var _url = _srv.getUrl(_form_url);
@@ -415,49 +407,22 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(opts.modal)_in_modal = opts.modal.get();
 				//本地数据返回不修改任何數據
 				if(_srv.isLocalData){
-					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
-					API.ajax(_form_url,{},true,function(data){
-						APP.unblockUI(_in_modal);
-						if(opts.queryForm){
-							if(typeof callback === 'function')callback.call(this,API.respData(data));
-						}else{
-							if(API.isError(data)){
-								APP.notice('',API.respMsg(data),'warning',_in_modal);
-								if(typeof errorback === 'function')errorback.call(this,data);
-								else if(opts.onError) opts.onError(data);
-							}else{
-								APP.notice('',API.respMsg(data),'success',_in_modal,opts.autoClose);
-								if(typeof callback === 'function')callback.call(this,API.respData(response));
-								else if(typeof opts.onSuccess === 'function') opts.onSuccess.call(this,API.respData(response));
-							}
-						}
-					},function(err,status){
-						APP.unblockUI(_in_modal);
-						APP.notice('',API.respMsg(data),'warning',_in_modal);
-						if(typeof errorback === 'function')errorback(err);
-						else if(opts.onError) opts.onError(err);
-					});
+					_local_data_submit(opts,_this,_form_url,_in_modal,callback,errorback);
 					return false;
 				}
 				//spring @RequestBody对于form提交的字符解析有问题，暂时使用json提交代替form提交
 				if(opts.queryForm){
-					var params = {};
 					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "查询中",gif : 'form-submit'});
-					for(var i=0;i<formData.length;i++){
-						params[formData[i].name] = formData[i].value;
-					}
-					API.ajax(_form_url,params,true,function(data){
-						APP.unblockUI(_in_modal);
-						if(typeof callback === 'function')callback.call(this,API.respData(data));
-					},function(err,status){
-						APP.unblockUI(_in_modal);
-						APP.notice('',API.respMsg(data),'warning',_in_modal);
-						if(typeof errorback === 'function')errorback.call(this,err);
-						else if(typeof opts.onError === 'function') opts.onError.call(this,err);
-					});
+					_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,true);
 					return false;
 				}else{
 					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
+					/*针对spring @RequestBody对于form提交的字符解析有问题，使用两种提交方式*/
+					/*使用@RequestBody注解的参数使用json方式  设置opts.submitJson为true*/
+					if(opts.submitJson){
+						_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,false);
+						return false
+					}
 					return true;
 				}
 				
@@ -496,19 +461,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 					if(typeof errorback === 'function')errorback.call(this,response,status);
 					else if(typeof opts.onError  === 'function') opts.onError.call(this,response,status);
 				}else{
-					APP.notice('',API.respMsg(response),'success',_in_modal,opts.autoClose);
-					//动态更新规格，否则会造成重复提交验证不通过
-					_this.find('.checkExists').each(function(){
-						var _c_form_field = $(this);
-						var _c_field_name = formField.attr('name');
-						if(opts.rules && opts.rules[_c_field_name] && opts.rules[_c_field_name].checkExists){
-							_c_form_field.rules( "remove","checkExists");
-							opts.rules[_c_field_name].checkExists.original = _c_form_field.val();
-							_c_form_field.rules( "add", opts.rules[_c_field_name]);
-						}
-					});
-					if(typeof callback === 'function')callback.call(this,API.respData(response));
-					else if(typeof opts.onSuccess === 'function') opts.onSuccess.call(this,API.respData(response));
+					_form_submit_success(response,opts,_this,_in_modal,callback);
 				}
 			}
 		},opts);
@@ -516,35 +469,76 @@ define('app/form',["jquery","app/common","app/api","moment",
 		_this.data("form-init",true);
 		if(form_opt.ajax) _this.ajaxForm(form_opt);
 	}
-	
-	
-	/**
-	 * form表单提交
-	 * @param  {String} url form提交url
-	 * @param  {Function} callback 回调函数
-	 */
-	$.fn.postForm = function(url,callback){
-		var _form = $(this);
-		if(_form.is('form')){
-			$.ajax({ 
-		        type:"POST", 
-		        url:url, 
-		        dataType:"json",      
-		        contentType:"application/json",               
-		        data:JSON.stringify(FORM.formToJson(_form)), 
-		        success:function(ret,status){
-		        	callback(result,status);
-		        },
-		        error:function(xhr){
-		        	APP.notice('系统错误','错误代码['+xhr.status+'] 错误名称['+xhr.statusText+']','error');
-		        }
+	/*json方式提交form*/
+	function _form_submit_success(response,opts,_form,_in_modal,callback){
+		APP.notice('',API.respMsg(response),'success',_in_modal,opts.autoClose);
+		//动态更新规格，否则会造成重复提交验证不通过
+		_form.find('.checkExists').each(function(){
+			var _c_form_field = $(this);
+			var _c_field_name = _c_form_field.attr('name');
+			if(opts.rules && opts.rules[_c_field_name] && opts.rules[_c_field_name].checkExists){
+				_c_form_field.rules( "remove","checkExists");
+				opts.rules[_c_field_name].checkExists.original = _c_form_field.val();
+				_c_form_field.rules( "add", opts.rules[_c_field_name]);
+			}
+		});
+		if(typeof callback === 'function')callback.call(this,API.respData(response));
+		else if(typeof opts.onSuccess === 'function') opts.onSuccess.call(this,API.respData(response));
+	}
+	/*formData转为json对象*/
+	function _formData2Object(formData){
+		var params = {};
+		for(var i=0;i<formData.length;i++){
+			params[formData[i].name] = formData[i].value;
+		}
+		return params;
+	}
+	//服务器不支持 multipart/form-data 方式的提交时使用(springmvc @RequestBody注解的参数)
+	function _json_data_submit(opts,_form,_form_url,formData,_in_modal,callback,errorback,_is_query){
+		if(_form.valid()){
+			API.ajax(_form_url,_formData2Object(formData),true,function(data){
+				APP.unblockUI(_in_modal);
+				if(_is_query){
+					if(typeof callback === 'function')callback.call(this,API.respData(data));
+				}else{
+					_form_submit_success(data,opts,_form,_in_modal,callback);
+				}
+			},function(err,status){
+				APP.unblockUI(_in_modal);
+				APP.notice('',API.respMsg(data),'warning',_in_modal);
+				if(typeof errorback === 'function')errorback(err);
+				else if(opts.onError) opts.onError(err);
 			});
-		}else
-			alert("对象不是表单");
-		  
-	};
-	
-	
+		}
+	}
+	/*本地测试数据提交*/
+	function _local_data_submit(opts,_form,_form_url,_in_modal,callback,errorback){
+		APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
+		if(_form.valid()){
+			API.ajax(_form_url,{},true,function(data){
+				APP.unblockUI(_in_modal);
+				if(opts.queryForm){
+					if(typeof callback === 'function')callback.call(this,API.respData(data));
+				}else{
+					if(API.isError(data)){
+						APP.notice('',API.respMsg(data),'warning',_in_modal);
+						if(typeof errorback === 'function')errorback.call(this,data);
+						else if(opts.onError) opts.onError(data);
+					}else{
+						APP.notice('',API.respMsg(data),'success',_in_modal,opts.autoClose);
+						if(typeof callback === 'function')callback.call(this,API.respData(response));
+						else if(typeof opts.onSuccess === 'function') opts.onSuccess.call(this,API.respData(response));
+					}
+				}
+			},function(err,status){
+				APP.unblockUI(_in_modal);
+				APP.notice('',API.respMsg(data),'warning',_in_modal);
+				if(typeof errorback === 'function')errorback(err);
+				else if(opts.onError) opts.onError(err);
+			});
+		}
+	}
+
 	//------------------------下拉列表----------------------
 	//初始化下拉列表语言
 	var select2_language =  {
@@ -958,7 +952,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	}
 	FORM.editForm = function(opts,editback,errorback){
 		var formOtps = $.extend(true,{
-			clearForm : true,formAction : "add",autoClear : true,type : 'post',autoClose : false
+			clearForm : true,autoClear : true,type : 'post',autoClose : false
 		},opts);
 		formOtps.title = "<i class='fa fa-edit'/></i> " + (opts.title || "编辑");
 		if(opts.editForm){

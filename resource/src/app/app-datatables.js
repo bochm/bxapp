@@ -276,7 +276,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			}
 			var _field_opts = _form.fieldOpts || {};
 			var _form_url = _form[type+'Url'] || _form.url || $(_form.id).attr("action") + "/" + type;
-			var form_opts = {formAction : type,clearForm : true,autoClear : true,type : 'post',validate : _form_validate,fieldOpts:_field_opts,
+			var form_opts = {clearForm : true,autoClear : true,type : 'post',validate : _form_validate,fieldOpts:_field_opts,
 					autoClose : false,rules : _form.rules,formData : null,url:_form_url,title : _form.title};
 			if(_form.contentType) form_opts["contentType"] = _form.contentType;
 			if(type == 'save') {

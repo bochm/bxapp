@@ -72,7 +72,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 		})
 		var act = params.act;
 		var _formInitOpt = {
-				 formAction : act,validate : {},clearForm : true,url:"ADMIN/system/menu/"+act,
+				 validate : {},clearForm : true,url:"ADMIN/system/menu/"+act,
 				 fieldOpts : {
 					 "icon" : {"templateResult" : sys_menuedit_formatResult, "templateSelection":sys_menuedit_formatResult},
 					 "parentMenuName" : {"view" : {"selectedMulti": false},"queryTools" : true}
