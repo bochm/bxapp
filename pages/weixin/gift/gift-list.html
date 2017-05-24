@@ -1,0 +1,71 @@
+<div class="loading-page" data-js-module="module/weixin/gift" data-permission="weixin:gift">
+    <span id="table-weixin-gift-list-toolbar" class="hide">
+    <a data-role="addRecord" data-permission="add">新增礼品</a>
+    <a class="btn-selectOne" data-role="updateRecord" data-permission="save">修改礼品</a>
+    <a class="btn-warning btn-selectMore" data-role="deleteRecord" data-permission="delete">删除礼品</a>
+    </span>
+    <table id="table-weixin-gift-list" class="table datatable table-bordered nowrap"  data-url="WEIXIN/gift/selectList" width="100%">
+    </table>
+    <!-- 新增修改 -->
+    <div class="modal fade" id="weixin-gift-edit-modal" data-backdrop="static" data-width="700" >
+        <form class="form-horizontal" method="post" role="form" id="weixin-gift-edit-form">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">礼品名称<span class="required">*</span></label>
+                        <div class="col-md-8">
+                            <div class="input-icon right"> <i class="fa validate-icon"></i>
+                                <input type="text" name="giftName" maxlength="25" class="form-control required">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-4">单价</label>
+                        <div class="col-md-8">
+                            <div class="input-icon right"> <i class="fa validate-icon"></i>
+                                <input type="text" name="price" data-digit="3" class="form-control decimal">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">单位<span class="required">*</span></label>
+                        <div class="col-md-8">
+                            <div class="input-icon right"> <i class="fa validate-icon"></i>
+                                <input type="text" name="unit" maxlength="4" class="form-control required">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-4">兑换积分</label>
+                        <div class="col-md-8">
+                            <div class="input-icon right"> <i class="fa validate-icon"></i>
+                                <input type="text" name="exchangeScore" class="form-control number">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="control-label col-md-2">照片</label>
+                        <div class="col-md-10"><!--<input type="file" name="photo" class="form-control">--></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="control-label col-md-2">说明</label>
+                        <div class="col-md-10">
+                            <input name="introduce" type="text" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
