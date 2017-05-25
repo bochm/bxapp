@@ -276,9 +276,20 @@ define('app/datatables',['jquery','app/common','app/api',
 			}
 			var _field_opts = _form.fieldOpts || {};
 			var _form_url = _form[type+'Url'] || _form.url || $(_form.id).attr("action") + "/" + type;
-			var form_opts = {clearForm : true,autoClear : true,type : 'post',validate : _form_validate,fieldOpts:_field_opts,
-					autoClose : false,rules : _form.rules,formData : null,url:_form_url,title : _form.title};
-			if(_form.contentType) form_opts["contentType"] = _form.contentType;
+			var form_opts = {
+				clearForm : true, //submit之后是否清空数据
+				autoClear : true,//form初始化时是否清空数据
+				type : 'post',//提交方式
+				validate : _form_validate,//合法验证配置,jquery.validate配置对象
+				fieldOpts:_field_opts,//字段初始化对象
+				autoClose : false,//form显示在modal中是否在submit后自动关闭modal
+				rules : _form.rules,//字段验证规则
+				formData : null,//form初始化数据，一般为修改form初始化字段值
+				url:_form_url,//form提交url
+				title : _form.title,//form显示在modal中的标题
+				submitJson : _form.submitJson,//=true则为扁平json方式提交form,针对springmvc使用@RequestBody注解的参数
+			};
+
 			if(type == 'save') {
 				form_opts.formData = dt.selectedRows()[0];
 				form_opts.clearForm = false;
@@ -287,8 +298,12 @@ define('app/datatables',['jquery','app/common','app/api',
 			form_opts.editModal = _form.editModal;
 			require(['app/form'],function(FORM){
 				FORM.editForm(form_opts,function(data){
-					if(type == 'add') dt.addRow(data);
-					else dt.updateSelectedRow(data);
+					if(typeof _form.submitCallback === 'function'){
+						_form.submitCallback.call(this,data);
+					}else{
+						if(type == 'add') dt.addRow(data);
+						else dt.updateSelectedRow(data);
+					}
 				});
 			});
 		}else{
@@ -774,7 +789,7 @@ define('app/datatables',['jquery','app/common','app/api',
 		}else{
 			_table.clear().draw();
 			APP.blockUI({'target':$table,'gif':'load-tables'});
-			API.ajax(opts.dataUrl,params,true,function(ret,status){
+			API.ajax(opts.dataUrl,params||{},true,function(ret,status){
 				_table.rows.add(API.respData(ret)).draw();
 				APP.unblockUI($table);
 			});

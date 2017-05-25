@@ -51,7 +51,7 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
             "KEY" : "WEIXIN",
             "srvUrl" : "http://10.20.5.106:8080",
             "ctx" : "/neu-weixin-web/",
-            "useLoginForm" : false,
+            "useLoginForm" : false,//后台登陆,不使用form
             "AUTH" : {
                 "rpToken" : "authToken",
                 "userName" : "userCode",

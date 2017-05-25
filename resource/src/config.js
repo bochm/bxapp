@@ -11,7 +11,9 @@ var _CONFIG = {
 		/*sqlmapper ID请求必须在同一个server*/
 		"stmMapUrl" : "ADMIN/app/common/selectMapByStmID",//服务端根据sqlmapper ID获取map数据URL
 		"stmListUrl" : "ADMIN/app/common/selectArrayByStmID",//服务端根据sqlmapper ID获取List数据URL
-		"stmMapListUrl" : "ADMIN/app/common/selectMapListByStmID"//服务端根据sqlmapper ID获取mapList数据URL,需要在param中指定key
+		"stmMapListUrl" : "ADMIN/app/common/selectMapListByStmID",//服务端根据sqlmapper ID获取mapList数据URL,需要在param中指定key
+		"fileUploadUrl" : "WEIXIN/attachment/upload/{userid}/{type}.do",
+		"fileDropUrl" : "WEIXIN/attachment/delete/{fileid}/{type}.do",
 	},
 	//服务配置,不同的前缀可以访问不同的server服务，如'ADMIN/system/user'为ADMIN server的system/user服务
 	"SERVERS" : {

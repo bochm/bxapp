@@ -116,13 +116,14 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 	function _create_login_header(request,form,url){
 		return _get_server_by_url(url).createLoginHeader(request,form);
 	}
-	function _backLogin(srv,url,form,data,type,isSync,callback,errorback){
+	function _backLogin(srv,url,form,data,isSync,callback,errorback){
 		$.ajax({
 			type:'POST',
 			url : srv.srvUrl + srv.ctx + srv.loginUrl(),
 			contentType : 'application/json;charset=utf-8',
 			data: JSON.stringify(srv.loginParam || {}),
 			dataType : 'json',
+			async:false,
 			beforeSend : function(request){
 				return srv.createLoginHeader(request);
 			},
@@ -134,7 +135,7 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 					var _user = API.respData(ret);
 					if(_user != null && _user != undefined){
 						_store_user(_user,srv.KEY);
-						if(url != undefined && url != null)_ajax(url,data,type,isSync,callback,errorback);
+						if(url != undefined && url != null)_ajax(url,data,isSync,callback,errorback);
 						else if(form != undefined && url != null) form.submit();
 					}else{
 						API.defaultError(ret);
@@ -147,72 +148,74 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 			}
 		});
 	}
-	function _showLogin(url,data,type,isSync,callback,errorback){
+	function _showLogin(url,data,isSync,callback,errorback){
 		require(['bootstrap','app/form'],function(){
 			if($('#sys-login').length > 0){
-        		$('#sys-login').modal('show');
-        	}else{
-        		$.ajax({
-    	            type: "GET",
-    	            cache: false,
-    	            url: "login-pop.html",
-    	            dataType: "html",
+				$('#sys-login').modal('show');
+				_initLoginForm(url,data,isSync,callback,errorback);
+			}else{
+				$.ajax({
+					type: "GET",
+					cache: false,
+					url: "login-pop.html",
+					dataType: "html",
 					async:false,
-    	            success: function(html) {
-    	            	$('body').append(html);
-    					$('#sys-login').modal('show');
-    	            	_initLoginForm(url,data,type,isSync,callback,errorback);
-    	            },
-    	            error: function(xhr, ajaxOptions, thrownError) {
-    	            	_sysError("登陆页面加载错误["+xhr.status+"]",xhr.statusText);
-    	            }
-    	        });
-        	}
-			
+					success: function(html) {
+						$('body').append(html);
+						$('#sys-login').modal('show');
+						_initLoginForm(url,data,isSync,callback,errorback);
+					},
+					error: function(xhr, ajaxOptions, thrownError) {
+						_sysError("登陆页面加载错误["+xhr.status+"]",xhr.statusText);
+					}
+				});
+			}
 		})
+
 	}
-    function _initLoginForm(url,data,type,isSync,callback,errorback){
+    function _initLoginForm(url,data,isSync,callback,errorback){
 		var _srv = _get_server_by_url(url);
     	var local_user = _local_user(_srv.KEY);
     	if(local_user != null && local_user != undefined) {
     		document.forms['login-form'].loginname.value = local_user[_srv.AUTH.userName];
     	}
-    	$('form.login-form').initForm({
+		$('form.login-form').initForm({
 			beforeSend : function(request){
 				return _srv.createLoginHeader(request,$('form.login-form'));
 			},
-        	rules:{
+			rules:{
 				"loginname":{"messages":{"required" : "请输入用户名"}},
 				"password":{"messages":{"required" : "请输入密码"}}
 			},
-        	beforeSubmit : function(formData, jqForm, options){
-        		$('.login-form .alert-danger').remove();
-        		$(".login-form button[type='submit']").attr("disabled","true").text("登录中..");
-        		/*options.url = (options.url + "/" + formData[0].value);*/
-        		return true;
-        	},
-        	success:function(resp, status){
-        		$(".login-form button[type='submit']").removeAttr("disabled").text("登录");
+			beforeSubmit : function(formData, jqForm, options){
+				$('.login-form .alert-danger').remove();
+				$(".login-form button[type='submit']").attr("disabled","true").text("登录中..");
+				/*options.url = (options.url + "/" + formData[0].value);*/
+				return true;
+			},
+			success:function(resp, status){
+				$(".login-form button[type='submit']").removeAttr("disabled").text("登录");
 				var response = _srv.resp(resp);
-        		if(API.isError(response)){
-        			$('.login-form').prepend("<div class='alert alert-danger'>" +
-        					"<button class='close' type='button' data-dismiss='alert'>×</button>" +
-        					"<span></span>"+API.respMsg(response)+"</div>");
-        		}else{
-        			API.storeUser(API.respData(response));
-        			$('#sys-login').modal('hide');
-        			if(url != undefined && url != null)_ajax(url,data,type,isSync,callback,errorback);
-        			else if(typeof callback == 'function') callback.call(this,API.respData(response));
-        		}
-        		
-        	},
-        	error:function(err){
-        		$(".login-form button[type='submit']").removeAttr("disabled").text("登录");
-        		$('.login-form').prepend("<div class='alert alert-danger'>" +
-    					"<button class='close' type='button' data-dismiss='alert'>×</button>" +
-    					"<span></span>系统错误，无法连接服务器</div>");
-        	}
-        });
+				if(API.isError(response)){
+					$('.login-form').prepend("<div class='alert alert-danger'>" +
+						"<button class='close' type='button' data-dismiss='alert'>×</button>" +
+						"<span></span>"+API.respMsg(response)+"</div>");
+				}else{
+					API.storeUser(API.respData(response),_srv.KEY);
+					$('#sys-login').modal('hide');
+					if(url != undefined && url != null)_ajax(url,data,isSync,callback,errorback);
+					else if(typeof callback == 'function') callback.call(this,API.respData(response));
+				}
+
+			},
+			error:function(err){
+				$(".login-form button[type='submit']").removeAttr("disabled").text("登录");
+				$('.login-form').prepend("<div class='alert alert-danger'>" +
+					"<button class='close' type='button' data-dismiss='alert'>×</button>" +
+					"<span></span>系统错误，无法连接服务器</div>");
+			}
+		});
+
     }
 	/**
 	 * ajax数据请求,服务器端接收JSON格式的对象
@@ -281,12 +284,13 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 	/**
 	 * json数据同步获取,返回数据查询结果,用于查询类操作
 	 */
-	API.jsonData = function(url,param){
+	API.jsonData = function(url,param,callback){
 		var _data;
 		_ajax(url,param || {},false,function(ret){
 			_data = API.respData(ret);
+			if(typeof callback === 'function') callback.call(this,_data);
 		});
-		return _data;
+		if(callback === undefined) return _data;
 	}
 	//首页获取user
 	API.getLoginUser = function(callback,errorback){
@@ -403,10 +407,14 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 			var _user = _local_user(_srv.KEY);
 			if(_user == null || _user == undefined){
 				_showLogin(null,null,null,null,function(user){
-					callback.call(this,API.jsonData(_CONFIG.URLS.permissionUrl+user.id+"/"+role),false);
+					API.jsonData(_CONFIG.URLS.permissionUrl+user.id+"/"+role,{},function(data){
+						callback.call(this,data,false);
+					})
 				})
 			}else{
-				callback.call(this,API.jsonData(_CONFIG.URLS.permissionUrl+_user.id+"/"+role),false);
+				API.jsonData(_CONFIG.URLS.permissionUrl+_user.id+"/"+role,{},function(data){
+					callback.call(this,data,false);
+				});
 			}
 		}
 

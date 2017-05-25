@@ -485,7 +485,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		if(typeof callback === 'function')callback.call(this,API.respData(response));
 		else if(typeof opts.onSuccess === 'function') opts.onSuccess.call(this,API.respData(response));
 	}
-	/*formData转为json对象*/
+	/*formData转为json对象,暂时只支持扁平json，多表关联字段（如dept.id）类型还没有实现解析*/
 	function _formData2Object(formData){
 		var params = {};
 		for(var i=0;i<formData.length;i++){
@@ -505,7 +505,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 			},function(err,status){
 				APP.unblockUI(_in_modal);
-				APP.notice('',API.respMsg(data),'warning',_in_modal);
+				alert("asd");
+				APP.notice('',API.respMsg(err),'warning',_in_modal);
 				if(typeof errorback === 'function')errorback(err);
 				else if(opts.onError) opts.onError(err);
 			});
@@ -532,7 +533,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 			},function(err,status){
 				APP.unblockUI(_in_modal);
-				APP.notice('',API.respMsg(data),'warning',_in_modal);
+				APP.notice('',API.respMsg(err),'warning',_in_modal);
 				if(typeof errorback === 'function')errorback(err);
 				else if(opts.onError) opts.onError(err);
 			});
@@ -603,37 +604,36 @@ define('app/form',["jquery","app/common","app/api","moment",
 		if(opts.param) paramData.param=opts.param;
 		return API.jsonData(url,paramData);
 	}
-	$.fn.select = function ( opts ) {
+	$.fn.select = function ( options ) {
 		var _select = $(this);
+		var opts = options || {};
 		select2_default_opts.data = null;
 		select2_default_opts.ajax = null;
 
-		if(opts){
-			if((opts.jsonData||opts.stmID) && opts.data === undefined){//增加jsonData选项获取静态.json文件或者直接通过sqlMapper的sqlID获取数组数据
-				if(APP.isEmpty(opts.param)) opts.param = {};
-				if(_select.data("parent-for")){
-					var _parent_sel = $(_select.data("parent-for"));
-					opts.param[_parent_sel.attr("name").replace(".","_")] = _parent_sel.val();//替换参数中的. 否则mapper文件会无法识别
-				}
-
-				if(opts.jsonData && opts.jsonData != ""){
-					opts.data = API.localData(opts.jsonData);
-				}else{
-					opts.data = _get_options_data(opts);
-				}
-
-			}else if(opts.url && opts.ajax === undefined){//默认ajax方法
-				opts.ajax = {
-					delay: 250,
-					url : opts.url,
-					data: function (params) {
-						var queryParameters = {
-							q: params.term
-						}
-						return queryParameters;
-					}
-				};
+		if((opts.jsonData||opts.stmID) && opts.data === undefined){//增加jsonData选项获取静态.json文件或者直接通过sqlMapper的sqlID获取数组数据
+			if(APP.isEmpty(opts.param)) opts.param = {};
+			if(_select.data("parent-for")){
+				var _parent_sel = $(_select.data("parent-for"));
+				opts.param[_parent_sel.attr("name").replace(".","_")] = _parent_sel.val();//替换参数中的. 否则mapper文件会无法识别
 			}
+
+			if(opts.jsonData && opts.jsonData != ""){
+				opts.data = API.localData(opts.jsonData);
+			}else{
+				opts.data = _get_options_data(opts);
+			}
+
+		}else if(opts.url && opts.ajax === undefined){//默认ajax方法
+			opts.ajax = {
+				delay: 250,
+				url : opts.url,
+				data: function (params) {
+					var queryParameters = {
+						q: params.term
+					}
+					return queryParameters;
+				}
+			};
 		}
 		//允许增加选项
 		if(opts.allowAdd || _select.data("allow-add")){
@@ -910,7 +910,44 @@ define('app/form',["jquery","app/common","app/api","moment",
 		},options);
 		_this.summernote(default_settings);
 	}
+	/**
+	 * 基于summernote的富文本编辑器
+	 * 定义了默认的onImageUpload回调方法和默认参数
+	 * @param  {Object} options summernote参数
+	 */
+	$.fn.fileUpload = function(options){
+		var _this = $(this);
+		require(['jquery/fileupload'],function($){
+			var _srv = API.getServerByUrl(API.urls.fileUploadUrl);
+			var default_settings = $.extend(true,{
+				url: "http://10.20.5.106:8080/neu-weixin-web/attachment/upload/1/asd.do",
+				dataType: 'json',
+				beforeSend : function(request){
+					request.setRequestHeader("userCode","admin");
+					request.setRequestHeader("authToken", "e77f2f0bcb7e33caeb5e6a6ea22a5b855ece44ccd1ccf61aa055a52314028263");
+					return true;
+				},
+				done: function (e, data) {
+					console.log(e);
+					console.log(data);
+					$.each(data.result.files, function (index, file) {
+						$('<p/>').text(file.name).appendTo('#files');
+					});
+				},
+				progressall: function (e, data) {
+					var progress = parseInt(data.loaded / data.total * 100, 10);
+					$('#progress .progress-bar').css(
+						'width',
+						progress + '%'
+					);
+				}
+			},options);
+			_this.fileupload(default_settings)
+				.prop('disabled', !$.support.fileInput)
+				.parent().addClass($.support.fileInput ? undefined : 'disabled');
+		})
 
+	}
 	function _initModalForm(mid,formOtps,submitback,errorback){
 		var formModal = $(mid);
 		var form = formModal.find('form');

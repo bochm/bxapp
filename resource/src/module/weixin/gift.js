@@ -15,7 +15,8 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
             { "data": "price","title":"单价"},
             { "data": "unit","title":"单位"},
             { "data": "exchangeScore","title":"兑换积分"},
-            { "data": "stock","title":"库存"}
+            { "data": "stock","title":"库存"},
+            { "data": "sale","title" : "是否上架","render" : function(data){return data == '1' ? "是" : "否"},"width" : "10%"}
         ],
         "params" : {},
         "scrollY": "350px",
@@ -28,6 +29,9 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
             "addUrl" : "WEIXIN/gift/add",
             "saveUrl" : "WEIXIN/gift/update",
             "submitJson" : true,
+            "submitCallback" : function(data){
+                table.query();
+            }
             /*"rules" : {
                 "giftName":{
                     "checkExists":{

@@ -18,6 +18,8 @@ require.config({
 		'moment':'lib/utils/moment',//时间工具
 		'jquery':'lib/jquery/jquery-1.12.0.min',
 		'jquery/migrate':'lib/jquery/jquery-migrate-min',//jquery版本迁移插件
+		'jquery/iframe':'lib/jquery/jquery.iframe-transport',//jquery iframe支持插件(文件上传)
+		'jquery/ui/widget':'lib/jquery/jquery.ui.widget',//jquery ui widget(文件上传)
 		'jquery/scrolltotop':'lib/jquery/scrolltotop',//返回顶部
 		'jquery/scrollbar':'lib/jquery/scrollbar/jquery.slimscroll',//滚动条
 		'jquery/blockui':'lib/jquery/blockui/jquery.blockUI',//遮罩
@@ -30,6 +32,7 @@ require.config({
 		'jquery/select2':'lib/jquery/select2/select2.full',//下拉列表
 		'jquery/ztree':'lib/jquery/ztree/jquery.ztree.all',//树形
 		'jquery/summernote':'lib/jquery/summernote/summernote',//富文本编辑
+		'jquery/fileupload':'lib/jquery/fileupload/jquery.fileupload',//文件上传
 		'datatables.net':'lib/jquery/datatables/jquery.dataTables',
 		'datatables.net-buttons':'lib/jquery/datatables/dataTables.buttons',
 		'datatables/buttons/flash':'lib/jquery/datatables/buttons.flash',
