@@ -29,7 +29,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			return;
 		}
 		$('#sys-user-password').removeClass('required');//密码不填写视为不修改密码
-		FM.editForm({title:'修改用户',rules : form_rules,fieldOpts : field_opts,clearForm : false,formData : dt.selectedRows()[0],
+		FM.editForm({title:'修改用户',rules : form_rules,fieldOpts : field_opts,submitClear : false,formData : dt.selectedRows()[0],
 			"submitJson" : false,autoClose : true,url : "ADMIN/system/user/save",editModal:"#system-user-list-edit"},function(data){
 			dt.updateSelectedRow(data);
 		});

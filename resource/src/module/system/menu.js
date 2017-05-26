@@ -72,7 +72,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 		})
 		var act = params.act;
 		var _formInitOpt = {
-				 validate : {},clearForm : true,url:"ADMIN/system/menu/"+act,
+				 validate : {},submitClear : true,url:"ADMIN/system/menu/"+act,
 				 fieldOpts : {
 					 "icon" : {"templateResult" : sys_menuedit_formatResult, "templateSelection":sys_menuedit_formatResult},
 					 "parentMenuName" : {"view" : {"selectedMulti": false},"queryTools" : true}
@@ -85,7 +85,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 		 
 		if(act == 'save'){
 			_formInitOpt.formData = menuTable.selectedRows()[0];
-			_formInitOpt.clearForm = false;
+			_formInitOpt.submitClear = false;
 			_formInitOpt.fieldOpts.parentMenuName.param = {"parentMenu" : _formInitOpt.formData.id};
 			_formInitOpt.onSuccess = function(ret){
 				 $.fn.zTree.getZTreeObj('system_menu_forms_parentTree').reAsyncChildNodes(null, "refresh");

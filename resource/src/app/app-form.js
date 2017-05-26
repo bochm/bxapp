@@ -400,7 +400,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 		if($('input[type=file]:enabled', _this).length > 0){
 			opts.formData = null;
 		}
-
+		//提交后如果返回成功则自动清空表单
+		if(opts.submitClear === undefined) opts.submitClear = true;
 		var form_opt = $.extend(true,{
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
@@ -472,6 +473,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	/*json方式提交form*/
 	function _form_submit_success(response,opts,_form,_in_modal,callback){
 		APP.notice('',API.respMsg(response),'success',_in_modal,opts.autoClose);
+		if(opts.submitClear) _form.clearForm(true);
 		//动态更新规格，否则会造成重复提交验证不通过
 		_form.find('.checkExists').each(function(){
 			var _c_form_field = $(this);
@@ -915,31 +917,43 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 * 定义了默认的onImageUpload回调方法和默认参数
 	 * @param  {Object} options summernote参数
 	 */
-	$.fn.fileUpload = function(options){
+	$.fn.fileUpload = function(options,errorback){
 		var _this = $(this);
 		require(['jquery/fileupload'],function($){
-			var _srv = API.getServerByUrl(API.urls.fileUploadUrl);
+			var _upload_url = options.url;
+			var _srv = API.getServerByUrl(_upload_url);
+			var _url = _srv.getUrl(_upload_url);
 			var default_settings = $.extend(true,{
-				url: "http://10.20.5.106:8080/neu-weixin-web/attachment/upload/1/asd.do",
+				url: _url,
 				dataType: 'json',
 				beforeSend : function(request){
-					request.setRequestHeader("userCode","admin");
-					request.setRequestHeader("authToken", "e77f2f0bcb7e33caeb5e6a6ea22a5b855ece44ccd1ccf61aa055a52314028263");
-					return true;
+					return API.createHeader(_srv,_url,request,errorback);
 				},
 				done: function (e, data) {
-					console.log(e);
-					console.log(data);
-					$.each(data.result.files, function (index, file) {
-						$('<p/>').text(file.name).appendTo('#files');
-					});
+					var response = data.result;
+					if(API.isError(response)){
+						if(API.isUnAuthorized(response)){
+							if(_srv.useLoginForm) API.showLogin();
+							else API.backLogin(_srv);
+							return;
+						}
+						APP.notice('',API.respMsg(response),'warning');
+						if(typeof errorback === 'function')errorback.call(this,response);
+					}else{
+						var ret = API.respData(response);
+						alert(ret.id);
+						console.log(ret);
+					}
+
+				},
+				fail : function(e,data){
+					APP.notice('文件上传错误',data.textStatus,'error');
 				},
 				progressall: function (e, data) {
-					var progress = parseInt(data.loaded / data.total * 100, 10);
-					$('#progress .progress-bar').css(
-						'width',
-						progress + '%'
-					);
+					if(options.progressBar){
+						var progress = parseInt(data.loaded / data.total * 100, 10);
+						$(options.progressBar).css('width', progress + '%');
+					}
 				}
 			},options);
 			_this.fileupload(default_settings)
@@ -989,7 +1003,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	}
 	FORM.editForm = function(opts,editback,errorback){
 		var formOtps = $.extend(true,{
-			clearForm : true,autoClear : true,type : 'post',autoClose : false
+			submitClear : false,autoClear : true,type : 'post',autoClose : false
 		},opts);
 		formOtps.title = "<i class='fa fa-edit'/></i> " + (opts.title || "编辑");
 		if(opts.editForm){

@@ -64,11 +64,9 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
             "createLoginHeader" : function(request,form){
                 request.setRequestHeader("userCode","admin");
                 request.setRequestHeader("password","123456admin");
-                console.log(request);
                 return true;
             },
             "resp" : function(response){
-                
                 response[_CONFIG.KEYS.STATUS] = response["code"];
                 return response;
             },
@@ -86,4 +84,3 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
     _SERVERS.DEFAULT = _SERVERS[_CONFIG.SERVERS.DEFAULT];
     return _SERVERS;
 });
-

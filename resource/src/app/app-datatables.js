@@ -275,9 +275,13 @@ define('app/datatables',['jquery','app/common','app/api',
 				_form_validate = _form.validate;
 			}
 			var _field_opts = _form.fieldOpts || {};
+			if( _form[type+'Url'] === undefined && _form.url === undefined
+				&& _form.id === undefined && $(_form.id).attr("action") === undefined){
+				alert("请初始化表格form参数中["+type+"Url|url|id和form.action属性]");
+			}
 			var _form_url = _form[type+'Url'] || _form.url || $(_form.id).attr("action") + "/" + type;
 			var form_opts = {
-				clearForm : true, //submit之后是否清空数据
+				submitClear : true, //submit之后是否清空数据
 				autoClear : true,//form初始化时是否清空数据
 				type : 'post',//提交方式
 				validate : _form_validate,//合法验证配置,jquery.validate配置对象
@@ -292,7 +296,7 @@ define('app/datatables',['jquery','app/common','app/api',
 
 			if(type == 'save') {
 				form_opts.formData = dt.selectedRows()[0];
-				form_opts.clearForm = false;
+				form_opts.submitClear = false;
 				form_opts.autoClose = true;
 			}
 			form_opts.editModal = _form.editModal;

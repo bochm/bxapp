@@ -540,7 +540,7 @@ define(['jquery','app/common'],function($,APP) {
             "<i class='"+home.icon+"'></i><span class='title'>"+home.name+"</span><span class='selected'></span></a></li>");
         for(var i=1;i<menus.length;i++){
             var m = menus[i];
-            if(APP.isEmpty(m.parent_id)){
+            if(APP.isEmpty(m.parent_id) || m.parent_id == '-1'){
                 menubar.append("<li data-menu-id='"+m.id+"'>" +
                     "<a href="+((APP.isEmpty(m.target) || m.target == '#') ? "'#'" : "'"+m.target+"' class='act-menu'")+">" +
                     "<i class='"+m.icon+"'></i><span class='title'>"+m.name+"</span><span class='selected'></span></a></li>");

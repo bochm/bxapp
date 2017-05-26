@@ -39,7 +39,7 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 		
 		var table = params.table;
 		var _formInitOpt = {
-				 validate : {},clearForm : true,url:"ADMIN/system/org/"+act,
+				 validate : {},url:"ADMIN/system/org/"+act,
 				 fieldOpts : {
 					 "parentOrgName" : {"view" : {"selectedMulti": false}}
 				 },
@@ -51,7 +51,7 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 		 
 		if(act == 'save'){
 			_formInitOpt.formData = table.selectedRows()[0];
-			_formInitOpt.clearForm = false;
+			_formInitOpt.submitClear = false;
 			_formInitOpt.fieldOpts.parentOrgName.param = {"parentOrg" : _formInitOpt.formData.id};
 			_formInitOpt.onSuccess = function(ret){
 				 $.fn.zTree.getZTreeObj('system_org_parentTree').reAsyncChildNodes(null, "refresh");

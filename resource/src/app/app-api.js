@@ -66,6 +66,9 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 			"respMsg" : function(response){
 				return response[API.MSG];
 			},
+			"getServerByKey" : function(key){
+				return _SERVERS[key];	
+			},
 			createHeader : _create_header,
 			ajax : _ajax,
 			localUser : _local_user,
