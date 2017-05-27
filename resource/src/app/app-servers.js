@@ -5,6 +5,7 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
         "isLocalData" : false,//本地数据模式,在服务端还不存在的时候使用，json数据通过本地文件的方式请求
         "localUserName" : "localuser",//本地用户名,不登录默认缓存在本地的用户名称
         "srvUrl" : "http://localhost:9080",
+        "fileSrvUrl" : "http://10.20.11.63/",//文件服务器地址,用于非本地图片显示
         "ctx" :"/xsrv/",
         "useLoginForm" : true,//会话或者本地缓存失效后是否需要登陆
         "AUTH" : {
@@ -38,10 +39,30 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
         "resp" : function(response){
             return response;
         },
+        "respAttach" : function(response){
+            var resp = {};
+            resp[_CONFIG.KEYS.STATUS] = response["code"];
+            resp[_CONFIG.KEYS.MSG] = response["message"];
+            if(response["data"] !== undefined){
+                resp[_CONFIG.KEYS.DATA] = {};
+                resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.ATTACH_ID] = response["data"].id;
+                resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.ATTACH_NAME] = response["data"].attachName;
+                resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.ATTACH_URL] = response["data"].attachPath;
+                resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.ATTACH_TYPE] = response["data"].attachType;
+                resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.ATTACH_OWNER] = response["data"].ownerId;
+            }
+            return resp;
+        },
         "getUrl" : function(url){
             if(url.indexOf(this.KEY) == 0)
                 return this.ctx+url.substr(this.KEY.length+1,url.length) + this.SUFFIX;
             return this.ctx + url+ this.SUFFIX;
+        },
+        "getFileUploadUrl" : function(params){
+            return "WEIXIN/attachment/upload/" + params.ownerid + "/" + params.type;
+        },
+        "getFileDropUrl" : function(params){
+            return "WEIXIN/attachment/delete/" + params.ownerid + "/" + params.type;
         },
         "SUFFIX": ""
     }

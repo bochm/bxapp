@@ -14,13 +14,11 @@ var _CONFIG = {
 		"stmMapUrl" : "ADMIN/app/common/selectMapByStmID",//服务端根据sqlmapper ID获取map数据URL
 		"stmListUrl" : "ADMIN/app/common/selectArrayByStmID",//服务端根据sqlmapper ID获取List数据URL
 		"stmMapListUrl" : "ADMIN/app/common/selectMapListByStmID",//服务端根据sqlmapper ID获取mapList数据URL,需要在param中指定key
-		"fileUploadUrl" : "WEIXIN/attachment/upload/",
-		"fileDropUrl" : "WEIXIN/attachment/delete/",
 	},
 	//服务配置,不同的前缀可以访问不同的server服务，如'ADMIN/system/user'为ADMIN server的system/user服务
 	"SERVERS" : {
 		"LIST" : ["ADMIN","WEIXIN"],//启用服务列表
-		"LOCAL_DATA" : [],
+		"LOCAL_DATA" : ["ADMIN"],
 		"DEFAULT" : "ADMIN"
 	},
 	"KEYS" : {
@@ -33,7 +31,11 @@ var _CONFIG = {
 		"WORN" : "warning",
 		"EXCEPTION" : "exception",
 		"CODE" : "code",
-
+		"ATTACH_NAME" : "name",
+		"ATTACH_URL" : "url",
+		"ATTACH_TYPE" : "type",
+		"ATTACH_ID" : "id",
+		"ATTACH_OWNER" : "ownerid",
 	},
 	"HTTP" : {
 		/*sqlmapper ID 公共请求的后缀*/

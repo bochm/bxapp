@@ -302,8 +302,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			formField.after("<span class='input-group-btn'><button class='btn default' type='button'>" +
 					"<i class='fa fa-calendar'></i></button></span>");
 			formField.parent().dateRangePicker(_dateRangeOpt);
-		}
-		else if(_fieldRole == 'richEdit'){
+		} else if(_fieldRole == 'richEdit'){
 			var _richEditOpt = opts.fieldOpts[_fieldName] || {};
 			formField.summerNote(_richEditOpt);
 			if(opts.autoClear){
@@ -312,7 +311,11 @@ define('app/form',["jquery","app/common","app/api","moment",
 			if(isInitValue){
 				formField.summernote('code',formField.data('original'));
 			}
+		}else if(_fieldRole == 'file'){
+			var _fileOpt = opts.fieldOpts[_fieldName] || {};
+			formField.fileUpload(_fileOpt);
 		}
+
 	}
 	//初始化表单字段值 
 	function _init_field_value(opts,formField){
@@ -919,18 +922,35 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 */
 	$.fn.fileUpload = function(options,errorback){
 		var _this = $(this);
-		require(['jquery/fileupload'],function($){
-			var _upload_url = options.url;
-			var _srv = API.getServerByUrl(_upload_url);
+		var _attach_box = _this.closest("div.attach-box");
+		if(_attach_box.length != 1){
+			alert("文件上传空间没有class为attach-box的div父标签");
+			return;
+		}
+		var _file_upload_btn = $("<a class='btn btn-primary fileinput-button'></a>");
+		_this.wrap(_file_upload_btn);
+		_this.after("选择文件 <i class='fa fa-upload fa-lg'></i> ");
+		var progressBar = APP.progressBar(_attach_box);
+
+		require(['jquery/fileupload'],function(){
+			var _upload_srv = options.server;
+			if(APP.isEmpty(_upload_srv)){
+				alert("请设置文件控件server属性");
+				return;
+			}
+			var _srv = API.getServerByKey(_upload_srv);
+			var _upload_url = _srv.getFileUploadUrl(options.param || {});
 			var _url = _srv.getUrl(_upload_url);
 			var default_settings = $.extend(true,{
-				url: _url,
+				url: _srv.srvUrl + _url,
 				dataType: 'json',
 				beforeSend : function(request){
+					_file_upload_btn.hide();
 					return API.createHeader(_srv,_url,request,errorback);
 				},
 				done: function (e, data) {
-					var response = data.result;
+					_file_upload_btn.show();
+					var response = _srv.respAttach(data.result);
 					if(API.isError(response)){
 						if(API.isUnAuthorized(response)){
 							if(_srv.useLoginForm) API.showLogin();
@@ -941,19 +961,36 @@ define('app/form',["jquery","app/common","app/api","moment",
 						if(typeof errorback === 'function')errorback.call(this,response);
 					}else{
 						var ret = API.respData(response);
-						alert(ret.id);
 						console.log(ret);
+
+						var _attach_div = $("<div class='col-md-4'><span class='badge badge-danger drop-attach'> &times; </span></div>");
+						_attach_box.children(".row").prepend(_attach_div);
+						_attach_div.children("span.drop-attach").click(function(){
+							API.ajax(_srv.getFileDropUrl(ret),{},true,function(resp){
+								_attach_div.remove();
+							});
+						});
+						if(options.fileType == 'image'){
+							_attach_div.prepend("<a href='"+_srv.fileSrvUrl+ret.url+"' data-rel='"+ret.type+
+								"' class='thumbnail image-box-button'>"+
+								"<img src='"+_srv.fileSrvUrl+ret.url+"'><span>"+ret.name+"</span></a>");
+							APP.initImagebox(_attach_div);
+
+						}else{
+							_attach_div.prepend("<a href='"+_srv.fileSrvUrl+ret.url+"' target='_blank' class='thumbnail'>"+
+								"<i class='fa fa-file'></i><span>"+ret.name+"</span></a>");
+						}
+
 					}
 
 				},
 				fail : function(e,data){
+					_file_upload_btn.show();
 					APP.notice('文件上传错误',data.textStatus,'error');
 				},
 				progressall: function (e, data) {
-					if(options.progressBar){
-						var progress = parseInt(data.loaded / data.total * 100, 10);
-						$(options.progressBar).css('width', progress + '%');
-					}
+					var progress = parseInt(data.loaded / data.total * 100, 10);
+					progressBar.go(progress);
 				}
 			},options);
 			_this.fileupload(default_settings)

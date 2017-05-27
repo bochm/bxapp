@@ -1,10 +1,28 @@
 define('module/weixin/gift',['app/common','app/datatables','app/form'],function(APP,DT,FM) {
     var table;
     var form_opts = {
-        title:'礼品维护',
-        fieldOpts : {},
-        url : "WEIXIN/gift/insert",
-        editModal:"#system-user-list-edit"
+        "title":"礼品维护",
+        "editModal":"#weixin-gift-edit-modal",
+        "id" : "#weixin-gift-edit-form",
+        "addUrl" : "WEIXIN/gift/add",
+        "saveUrl" : "WEIXIN/gift/update",
+        "submitJson" : true,
+        "submitCallback" : function(data){
+            table.query();
+        },
+        fieldOpts : {
+            "file" : {server:"WEIXIN",param : {ownerid : '22211',type:'gift'},fileType:"image"}
+        },
+        /*"rules" : {
+         "giftName":{
+         "checkExists":{
+         "url":"WEIXIN/gift/checkGiftName"
+         },
+         "messages":{
+         "checkExists" : "礼品名已存在"
+         }
+         }
+         },*/
     };
     var table_opts = {
         "title" : "礼品表",
@@ -22,27 +40,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
         "scrollY": "350px",
         "ordering" : false,
         "deleteRecord" : {url : 'WEIXIN/gift/delete',id : 'id'},
-        "addEditForm" : {
-            "title":"礼品维护",
-            "editModal":"#weixin-gift-edit-modal",
-            "id" : "#weixin-gift-edit-form",
-            "addUrl" : "WEIXIN/gift/add",
-            "saveUrl" : "WEIXIN/gift/update",
-            "submitJson" : true,
-            "submitCallback" : function(data){
-                table.query();
-            }
-            /*"rules" : {
-                "giftName":{
-                    "checkExists":{
-                        "url":"WEIXIN/gift/checkGiftName"
-                    },
-                    "messages":{
-                        "checkExists" : "礼品名已存在"
-                    }
-                }
-            },*/
-        },
+        "addEditForm" : form_opts,
     }
 
     function inti_table(param){

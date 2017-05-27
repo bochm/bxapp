@@ -391,6 +391,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		APP.initDropdowns(page);
 		APP.initScroll('.scroller',page);
 		APP.initSwitch(page);
+		APP.initImagebox(page);
 		//初始化提交按钮
 		page.find(".btn[data-submit]").each(function(){
 			var _submit_btn = $(this);
