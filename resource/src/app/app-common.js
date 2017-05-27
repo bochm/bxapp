@@ -391,6 +391,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		APP.initDropdowns(page);
 		APP.initScroll('.scroller',page);
 		APP.initSwitch(page);
+		APP.initImagebox(page);
 		//初始化提交按钮
 		page.find(".btn[data-submit]").each(function(){
 			var _submit_btn = $(this);
@@ -689,10 +690,9 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		var default_options = {
 			ele: ele ? ele : "body",
 			type: type ? type : "info",
-			offset: {from: "top",amount: 1},
+			offset: {from: "bottom",amount: 0},
 			width: 250,
-			delay: 1500,
-			stackup_spacing: 1
+			delay: 1500
 		};
 		default_options.width = $(default_options.ele).width();
 		var $alert, css, offsetAmount;
@@ -705,20 +705,22 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		offsetAmount = default_options.offset.amount;
 		$(".app-noticeS").each(function() {
 			return offsetAmount = Math.max(offsetAmount,
-				parseInt($(this).css(default_options.offset.from)) + $(this).outerHeight() + default_options.stackup_spacing);
+				parseInt($(this).css(default_options.offset.from)) + $(this).outerHeight());
 		});
 		var css = {
 			"position": (default_options.ele === "body" ? "fixed" : "absolute"),
 			"z-index": "9999999",
 			/*	    	"display": "none",*/
-			"width" : default_options.width + "px"
+			"width" : default_options.width + "px",
+			"margin-bottom" : "0px"
 		};
+		console.log(offsetAmount);
 		css[default_options.offset.from] = offsetAmount + "px";
 		$alert.css(css);
 
 		$(default_options.ele).append($alert);
 		$alert.css("display","none");
-		$alert.fadeIn(600);
+		$alert.fadeIn(500);
 		if (default_options.delay > 0) {
 			$alert.delay(default_options.delay).slideUp('fast',function() {
 				$(this).remove();

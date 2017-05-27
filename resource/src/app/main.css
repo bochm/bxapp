@@ -2967,7 +2967,7 @@ body.modal-open,
 }
 
 .modal-body {
-  max-height: 500px;/*mod by bcm*/
+  /*max-height: 500px;*//*mod by bcm*/
   overflow: visible;
 }
 
@@ -5503,6 +5503,7 @@ Bootstrap Daterangepicker
   position: relative;
   overflow: hidden;
   display: inline-block;
+  cursor: pointer;
 }
 .fileinput-button input {
   position: absolute;
@@ -5515,6 +5516,15 @@ Bootstrap Daterangepicker
   direction: ltr;
   cursor: pointer;
 }
+.files-box .drop-file{
+  position: absolute;
+  top: 0px;
+  right: 6px;
+  font-weight: 300;
+  padding: 3px 5px;
+  cursor: pointer;
+}
+
 /*********************************************************************************************************************************************************************
 **********************************************************************************************************************************************************************
 **********************************************************************************************************************************************************************

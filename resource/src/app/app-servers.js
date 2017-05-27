@@ -5,6 +5,7 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
         "isLocalData" : false,//本地数据模式,在服务端还不存在的时候使用，json数据通过本地文件的方式请求
         "localUserName" : "localuser",//本地用户名,不登录默认缓存在本地的用户名称
         "srvUrl" : "http://localhost:9080",
+        "fileSrvUrl" : "http://localhost/upfiles/",//文件服务器地址,用于非本地图片显示
         "ctx" :"/xsrv/",
         "useLoginForm" : true,//会话或者本地缓存失效后是否需要登陆
         "AUTH" : {
@@ -38,10 +39,46 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
         "resp" : function(response){
             return response;
         },
+        "respFile" : function(response){
+            var resp = {};
+            resp[_CONFIG.KEYS.STATUS] = response["status"];
+            resp[_CONFIG.KEYS.MSG] = response["message"];
+            if(response["data"] !== undefined){
+                if($.isArray(response["data"])){
+                    resp[_CONFIG.KEYS.DATA] = new Array();
+                    for(var i=0;i<response["data"].length;i++){
+                        var _file_data = {};
+                        _file_data[_CONFIG.KEYS.FILE_ID] = response["data"][i].id;
+                        _file_data[_CONFIG.KEYS.FILE_NAME] = response["data"][i].name;
+                        _file_data[_CONFIG.KEYS.FILE_URL] = response["data"][i].path;
+                        _file_data[_CONFIG.KEYS.FILE_TYPE] = response["data"][i].type;
+                        _file_data[_CONFIG.KEYS.FILE_OWNER] = response["data"][i].ownerid;
+                        resp[_CONFIG.KEYS.DATA].push(_file_data);
+                    }
+                }else{
+                    resp[_CONFIG.KEYS.DATA] = {};
+                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_ID] = response["data"].id;
+                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_NAME] = response["data"].name;
+                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_URL] = response["data"].path;
+                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_TYPE] = response["data"].type;
+                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_OWNER] = response["data"].ownerid;
+                }
+            }
+            return resp;
+        },
         "getUrl" : function(url){
             if(url.indexOf(this.KEY) == 0)
                 return this.ctx+url.substr(this.KEY.length+1,url.length) + this.SUFFIX;
             return this.ctx + url+ this.SUFFIX;
+        },
+        "getFileUploadUrl" : function(params){
+            return "ADMIN/system/file/upload/" + params.ownerid + "/" + params.type;
+        },
+        "getFileDropUrl" : function(params){
+            return "ADMIN/system/file/drop/" + params.id;
+        },
+        "getFileListUrl" : function(params){
+            return "ADMIN/system/file/list/" + params.ownerid + "/" + params.type;
         },
         "SUFFIX": ""
     }
@@ -50,6 +87,7 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
         "WEIXIN" :$.extend(true,{},_DEFAULT_SERVER,{
             "KEY" : "WEIXIN",
             "srvUrl" : "http://10.20.5.106:8080",
+            "fileSrvUrl" : "http://10.20.11.63/",//文件服务器地址,用于非本地图片显示
             "ctx" : "/neu-weixin-web/",
             "useLoginForm" : false,//后台登陆,不使用form
             "AUTH" : {
@@ -69,6 +107,26 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
             "resp" : function(response){
                 response[_CONFIG.KEYS.STATUS] = response["code"];
                 return response;
+            },
+            "respFile" : function(response){
+                var resp = {};
+                resp[_CONFIG.KEYS.STATUS] = response["code"];
+                resp[_CONFIG.KEYS.MSG] = response["message"];
+                if(response["data"] !== undefined){
+                    resp[_CONFIG.KEYS.DATA] = {};
+                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_ID] = response["data"].id;
+                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_NAME] = response["data"].attachName;
+                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_URL] = response["data"].attachPath;
+                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_TYPE] = response["data"].attachType;
+                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_OWNER] = response["data"].ownerId;
+                }
+                return resp;
+            },
+            "getFileUploadUrl" : function(params){
+                return "WEIXIN/attachment/upload/" + params.ownerid + "/" + params.type;
+            },
+            "getFileDropUrl" : function(params){
+                return "WEIXIN/attachment/delete/" + params.ownerid + "/" + params.type;
             },
             "SUFFIX": ".do"
         }),

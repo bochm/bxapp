@@ -742,14 +742,20 @@ define('app/datatables',['jquery','app/common','app/api',
 			}
 			//先从服务器加载数据，然后再绘制表格
 			else{
+
+				var _data_table = $table.DataTable(default_opt);
 				APP.blockUI({'target':$table.get(),'gif':'load-tables'});
-				API.ajax(default_opt.dataUrl,ajax_params,true,function(ret,status){
-					default_opt.data = API.respData(ret);
-					callback($table.DataTable(default_opt));
-				},function(err){
-					APP.unblockUI($table.get());
-					APP.notice("系统错误","表格数据获取错误:"+API.respMsg(err),'error');
-				});
+				setTimeout(function(){
+					API.ajax(default_opt.dataUrl,ajax_params,false,function(ret,status){
+						_data_table.rows.add(API.respData(ret)).draw();
+						APP.unblockUI($table.get());
+						callback(_data_table);
+					},function(err){
+						APP.unblockUI($table.get());
+						APP.notice("系统错误","表格数据获取错误:"+API.respMsg(err),'error');
+					});
+				},200);
+
 			}
 		}else{
 			callback($table.DataTable(default_opt));

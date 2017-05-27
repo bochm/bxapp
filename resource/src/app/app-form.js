@@ -302,8 +302,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			formField.after("<span class='input-group-btn'><button class='btn default' type='button'>" +
 					"<i class='fa fa-calendar'></i></button></span>");
 			formField.parent().dateRangePicker(_dateRangeOpt);
-		}
-		else if(_fieldRole == 'richEdit'){
+		} else if(_fieldRole == 'richEdit'){
 			var _richEditOpt = opts.fieldOpts[_fieldName] || {};
 			formField.summerNote(_richEditOpt);
 			if(opts.autoClear){
@@ -312,7 +311,11 @@ define('app/form',["jquery","app/common","app/api","moment",
 			if(isInitValue){
 				formField.summernote('code',formField.data('original'));
 			}
+		}else if(_fieldRole == 'file'){
+			var _fileOpt = opts.fieldOpts[_fieldName] || {};
+			formField.fileUpload(_fileOpt);
 		}
+
 	}
 	//初始化表单字段值 
 	function _init_field_value(opts,formField){
@@ -912,48 +915,112 @@ define('app/form',["jquery","app/common","app/api","moment",
 		},options);
 		_this.summernote(default_settings);
 	}
+
+	function _parse_file(response,_srv,_files_box,_file_type,errorback){
+		if(API.isError(response)){
+			if(API.isUnAuthorized(response)){
+				if(_srv.useLoginForm) API.showLogin();
+				else API.backLogin(_srv);
+				return;
+			}
+			APP.notice('',API.respMsg(response),'warning');
+			if(typeof errorback === 'function')errorback.call(this,response);
+		}else{
+			var ret = API.respData(response);
+			if($.isArray(ret)){
+				for(var i=0;i<ret.length;i++){
+					_append_files(_srv,ret[i],_files_box,_file_type);
+				}
+			}else{
+				_append_files(_srv,ret,_files_box,_file_type);
+			}
+
+		}
+	}
+	function _append_files(_srv,ret,_files_box,_file_type){
+		var _file_div = $("<div class='col-md-4'><span class='badge badge-danger drop-file'> &times; </span></div>");
+		_files_box.children(".row").prepend(_file_div);
+		_file_div.children("span.drop-file").click(function(){
+			API.ajax(_srv.getFileDropUrl(ret),ret,true,function(resp){
+				_file_div.remove();
+			});
+		});
+		if(_file_type == 'image'){
+			_file_div.prepend("<a href='"+_srv.fileSrvUrl+ret.url+"' data-rel='"+ret.type+
+				"' class='thumbnail image-box-button'>"+
+				"<img src='"+_srv.fileSrvUrl+ret.url+"'><span>"+ret.name+"</span></a>");
+			APP.initImagebox(_file_div);
+
+		}else{
+			_file_div.prepend("<a href='"+_srv.fileSrvUrl+ret.url+"' target='_blank' class='thumbnail'>"+
+				"<i class='fa fa-file'></i><span>"+ret.name+"</span></a>");
+		}
+	}
 	/**
-	 * 基于summernote的富文本编辑器
-	 * 定义了默认的onImageUpload回调方法和默认参数
-	 * @param  {Object} options summernote参数
+	 * 基于jquery file upload的文件上传控件
+	 * @param  {Object} options fileupload参数
 	 */
 	$.fn.fileUpload = function(options,errorback){
 		var _this = $(this);
-		require(['jquery/fileupload'],function($){
-			var _upload_url = options.url;
-			var _srv = API.getServerByUrl(_upload_url);
+		var _files_box = _this.closest("div.files-box");
+		if(_files_box.length != 1){
+			alert("文件上传控件没有class为files-box的div父标签");
+			return;
+		}
+		var _upload_srv = options.fileServer;
+		if(APP.isEmpty(_upload_srv)){
+			alert("请设置文件控件server属性");
+			return;
+		}
+		var _srv = API.getServerByKey(_upload_srv);
+		//文件上传后保存文件所有者id的隐藏控件--必须
+		var _file_input_hidden = _this.siblings("input[data-file='file_upload_']");
+		if(_file_input_hidden.length != 1){
+			alert("文件上传控件没有input[data-file='file_upload_']的隐藏控件");
+			return;
+		}
+
+		//编辑页面显示已上传的文件
+		if(!APP.isEmpty(_file_input_hidden.data('original'))){
+			var ownerid = _file_input_hidden.data('original');
+			options.param.ownerid = ownerid;
+			API.ajax(_srv.getFileListUrl(options.param || {}),options.param || {},true,function(resp){
+				var response = _srv.respFile(resp);
+				console.log(response);
+				_parse_file(response,_srv,_files_box,options.fileType,errorback);
+			});
+		}else{
+			_file_input_hidden.val(options.param.ownerid);
+		}
+		var _file_upload_btn = $("<a class='btn btn-primary fileinput-button'></a>");
+		_this.wrap(_file_upload_btn);
+		_this.after("选择文件 <i class='fa fa-upload fa-lg'></i> ");
+		var progressBar = APP.progressBar(_files_box);
+
+		require(['jquery/fileupload'],function(){
+			var _upload_url = _srv.getFileUploadUrl(options.param || {});
 			var _url = _srv.getUrl(_upload_url);
 			var default_settings = $.extend(true,{
-				url: _url,
+				url: _srv.srvUrl + _url,
 				dataType: 'json',
+				maxFileSize : 4000000, //4 MB
 				beforeSend : function(request){
+					_file_upload_btn.hide();
 					return API.createHeader(_srv,_url,request,errorback);
 				},
 				done: function (e, data) {
-					var response = data.result;
-					if(API.isError(response)){
-						if(API.isUnAuthorized(response)){
-							if(_srv.useLoginForm) API.showLogin();
-							else API.backLogin(_srv);
-							return;
-						}
-						APP.notice('',API.respMsg(response),'warning');
-						if(typeof errorback === 'function')errorback.call(this,response);
-					}else{
-						var ret = API.respData(response);
-						alert(ret.id);
-						console.log(ret);
-					}
+					_file_upload_btn.show();
+					var response = _srv.respFile(data.result);
+					_parse_file(response,_srv,_files_box,options.fileType,errorback);
 
 				},
 				fail : function(e,data){
+					_file_upload_btn.show();
 					APP.notice('文件上传错误',data.textStatus,'error');
 				},
 				progressall: function (e, data) {
-					if(options.progressBar){
-						var progress = parseInt(data.loaded / data.total * 100, 10);
-						$(options.progressBar).css('width', progress + '%');
-					}
+					var progress = parseInt(data.loaded / data.total * 100, 10);
+					progressBar.go(progress);
 				}
 			},options);
 			_this.fileupload(default_settings)

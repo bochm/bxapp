@@ -1,7 +1,7 @@
 <div class="loading-page" data-js-module="module/weixin/gift" data-permission="weixin:gift">
     <span id="table-weixin-gift-list-toolbar" class="hide">
     <a data-role="addRecord" data-permission="add">新增礼品</a>
-    <a class="btn-selectOne" data-role="updateRecord" data-permission="save">修改礼品</a>
+    <a class="btn-selectOne" data-role="saveRecord" data-permission="save">修改礼品</a>
     <a class="btn-warning btn-selectMore" data-role="deleteRecord" data-permission="delete">删除礼品</a>
     </span>
     <table id="table-weixin-gift-list" class="table datatable table-bordered nowrap"  data-url="WEIXIN/gift/selectList" width="100%">
@@ -60,7 +60,13 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <label class="control-label col-md-2">照片</label>
-                        <div class="col-md-10"><!--<input type="file" name="photo" class="form-control">--></div>
+                        <div class="col-md-10 files-box">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="file" name="file" form-role='file' class="form-control">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -57,7 +57,7 @@
 
 <!-- 新增修改 -->
 <div class="modal fade" id="system-user-list-edit" data-backdrop="static" data-width="700" >
-<form class="form-horizontal" method="post" role="form" id="system-user-edit-form" enctype="multipart/form-data">
+<form class="form-horizontal" method="post" role="form" id="system-user-edit-form">
  	<input type="hidden" name="id">
  	<div class="row">
 		<div class="col-md-6">
@@ -143,7 +143,14 @@
 		<div class="col-md-12">
 			<div class="form-group">
 				<label class="control-label col-md-2">照片</label>
-				<div class="col-md-10"><input type="file" name="ph" class="form-control"></div>
+				<div class="col-md-10 files-box">
+					<div class="row">
+						<div class="col-md-4">
+							<input type="hidden" name="photo" data-file="file_upload_">
+							<input type="file" name="file" form-role='file' class="form-control">
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

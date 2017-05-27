@@ -148,6 +148,7 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 			error:function(xhr,status,error){
 				console.error(xhr);
 				_sysError("系统错误["+xhr[API.STATUS]+"]","服务网络异常!!");
+				$('.blockUI').remove();
 			}
 		});
 	}
@@ -170,6 +171,7 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 					},
 					error: function(xhr, ajaxOptions, thrownError) {
 						_sysError("登陆页面加载错误["+xhr.status+"]",xhr.statusText);
+						$('.blockUI').remove();
 					}
 				});
 			}
@@ -236,7 +238,7 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 			return API.localData(_srv.srvUrl + url,isSync,callback,_errorback);
 		}
 		var async = true;
-		if(isSync != undefined || isSync != null) async = isSync;
+		if(isSync != undefined && isSync != null) async = isSync;
 		var retData;
 		$.ajax({ 
 			type:'POST',//统一为post请求，get请求会在url后加参数导致请求失败
@@ -280,6 +282,7 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 		    	//后端异常以全局处理,前端跨域无法处理后端异常
 		    	console.error(xhr);
 				_sysError("系统错误["+xhr[API.STATUS]+"]","服务网络异常!!");
+				$('.blockUI').remove();
 		    }
 		});
 		return retData;  

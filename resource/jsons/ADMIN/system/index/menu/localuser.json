@@ -29,6 +29,8 @@
     {"id":"0203","icon":"fa fa-cogs","name":"字典数据","target":"pages/system/dict/dict-list","permission":"","type":"0","parent_id":"02"},
     {"id":"0204","icon":"fa fa-bank","name":"组织机构","target":"pages/system/org/org-list","permission":"","type":"0","parent_id":"02"},
     {"id":"0205","icon":"iconfont icon-lock","name":"角色管理","target":"pages/system/role/role-list","permission":"","type":"0","parent_id":"02"},
-    {"id":"0206","icon":"iconfont icon-lock","name":"测试","target":"pages/system/test/testtable","permission":"","type":"0","parent_id":"02"}
+    {"id":"0206","icon":"iconfont icon-lock","name":"测试","target":"pages/system/test/testtable","permission":"","type":"0","parent_id":"02"},
+
+    {"id":"04","icon":"iconfont icon-magicwand","name":"礼品管理","target":"pages/weixin/gift/gift-list","permission":"","type":"0","parent_id":"-1"}
   ]
 }
