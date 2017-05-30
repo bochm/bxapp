@@ -677,7 +677,6 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		}
 
 	};
-
 	/**
 	 * 显示通知 自定义显示位置，默认使用在body中
 	 * @param  {String} title 提示标题
