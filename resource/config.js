@@ -18,7 +18,7 @@ var _CONFIG = {
 	//服务配置,不同的前缀可以访问不同的server服务，如'ADMIN/system/user'为ADMIN server的system/user服务
 	"SERVERS" : {
 		"LIST" : ["ADMIN","WEIXIN"],//启用服务列表
-		"LOCAL_DATA" : [],
+		"LOCAL_DATA" : ["ADMIN"],
 		"DEFAULT" : "ADMIN"
 	},
 	"KEYS" : {

@@ -339,7 +339,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 			}else if(_fieldRole == 'select'){
 				formField.val(_fieldValue).trigger("change");
-			}else if(formField.attr('type') == 'file' || formField.attr('type') == 'richEdit'){
+			}else if(_fieldRole == 'file'){
 
 			}else{
 				formField.val(_fieldValue);
@@ -384,9 +384,12 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 				formField.rules( "add", opts.rules[_fieldName]);
 			}
-			//初始化过的form不再重复
-			if(_this.data("form-init")) return;
-			
+
+			//初始化过的form不再重复,file控件由于需要重新绑定参数除外
+			if(_this.data("form-init")){
+				if(_fieldRole == 'file') _init_field(opts,formField,isInitValue);
+				return;
+			}
 			_init_field(opts,formField,isInitValue);
 			
 		});
@@ -916,7 +919,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		_this.summernote(default_settings);
 	}
 
-	function _parse_file(response,_srv,_files_box,_file_type,errorback){
+	function _parse_file(response,_srv,_files_box,options,errorback){
 		if(API.isError(response)){
 			if(API.isUnAuthorized(response)){
 				if(_srv.useLoginForm) API.showLogin();
@@ -929,32 +932,42 @@ define('app/form',["jquery","app/common","app/api","moment",
 			var ret = API.respData(response);
 			if($.isArray(ret)){
 				for(var i=0;i<ret.length;i++){
-					_append_files(_srv,ret[i],_files_box,_file_type);
+					if(i > options.maxFiles) break;
+					_append_files(_srv,ret[i],_files_box,options);
 				}
 			}else{
-				_append_files(_srv,ret,_files_box,_file_type);
+				_append_files(_srv,ret,_files_box,options);
 			}
-
+			if(_files_box.find('div.file').length >= options.maxFiles){
+				_files_box.find('.fileinput-button').hide();
+			}
 		}
 	}
-	function _append_files(_srv,ret,_files_box,_file_type){
-		var _file_div = $("<div class='col-md-4'><span class='badge badge-danger drop-file'> &times; </span></div>");
-		_files_box.children(".row").prepend(_file_div);
+	function _append_files(_srv,ret,_files_box,options){
+
+		var _file_div = $("<div class='col-md-"+options.col+" file'><span class='badge badge-danger drop-file'> &times; </span></div>");
+		_files_box.children(".file-upload-zone").prepend(_file_div);
+
 		_file_div.children("span.drop-file").click(function(){
 			API.ajax(_srv.getFileDropUrl(ret),ret,true,function(resp){
 				_file_div.remove();
+				if(_files_box.find('div.file').length < options.maxFiles){
+					_files_box.find('.fileinput-button').show();
+				}
 			});
 		});
-		if(_file_type == 'image'){
+		var _file_dis_name = ret.name.length > 20 ?  ret.name.substr(0,18) + '...' : ret.name;
+		if(options.fileType == 'image'){
 			_file_div.prepend("<a href='"+_srv.fileSrvUrl+ret.url+"' data-rel='"+ret.type+
-				"' class='thumbnail image-box-button'>"+
-				"<img src='"+_srv.fileSrvUrl+ret.url+"'><span>"+ret.name+"</span></a>");
+				"' class='thumbnail image-box-button' data-title='"+ret.name+"'>"+
+				"<img src='"+_srv.fileSrvUrl+ret.url+"' alt='"+ret.name+"'><span class='file-name'>"+_file_dis_name+"</span></a>");
 			APP.initImagebox(_file_div);
 
 		}else{
 			_file_div.prepend("<a href='"+_srv.fileSrvUrl+ret.url+"' target='_blank' class='thumbnail'>"+
-				"<i class='fa fa-file'></i><span>"+ret.name+"</span></a>");
+				"<i class='fa fa-file'></i> <span class='file-name'>"+_file_dis_name+"</span></a>");
 		}
+
 	}
 	/**
 	 * 基于jquery file upload的文件上传控件
@@ -967,35 +980,39 @@ define('app/form',["jquery","app/common","app/api","moment",
 			alert("文件上传控件没有class为files-box的div父标签");
 			return;
 		}
-		var _upload_srv = options.fileServer;
-		if(APP.isEmpty(_upload_srv)){
-			alert("请设置文件控件server属性");
-			return;
-		}
-		var _srv = API.getServerByKey(_upload_srv);
+		//最大文件显示和上传数，如超过则隐藏上传按钮，默认5
+		if(options.maxFiles == undefined)  options.maxFiles = 5;
+		//文件显示宽度 div class=col-md-4
+		if(options.col == undefined) options.col = 4;
+		//文件上传控件
+		var _file = $("<input type='file' name='_upload_file_'>");
+		var _srv = API.getServerByKey(options.fileServer);
 		//文件上传后保存文件所有者id的隐藏控件--必须
-		var _file_input_hidden = _this.siblings("input[data-file='file_upload_']");
-		if(_file_input_hidden.length != 1){
-			alert("文件上传控件没有input[data-file='file_upload_']的隐藏控件");
+		if(_this.attr("type") != 'hidden'){
+			alert("文件上传控件必须为隐藏控件");
 			return;
 		}
+		_files_box.append("<div class='row file-upload-zone'><div class='col-md-"+options.col+"'>" +
+			"<a class='btn btn-primary fileinput-button'><input type='file' name='_upload_file_'>" +
+			"选择文件 <i class='fa fa-upload fa-lg'></i> </a></div></div>");
+
+		var _file = _files_box.find("[name='_upload_file_']:file");
+		var progressBar = APP.progressBar(_files_box);
+		var _file_upload_btn = _files_box.find('.fileinput-button');
+
 
 		//编辑页面显示已上传的文件
-		if(!APP.isEmpty(_file_input_hidden.data('original'))){
-			var ownerid = _file_input_hidden.data('original');
+		if(!APP.isEmpty(_this.data('original'))){
+			var ownerid = _this.data('original');
+			console.log(ownerid);
 			options.param.ownerid = ownerid;
 			API.ajax(_srv.getFileListUrl(options.param || {}),options.param || {},true,function(resp){
 				var response = _srv.respFile(resp);
-				console.log(response);
-				_parse_file(response,_srv,_files_box,options.fileType,errorback);
+				_parse_file(response,_srv,_files_box,options,errorback);
 			});
 		}else{
-			_file_input_hidden.val(options.param.ownerid);
+			_this.val(options.param.ownerid);
 		}
-		var _file_upload_btn = $("<a class='btn btn-primary fileinput-button'></a>");
-		_this.wrap(_file_upload_btn);
-		_this.after("选择文件 <i class='fa fa-upload fa-lg'></i> ");
-		var progressBar = APP.progressBar(_files_box);
 
 		require(['jquery/fileupload'],function(){
 			var _upload_url = _srv.getFileUploadUrl(options.param || {});
@@ -1004,6 +1021,12 @@ define('app/form',["jquery","app/common","app/api","moment",
 				url: _srv.srvUrl + _url,
 				dataType: 'json',
 				maxFileSize : 4000000, //4 MB
+				paramName : _srv.fileParamName,
+				formData : function(form){
+					var data = new FormData();
+					data.append(_srv.fileParamName, _file);
+					return data;
+				},
 				beforeSend : function(request){
 					_file_upload_btn.hide();
 					return API.createHeader(_srv,_url,request,errorback);
@@ -1011,7 +1034,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				done: function (e, data) {
 					_file_upload_btn.show();
 					var response = _srv.respFile(data.result);
-					_parse_file(response,_srv,_files_box,options.fileType,errorback);
+					_parse_file(response,_srv,_files_box,options,errorback);
 
 				},
 				fail : function(e,data){
@@ -1023,7 +1046,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 					progressBar.go(progress);
 				}
 			},options);
-			_this.fileupload(default_settings)
+			_file.fileupload(default_settings)
 				.prop('disabled', !$.support.fileInput)
 				.parent().addClass($.support.fileInput ? undefined : 'disabled');
 		})

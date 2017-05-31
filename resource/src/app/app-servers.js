@@ -6,6 +6,7 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
         "localUserName" : "localuser",//本地用户名,不登录默认缓存在本地的用户名称
         "srvUrl" : "http://localhost:9080",
         "fileSrvUrl" : "http://localhost/upfiles/",//文件服务器地址,用于非本地图片显示
+        "fileParamName" : 'file',//服务端接受文件上传服务参数名称
         "ctx" :"/xsrv/",
         "useLoginForm" : true,//会话或者本地缓存失效后是否需要登陆
         "AUTH" : {

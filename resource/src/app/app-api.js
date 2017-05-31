@@ -67,7 +67,7 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 				return response[API.MSG];
 			},
 			"getServerByKey" : function(key){
-				return _SERVERS[key];	
+				return _SERVERS[key] || _SERVERS.DEFAULT;
 			},
 			createHeader : _create_header,
 			ajax : _ajax,

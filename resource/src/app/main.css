@@ -5518,11 +5518,16 @@ Bootstrap Daterangepicker
 }
 .files-box .drop-file{
   position: absolute;
-  top: 0px;
+  top: -3px;
   right: 6px;
   font-weight: 300;
   padding: 3px 5px;
   cursor: pointer;
+}
+.files-box a.thumbnail{
+  text-decoration: none !important;
+  white-space: pre-wrap;
+  font-size: small;
 }
 
 /*********************************************************************************************************************************************************************

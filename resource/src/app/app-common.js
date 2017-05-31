@@ -1062,7 +1062,10 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			_queryContainer(ct).find(".image-box-button").each(function(){
 				var rel = $(this).data('rel');
 				$(this).colorbox({
-					rel : rel
+					maxWidth : '85%',
+					maxHeight : '85%',
+					rel : rel,
+					title : $(this).data('title') || ''
 				});
 			});
 			_queryContainer(ct).find('.video-box-button').colorbox({iframe:true, innerWidth:640, innerHeight:480});
