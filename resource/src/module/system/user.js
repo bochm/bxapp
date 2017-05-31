@@ -22,7 +22,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 	var field_opts = {
 		"company.id" : {param : {type : "公司"}},
 		"dept.id" : {param : {type : "部门"}},
-		"file" : {fileServer:"ADMIN",param : {ownerid : APP.getUniqueID('user'),type:'user'},fileType:"image"}
+		"photo" : {fileServer:"ADMIN",param : {type:'user'}}
 	}
 	function _update_user(e,dt,node){
 		if(dt.selectedCount() != 1){

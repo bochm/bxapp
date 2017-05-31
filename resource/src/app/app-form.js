@@ -956,16 +956,17 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 			});
 		});
-		var _file_dis_name = ret.name.length > 20 ?  ret.name.substr(0,18) + '...' : ret.name;
-		if(options.fileType == 'image'){
+		var _file_dis_name = ret.name.length > options.col*5 ?  ret.name.substr(0,options.col*5-2) + '...' : ret.name;
+
+		if(/\.(GIF|JPG|JPEG|PNG)$/.test(ret.name.toUpperCase())){//匹配图片
 			_file_div.prepend("<a href='"+_srv.fileSrvUrl+ret.url+"' data-rel='"+ret.type+
 				"' class='thumbnail image-box-button' data-title='"+ret.name+"'>"+
-				"<img src='"+_srv.fileSrvUrl+ret.url+"' alt='"+ret.name+"'><span class='file-name'>"+_file_dis_name+"</span></a>");
+				"<img src='"+_srv.fileSrvUrl+ret.url+"' alt='"+ret.name+"'><span class='file-name' title='"+ret.name+"'>"+_file_dis_name+"</span></a>");
 			APP.initImagebox(_file_div);
 
 		}else{
 			_file_div.prepend("<a href='"+_srv.fileSrvUrl+ret.url+"' target='_blank' class='thumbnail'>"+
-				"<i class='fa fa-file'></i> <span class='file-name'>"+_file_dis_name+"</span></a>");
+				"<i class='fa fa-file'></i> <span class='file-name' title='"+ret.name+"'>"+_file_dis_name+"</span></a>");
 		}
 
 	}
@@ -997,26 +998,29 @@ define('app/form',["jquery","app/common","app/api","moment",
 			"选择文件 <i class='fa fa-upload fa-lg'></i> </a></div></div>");
 
 		var _file = _files_box.find("[name='_upload_file_']:file");
-		var progressBar = APP.progressBar(_files_box);
+
 		var _file_upload_btn = _files_box.find('.fileinput-button');
 
 
 		//编辑页面显示已上传的文件
 		if(!APP.isEmpty(_this.data('original'))){
 			var ownerid = _this.data('original');
-			console.log(ownerid);
 			options.param.ownerid = ownerid;
+			_this.val(ownerid);
 			API.ajax(_srv.getFileListUrl(options.param || {}),options.param || {},true,function(resp){
 				var response = _srv.respFile(resp);
 				_parse_file(response,_srv,_files_box,options,errorback);
 			});
 		}else{
-			_this.val(options.param.ownerid);
+			var ownerid = APP.getUniqueID('100');
+			options.param.ownerid = ownerid;
+			_this.val(ownerid);
 		}
 
 		require(['jquery/fileupload'],function(){
 			var _upload_url = _srv.getFileUploadUrl(options.param || {});
 			var _url = _srv.getUrl(_upload_url);
+			var _err_msg = '';
 			var default_settings = $.extend(true,{
 				url: _srv.srvUrl + _url,
 				dataType: 'json',
@@ -1028,8 +1032,15 @@ define('app/form',["jquery","app/common","app/api","moment",
 					return data;
 				},
 				beforeSend : function(request){
-					_file_upload_btn.hide();
 					return API.createHeader(_srv,_url,request,errorback);
+				},
+				send : function(e,data){
+					_file_upload_btn.hide();
+					if(_files_box.find("[title='"+data.files[0].name+"']").length > 0){
+						_err_msg = '相同名称文件已存在';
+						return false;
+					}
+					return true;
 				},
 				done: function (e, data) {
 					_file_upload_btn.show();
@@ -1039,9 +1050,10 @@ define('app/form',["jquery","app/common","app/api","moment",
 				},
 				fail : function(e,data){
 					_file_upload_btn.show();
-					APP.notice('文件上传错误',data.textStatus,'error');
+					APP.notice('文件上传错误',data.textStatus||_err_msg,'error');
 				},
 				progressall: function (e, data) {
+					var progressBar = APP.progressBar(_files_box);
 					var progress = parseInt(data.loaded / data.total * 100, 10);
 					progressBar.go(progress);
 				}

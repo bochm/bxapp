@@ -13,8 +13,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
         fieldOpts : {
             "picture" : {
                 fileServer:"WEIXIN",//文件上传服务key
-                param : {ownerid : APP.getUniqueID('100'),type:'gift'},//传给上传服务getFileUploadUrl方法的参数
-                fileType:"image",//文件类型 image/doc  image会显示预览缩略图
+                param : {type:'gift'},//传给上传服务getFileUploadUrl方法的参数
                 maxFiles:2,//最多上传文件个数
                 col : 4,//文件显示宽度 div class=col-md-4
             }
