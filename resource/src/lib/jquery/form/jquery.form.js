@@ -1208,7 +1208,7 @@ $.fn.clearFields = $.fn.clearInputs = function(includeHidden) {
             } else {
                 $(this).val('');
             }
-            $(this).closest("div.files-box").find('div.file-upload-zone').remove();//file控件清除所有文件显示div mod bcm
+            $(this).closest("div.files-box").find('div.file').remove();//file控件清除所有文件显示div mod bcm
         }
         else if (includeHidden) {
             // includeHidden can be the value true, or it can be a selector string
@@ -1217,7 +1217,7 @@ $.fn.clearFields = $.fn.clearInputs = function(includeHidden) {
             // the above would clean hidden inputs that have the class of 'special'
             if ( (includeHidden === true && /hidden/.test(t)) ||
                  (typeof includeHidden == 'string' && $(this).is(includeHidden)) ) {
-            	    this.value = _default_val;
+                this.value = _default_val;
             }
         }
     });

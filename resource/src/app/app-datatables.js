@@ -327,14 +327,18 @@ define('app/datatables',['jquery','app/common','app/api',
 			_options.deleteRecord.call(this,dt,node,e);
 		}else if(!APP.isEmpty(_options.deleteRecord) && !APP.isEmpty(_options.deleteRecord.url)){
 			APP.confirm('','是否删除选择的记录?',function(){
-				var _id_column = _options.deleteRecord.id ? _options.deleteRecord.id : 'id';
-				API.ajax(_options.deleteRecord.url,dt.selectedColumn(_id_column),null,function(ret,status){
+				//按选定行的id列删除（_options.deleteRecord.id），或者按选择的行数据删除（_options.deleteRecord.row=id）
+				var params = _options.deleteRecord.row ? dt.selectedRowsData(_options.deleteRecord.id) : dt.selectedColumn(_options.deleteRecord.id ? _options.deleteRecord.id : 'id');
+				console.log(params);
+				API.ajax(_options.deleteRecord.url,params,false,function(ret,status){
 					if(API.isError(ret)){
-						APP.error(API.respMsg(ret));
+						APP.error(ret);
 					}else{
 						dt.deleteSelectedRow();
 						APP.success(API.respMsg(ret),null,true);
 					}
+				},function(err){
+					APP.error(err);
 				});
 			})
 		}else{
@@ -772,7 +776,23 @@ define('app/datatables',['jquery','app/common','app/api',
 	DataTable.Api.register( 'selectedRows()', function () {
 		return this.rows('.selected').data();
 	} );
-	
+	/**
+	 * 获取选择行数据,转换为纯数组,可指定列，默认全部列
+	 */
+	DataTable.Api.register( 'selectedRowsData()', function (col) {
+		var selectedData = this.rows('.selected').data();
+		var listData = new Array();
+		for(var i=0;i<selectedData.length;i++){
+			if(APP.isEmpty(col))
+				listData.push(selectedData[i]);
+			else{
+				var d = {};
+				d[col] = selectedData[i][col];
+				listData.push(d);
+			}
+		}
+		return listData;
+	} );
 	/**
      * 获取选择行的指定列数据 col列名
      */

@@ -44,7 +44,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
         "params" : {},
         "scrollY": "350px",
         "ordering" : false,
-        "deleteRecord" : {url : 'WEIXIN/gift/delete',id : 'id'},
+        "deleteRecord" : {url : 'WEIXIN/gift/deleteBatch',row : true,id : "id"},
         "addEditForm" : form_opts,
     }
 

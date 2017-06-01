@@ -114,12 +114,25 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
                 resp[_CONFIG.KEYS.STATUS] = response["code"];
                 resp[_CONFIG.KEYS.MSG] = response["message"];
                 if(response["data"] !== undefined){
-                    resp[_CONFIG.KEYS.DATA] = {};
-                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_ID] = response["data"].id;
-                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_NAME] = response["data"].attachName;
-                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_URL] = response["data"].attachPath;
-                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_TYPE] = response["data"].attachType;
-                    resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_OWNER] = response["data"].ownerId;
+                    if($.isArray(response["data"])){
+                        resp[_CONFIG.KEYS.DATA] = new Array();
+                        for(var i=0;i<response["data"].length;i++){
+                            var _file_data = {};
+                            _file_data[_CONFIG.KEYS.FILE_ID] = response["data"][i].id;
+                            _file_data[_CONFIG.KEYS.FILE_NAME] = response["data"][i].attachName;
+                            _file_data[_CONFIG.KEYS.FILE_URL] = response["data"][i].attachPath;
+                            _file_data[_CONFIG.KEYS.FILE_TYPE] = response["data"][i].attachType;
+                            _file_data[_CONFIG.KEYS.FILE_OWNER] = response["data"][i].ownerId;
+                            resp[_CONFIG.KEYS.DATA].push(_file_data);
+                        }
+                    }else {
+                        resp[_CONFIG.KEYS.DATA] = {};
+                        resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_ID] = response["data"].id;
+                        resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_NAME] = response["data"].attachName;
+                        resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_URL] = response["data"].attachPath;
+                        resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_TYPE] = response["data"].attachType;
+                        resp[_CONFIG.KEYS.DATA][_CONFIG.KEYS.FILE_OWNER] = response["data"].ownerId;
+                    }
                 }
                 return resp;
             },
@@ -127,7 +140,10 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
                 return "WEIXIN/attachment/upload/" + params.ownerid + "/" + params.type;
             },
             "getFileDropUrl" : function(params){
-                return "WEIXIN/attachment/delete/" + params.ownerid + "/" + params.type;
+                return "WEIXIN/attachment/delete/" + params.id;
+            },
+            "getFileListUrl" : function(params){
+                return "WEIXIN/attachment/list/" + params.ownerid + "/" + params.type;
             },
             "SUFFIX": ".do"
         }),

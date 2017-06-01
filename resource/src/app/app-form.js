@@ -940,6 +940,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}
 			if(_files_box.find('div.file').length >= options.maxFiles){
 				_files_box.find('.fileinput-button').hide();
+			}else{
+				_files_box.find('.fileinput-button').show();
 			}
 		}
 	}
@@ -986,16 +988,17 @@ define('app/form',["jquery","app/common","app/api","moment",
 		//文件显示宽度 div class=col-md-4
 		if(options.col == undefined) options.col = 4;
 		//文件上传控件
-		var _file = $("<input type='file' name='_upload_file_'>");
 		var _srv = API.getServerByKey(options.fileServer);
 		//文件上传后保存文件所有者id的隐藏控件--必须
 		if(_this.attr("type") != 'hidden'){
 			alert("文件上传控件必须为隐藏控件");
 			return;
 		}
-		_files_box.append("<div class='row file-upload-zone'><div class='col-md-"+options.col+"'>" +
-			"<a class='btn btn-primary fileinput-button'><input type='file' name='_upload_file_'>" +
-			"选择文件 <i class='fa fa-upload fa-lg'></i> </a></div></div>");
+		if(_files_box.children("div.file-upload-zone").length == 0){
+			_files_box.append("<div class='row file-upload-zone'><div class='col-md-"+options.col+"'>" +
+				"<a class='btn btn-primary fileinput-button'><input type='file' name='_upload_file_'>" +
+				"选择文件 <i class='fa fa-upload fa-lg'></i> </a></div></div>");
+		}
 
 		var _file = _files_box.find("[name='_upload_file_']:file");
 
@@ -1015,8 +1018,11 @@ define('app/form',["jquery","app/common","app/api","moment",
 			var ownerid = APP.getUniqueID('100');
 			options.param.ownerid = ownerid;
 			_this.val(ownerid);
+			_file_upload_btn.show();
 		}
-
+		_this.change(function(){
+			alert("asdads");
+		});
 		require(['jquery/fileupload'],function(){
 			var _upload_url = _srv.getFileUploadUrl(options.param || {});
 			var _url = _srv.getUrl(_upload_url);
