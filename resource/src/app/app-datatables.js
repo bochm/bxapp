@@ -282,7 +282,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			var _form_url = _form[type+'Url'] || _form.url || $(_form.id).attr("action") + "/" + type;
 			var form_opts = {
 				submitClear : true, //submit之后是否清空数据
-				autoClear : true,//form初始化时是否清空数据
+				initClear : true,//form初始化时是否清空数据
 				type : 'post',//提交方式
 				validate : _form_validate,//合法验证配置,jquery.validate配置对象
 				fieldOpts:_field_opts,//字段初始化对象

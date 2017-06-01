@@ -713,7 +713,6 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			"width" : default_options.width + "px",
 			"margin-bottom" : "0px"
 		};
-		console.log(offsetAmount);
 		css[default_options.offset.from] = offsetAmount + "px";
 		$alert.css(css);
 

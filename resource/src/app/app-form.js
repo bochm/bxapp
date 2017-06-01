@@ -305,7 +305,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		} else if(_fieldRole == 'richEdit'){
 			var _richEditOpt = opts.fieldOpts[_fieldName] || {};
 			formField.summerNote(_richEditOpt);
-			if(opts.autoClear){
+			if(opts.initClear){
 				formField.summernote('reset');
 			}
 			if(isInitValue){
@@ -357,7 +357,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	$.fn.initForm = function (opts,callback,errorback) {
 		var _this = $(this);
 
-		if(opts.autoClear)_this.clearForm(true); //静态modal中的form 先清空再初始化
+		if(opts.initClear)_this.clearForm(true); //静态modal中的form 先清空再初始化
 		if(APP.isEmpty(opts)) opts = {};
 		if(APP.isEmpty(opts.fieldOpts)) opts.fieldOpts = {};//fieldOpts表单元素的初始化参数
 		var validate_settings = $.extend(true,validate_default_settings,opts.validate);
@@ -385,9 +385,16 @@ define('app/form',["jquery","app/common","app/api","moment",
 				formField.rules( "add", opts.rules[_fieldName]);
 			}
 
-			//初始化过的form不再重复,file控件由于需要重新绑定参数除外
+			//初始化过的form不再重复
 			if(_this.data("form-init")){
-				if(_fieldRole == 'file') _init_field(opts,formField,isInitValue);
+				//file控件由于需要重新绑定参数
+				if(_fieldRole == 'file' && opts.initClear) {
+					formField.fileUpload(opts.fieldOpts[_fieldName]);
+				}
+				//summernote控件需要重新初始化值
+				if(_fieldRole == 'richEdit'){
+					formField.summernote('code',isInitValue ? formField.data('original') : '');
+				}
 				return;
 			}
 			_init_field(opts,formField,isInitValue);
@@ -479,7 +486,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 	/*json方式提交form*/
 	function _form_submit_success(response,opts,_form,_in_modal,callback){
 		APP.notice('',API.respMsg(response),'success',_in_modal,opts.autoClose);
-		if(opts.submitClear) _form.clearForm(true);
+		if(opts.submitClear) {
+			_form.clearForm(true);
+			//file控件在提交清空后由于hidden发生变化需要重新初始化
+			_form.find("input[form-role='file']:hidden").each(function(){
+				$(this).fileUpload(opts.fieldOpts[$(this).attr('name')] || {});
+			});
+		}
 		//动态更新规格，否则会造成重复提交验证不通过
 		_form.find('.checkExists').each(function(){
 			var _c_form_field = $(this);
@@ -513,7 +526,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 				}
 			},function(err,status){
 				APP.unblockUI(_in_modal);
-				alert("asd");
 				APP.notice('',API.respMsg(err),'warning',_in_modal);
 				if(typeof errorback === 'function')errorback(err);
 				else if(opts.onError) opts.onError(err);
@@ -1020,9 +1032,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 			_this.val(ownerid);
 			_file_upload_btn.show();
 		}
-		_this.change(function(){
-			alert("asdads");
-		});
 		require(['jquery/fileupload'],function(){
 			var _upload_url = _srv.getFileUploadUrl(options.param || {});
 			var _url = _srv.getUrl(_upload_url);
@@ -1111,7 +1120,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	}
 	FORM.editForm = function(opts,editback,errorback){
 		var formOtps = $.extend(true,{
-			submitClear : false,autoClear : true,type : 'post',autoClose : false
+			submitClear : false,initClear : true,type : 'post',autoClose : false
 		},opts);
 		formOtps.title = "<i class='fa fa-edit'/></i> " + (opts.title || "编辑");
 		if(opts.editForm){

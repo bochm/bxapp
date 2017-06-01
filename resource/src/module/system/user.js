@@ -53,7 +53,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			"deleteRecord" : {url : 'ADMIN/system/user/delete',id : 'id'},
 			"addRecord" : function(dt){
 				if(!$('#sys-user-password').hasClass('required'))$('#sys-user-password').addClass('required');//新增必须输入密码
-				FM.editForm({title:'新增用户',rules : form_rules,fieldOpts : field_opts,url : "ADMIN/system/user/add",editModal:"#system-user-list-edit"},function(data){
+				FM.editForm({title:'新增用户',submitClear : true,rules : form_rules,fieldOpts : field_opts,url : "ADMIN/system/user/add",editModal:"#system-user-list-edit"},function(data){
 					dt.addRow(data);
 				});
 			},
