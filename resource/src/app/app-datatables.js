@@ -543,7 +543,7 @@ define('app/datatables',['jquery','app/common','app/api',
 		$("#"+(default_opt.toolbar ? default_opt.toolbar : (tableid+"-toolbar"))).children().each(function(){
 			var _btn = $(this);
 			var _btn_type = _btn.data('role');
-			if(_btn.html() != "" && _btn.hasClass("btn")){
+			if(_btn.html() != ""){
 				default_opt.buttons.push({
 					text: _btn.html(),
 					className: _btn.attr("class"),

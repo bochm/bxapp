@@ -980,6 +980,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 	 * @returns {Object} progressBar
 	 */
 	APP.progressBar = function(target,id,classname){
+		_queryContainer(target).children("div[data-role='progressbar']").remove();
 		var el = document.createElement('div'),applyGo,
 			progressbar = {
 				el: el,
@@ -995,6 +996,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			applyGo = bar.go;
 		}
 		$(el).css({'width':'100%','height':'4px','top':0,'z-index':9999});
+		$(el).attr("data-role","progressbar");
 		if (!APP.isEmpty(id)) el.id = id;
 		if (!APP.isEmpty(classname)) $(el).addClass(classname);
 
@@ -1018,7 +1020,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 				el: el,
 				go: go
 			}
-		$(el).css({'width':0,'height':'100%','transition':'height .3s','background':'blue'});
+		$(el).css({'width':0,'height':'100%','transition':'height .3s','background':'#66afe9'});
 		function move () {
 			var dist = width - here;
 			if (dist < 0.1 && dist > -0.1) {

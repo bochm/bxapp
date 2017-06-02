@@ -76,10 +76,16 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
             return "ADMIN/system/file/upload/" + params.ownerid + "/" + params.type;
         },
         "getFileDropUrl" : function(params){
-            return "ADMIN/system/file/drop/" + params.id;
+            if(params != undefined && params != null) return "ADMIN/system/file/drop/" + params.id;
+            return "ADMIN/system/file/drop";
         },
         "getFileListUrl" : function(params){
-            return "ADMIN/system/file/list/" + params.ownerid + "/" + params.type;
+            if(params != undefined && params != null) return  "ADMIN/system/file/list/" + params.ownerid + "/" + params.type;
+            return "ADMIN/system/file/list";
+        },
+        "getFileListParam" : function(params){//按文件url查询文件数据
+            if(params != undefined && params != null) return params;
+            return {};
         },
         "SUFFIX": ""
     }
@@ -140,10 +146,12 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
                 return "WEIXIN/attachment/upload/" + params.ownerid + "/" + params.type;
             },
             "getFileDropUrl" : function(params){
-                return "WEIXIN/attachment/delete/" + params.id;
+                if(params != undefined && params != null) return "WEIXIN/attachment/delete/" + params.id;
+                return "WEIXIN/attachment/deleteByPath";
             },
             "getFileListUrl" : function(params){
-                return "WEIXIN/attachment/list/" + params.ownerid + "/" + params.type;
+                if(params != undefined && params != null) return "WEIXIN/attachment/list/" + params.ownerid + "/" + params.type;
+                return "WEIXIN/attachment/listByPath";
             },
             "SUFFIX": ".do"
         }),

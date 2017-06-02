@@ -948,6 +948,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 					_append_files(_srv,ret[i],_files_box,options);
 				}
 			}else{
+				if(options.savePath)
+					_files_box.children("input[form-role='file']:hidden").val(_srv.fileSrvUrl+ret.url);
 				_append_files(_srv,ret,_files_box,options);
 			}
 			if(_files_box.find('div.file').length >= options.maxFiles){
@@ -999,6 +1001,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 		if(options.maxFiles == undefined)  options.maxFiles = 5;
 		//文件显示宽度 div class=col-md-4
 		if(options.col == undefined) options.col = 4;
+		//隐藏文件字段保存图片路径(表中的file字段为路径),只能保存一个文件
+		if(options.savePath) options.maxFiles = 1;
 		//文件上传控件
 		var _srv = API.getServerByKey(options.fileServer);
 		//文件上传后保存文件所有者id的隐藏控件--必须
@@ -1020,18 +1024,31 @@ define('app/form',["jquery","app/common","app/api","moment",
 		//编辑页面显示已上传的文件
 		if(!APP.isEmpty(_this.data('original'))){
 			var ownerid = _this.data('original');
-			options.param.ownerid = ownerid;
 			_this.val(ownerid);
-			API.ajax(_srv.getFileListUrl(options.param || {}),options.param || {},true,function(resp){
-				var response = _srv.respFile(resp);
-				_parse_file(response,_srv,_files_box,options,errorback);
-			});
+			if(options.savePath){//保存文件url则ownerid失效，临时生成随机id，将url作为参数查询文件
+				options.param.ownerid = APP.getUniqueID('200');
+				options.param.path = ownerid.replace(_srv.fileSrvUrl,'');
+				var params = _srv.getFileListParam(options.param);
+				API.ajax(_srv.getFileListUrl(),params,true,function(resp){
+					var response = _srv.respFile(resp);
+					_parse_file(response,_srv,_files_box,options,errorback);
+				});
+			}else{
+				options.param.ownerid = ownerid;
+				var params = _srv.getFileListParam(options.param);
+				API.ajax(_srv.getFileListUrl(params),params,true,function(resp){
+					var response = _srv.respFile(resp);
+					_parse_file(response,_srv,_files_box,options,errorback);
+				});
+			}
+
 		}else{
 			var ownerid = APP.getUniqueID('100');
 			options.param.ownerid = ownerid;
-			_this.val(ownerid);
+			if(!options.savePath) _this.val(ownerid);
 			_file_upload_btn.show();
 		}
+
 		require(['jquery/fileupload'],function(){
 			var _upload_url = _srv.getFileUploadUrl(options.param || {});
 			var _url = _srv.getUrl(_upload_url);

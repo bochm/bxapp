@@ -16,6 +16,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
                 param : {type:'gift'},//传给上传服务getFileUploadUrl方法的参数
                 maxFiles:2,//最多上传文件个数
                 col : 4,//文件显示宽度 div class=col-md-4
+                savePath:true, //picture字段保存文件url(只能用于单个图片，maxFiles参数失效)
             }
         },
         /*"rules" : {
@@ -46,6 +47,9 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
         "ordering" : false,
         "deleteRecord" : {url : 'WEIXIN/gift/deleteBatch',row : true,id : "id"},
         "addEditForm" : form_opts,
+        "addPurchase" : function(e,dt, node){
+            APP.loadInnerPage()
+        },
     }
 
     function inti_table(param){
@@ -53,12 +57,12 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
             table = otable;
         });
     }
-    function handleEdit(){
-
+    function handlePurchase(){
+        alert("asdasd");
     }
     return {
         inti_table : inti_table,
-        handleEdit : handleEdit,
+        handlePurchase : handlePurchase,
         init : function(param){
             this.inti_table({});
             this.handleEdit();
