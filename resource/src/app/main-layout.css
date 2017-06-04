@@ -2967,7 +2967,9 @@ General User Record Listing
 
 
 .loading-page{
-	display: none;
+  display: none;
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.97);
 }
 .loading-page > .scroller{
   height: 500px;
@@ -2986,37 +2988,24 @@ General User Record Listing
 }
 
 .loading-page.inner{
-   position: fixed;
-   right: 2px;
-   bottom: 2px;
-   z-index: 1000;
-   display: block;
-   padding: 5px;
-    padding-left: 30px;
+   position: relative;
+   /*padding: 0px 2px;*/
    overflow-x: hidden;
    overflow-y: auto;
-   background-color: #ffffff;
-   border-right: 1px solid #eee;
-   box-shadow: 0 0 5px rgba(0, 0, 0, 0.16);
+   /*border: 1px solid #eee;
+   box-shadow: 0 0 5px rgba(0, 0, 0, 0.16);*/
+   min-height: 230px;
  }
 .loading-page.inner > .return-page{
   position: absolute;
-  left:0px;
+  right:0px;
   top: 0px;
-  width:29px;
-  height:100%;
   z-index: 1001;
-  background-color: #89C4F4;
-  border-left: 1px solid #eee;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.16);
-  color: #ffffff;
-  text-align: center;
-  line-height:20px;
+  opacity:0.4;
 }
-.loading-page.inner > .return-page >span{
-  cursor: pointer;
+.loading-page.inner > .return-page:hover{
+  opacity:1;
 }
-
 .main-page-content{
   min-height: 230px;
 }

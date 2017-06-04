@@ -492,6 +492,10 @@ define('app/form',["jquery","app/common","app/api","moment",
 			_form.find("input[form-role='file']:hidden").each(function(){
 				$(this).fileUpload(opts.fieldOpts[$(this).attr('name')] || {});
 			});
+			//summernote控件在提交清空后需要手动清空
+			_form.find("[form-role='richEdit']").each(function(){
+				$(this).summernote('reset');
+			});
 		}
 		//动态更新规格，否则会造成重复提交验证不通过
 		_form.find('.checkExists').each(function(){
@@ -918,17 +922,20 @@ define('app/form',["jquery","app/common","app/api","moment",
 			disableDragAndDrop : true,// default false You can disable drag
 			callbacks : {
 				onImageUpload : function(files) {
-					var $files = $(files);
-					$files.each(function(file) {
-						var data = new FormData();
-						data.append("file", file);
-						console.log(data);
-						//上传文件
+					var _srv = API.getServerByKey(options.fileServer);
+					var formData = new FormData();
+					formData.append('file',files[0]);
+					API.uploadFile(_srv,formData,{type:'_rich_edit_',ownerid:APP.getUniqueID('565')},function(fileRet){
+						_this.summernote('insertImage', _srv.fileSrvUrl + fileRet.url, function ($image) {
+							$image.css({'width': $image.width() / 3,'height':$image.height() / 3});
+							$image.attr('data-fileid', fileRet.id);
+						});
 					});
 				}
 			}
 		},options);
 		_this.summernote(default_settings);
+
 	}
 
 	function _parse_file(response,_srv,_files_box,options,errorback){

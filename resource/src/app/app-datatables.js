@@ -652,9 +652,9 @@ define('app/datatables',['jquery','app/common','app/api',
 					_scrollBody.css("overflow-y","scroll");
 				}
 			}
-			otable.on( 'column-sizing.dt', function ( e, settings ) {
-			    console.log( 'Column width recalculated in table' );
-			} );
+			/*otable.on( 'column-sizing.dt', function ( e, settings ) {
+
+			} );*/
 
 
 			_table.on('click','td a[dt-detail]',function(){

@@ -20,15 +20,24 @@ define('module/demo/main-detail-table',['app/common','app/datatables'],function(
 		initDetail : function(param){
 			console.log(param.data());
 			$('table#table-demo-main-detail-d-stu').initTable({
-			"title" : "学生表",
-			"params" : param,
-			"scrollY": "350px"
+				"title" : "学生表",
+				"params" : param,
+				"scrollY": "350px",
+				"addTest":function(e,dt){
+					$('table#table-demo-main-detail-m').dataTable().api().row.add( {
+						"className": "测试",
+						"stuCount": 5,
+						"classMaster": "中国",
+						"courseCount": 34
+					}).draw(true);
+				}
 			});
 			$('table#table-demo-main-detail-d-course').initTable({
 			"title" : "课程表",
 			"params" : param,
 			"scrollY": "350px"
-		});
+			});
+
 		}
 		
 	}

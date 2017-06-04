@@ -155,13 +155,15 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 						dataType: "html",
 						success: function(res) {
 							var page = $(res);
-							page.css({"width":$(target).outerWidth()+30,"top":$(target).offset().top});
-							page.prepend("<div class='return-page'><span>返回</span></div>");
-							page.on('click','.return-page>span',function(){
-								page.trigger("innerpage:close");
-								page.on('innerpage:closed',function(){
+
+							page.prepend("<a class='btn btn-circle btn-icon-only blue return-page'> 返回 </a>");
+							page.on('click','.return-page',function(){
+								page.fadeOut(function(){
+									$(target).fadeIn();
+									$(target).find("table.datatable").resize();//datatable在隐藏时会有列宽显示不正常问题
 									page.remove();
 								})
+
 							})
 
 							APP.initComponents(page,params,target,callback);
@@ -424,18 +426,23 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 				$(target).children().each(function(){
 					if($(this).attr("id") != "topcontrol") $(this).remove();
 				});
+				$(target).append(page);
+			}else{
+				$(target).after(page);
 			}
 
-			$(target).append(page);
+
 			if(typeof callback === 'function'){
 				callback.call(this,page);
 			}
 			_callJsModal(page,params);
-			page.fadeIn('slow');
 			if(page.hasClass('inner')){
-				page.innerPage({});
-				page.trigger("innerpage:open");
+				$(target).fadeOut(function(){
+					page.fadeIn();
+				})
 
+			}else {
+				page.fadeIn('slow');
 			}
 		}
 
@@ -1072,39 +1079,6 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			_queryContainer(ct).find('.video-box-button').colorbox({iframe:true, innerWidth:640, innerHeight:480});
 		});
 	}
-   //内置明细页面
-	$.fn.innerPage = function(options) {
-		var self = this;
-		var settings = $.extend({
-			speed: 200,
-			side: "right"
-		}, options);
-
-		self.on("innerpage:open", function(ev, data) {
-			var properties = {};
-			properties[settings.side] = 0;
-			self.stop().animate(properties, $.extend({}, settings, data).speed, function() {
-				self.trigger("innerpage:opened");
-			});
-		});
-		self.on("innerpage:close", function(ev, data) {
-			var properties = {};
-			if (settings.side === "left" || settings.side === "right") {
-				properties[settings.side] = -self.outerWidth();
-			} else {
-				properties[settings.side] = -self.outerHeight();
-			}
-			self.stop().animate(properties, $.extend({}, settings, data).speed, function() {
-				self.trigger("innerpage:closed");
-			});
-		});
-
-		self.trigger("innerpage:close", [{
-			speed: 0
-		}]);
-		self.data("innerpage", settings);
-		return self;
-	};
 	return APP;
 });
 

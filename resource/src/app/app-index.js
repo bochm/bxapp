@@ -620,10 +620,6 @@ define(['jquery','app/common'],function($,APP) {
             }
             //主页点击
             $('.page-sidebar li > a.act-menu:first').click();
-            $('.navbar-collapse').on('show.bs.collapse', function () {
-                alert("asd");
-
-            });
 
         },function(err){
             APP.error(err);

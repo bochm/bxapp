@@ -6221,10 +6221,10 @@
                            ' ' + ' KMGTP'[unit] + 'B';
         imageLimitation = '<small>' + lang.image.maximumFileSize + ' : ' + readableSize + '</small>';
       }
-
+      //mod by bcm accept="image/*" 改为 accept="image/jpeg,image/gif,image/png" chrome显示慢
       var body = '<div class="form-group note-group-select-from-files">' +
                    '<label>' + lang.image.selectFromFiles + '</label>' +
-                   '<input class="note-image-input form-control" type="file" name="files" accept="image/*" multiple="multiple" />' +
+                   '<input class="note-image-input form-control" type="file" name="files" accept="image/jpeg,image/gif,image/png" multiple="multiple" />' +
                    imageLimitation +
                  '</div>' +
                  '<div class="form-group note-group-image-url" style="overflow:auto;">' +

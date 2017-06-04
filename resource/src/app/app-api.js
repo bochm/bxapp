@@ -425,6 +425,49 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 		}
 
 	}
+	/**
+	 * 上传文件
+	 * @param  {Object} srv 用于文件上传的服务
+	 * @param  {File} 待上传文件
+	 * @param  {function} callback
+	 */
+	API.uploadFile = function(_srv,file,params,callback,errorback){
+		if(_srv.isLocalData){
+			callback.call(this,null);
+		}else{
+			var _upload_url = _srv.getFileUploadUrl(params || {});
+			var _url = _srv.getUrl(_upload_url);
+			var _errorback = errorback || API.defaultError;
+			$.ajax({
+				data: file,
+				type: "POST",
+				url: _srv.srvUrl + _url,
+				cache: false,
+				dataType: 'json',
+				processData: false,
+				async: false,
+				contentType: false,
+				beforeSend : function(request){
+					return API.createHeader(_srv,_url,request,_errorback);
+				},
+				success: function(resp) {
+					var response = _srv.respFile(resp);
+					if(API.isError(response)){
+						_errorback.call(this,response);
+					}else{
+						var ret = API.respData(response);
+						if(typeof callback == 'function') callback.call(this,ret);
+					}
+				},
+				error:function(xhr,status,error){
+					console.error(xhr);
+					_errorback.call(this,xhr);
+				}
+			});
+		}
+
+	}
+
 	//本地直接加載所有字典數據
 	if(_SERVERS.DEFAULT.isLocalData){
 		var _dict_local = API.jsonData(_SERVERS.DEFAULT.KEY+"/dict-map");
