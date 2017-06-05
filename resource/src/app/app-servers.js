@@ -93,7 +93,7 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
         "ADMIN" : _DEFAULT_SERVER,
         "WEIXIN" :$.extend(true,{},_DEFAULT_SERVER,{
             "KEY" : "WEIXIN",
-            "srvUrl" : "http://10.20.5.106:8080",
+            "srvUrl" : "http://localhost:8080",
             "fileSrvUrl" : "http://10.20.11.63/",//文件服务器地址,用于非本地图片显示
             "ctx" : "/neu-weixin-web/",
             "useLoginForm" : false,//后台登陆,不使用form

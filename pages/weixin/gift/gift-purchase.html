@@ -1,3 +1,9 @@
-<div class="loading-page" data-js-module="module/weixin/gift" data-js-main="handlePurchase">
-
+<div class="loading-page" data-js-module="module/weixin/gift" data-js-main="initPurchase">
+    <span id="table-weixin-gift-purchase-toolbar" class="hide">
+    <a data-role="addRecord" data-permission="add"/>
+    <a data-role="saveRecord" data-permission="save"/>
+    <a data-role="deleteRecord" data-permission="delete"/>
+    </span>
+    <table id="table-weixin-gift-purchase" class="table datatable table-bordered nowrap"  data-url="WEIXIN/giftpurchase/selectList" width="100%">
+    </table>
 </div>

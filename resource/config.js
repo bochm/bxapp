@@ -2,7 +2,7 @@
 
 var _CONFIG = {
 	"debug" : true,
-	"jsBaseUrl" : "resource/dist",//datatable引用的swf路径
+	"jsBaseUrl" : "resource/src",//datatable引用的swf路径
 	"imgBaseUrl" : "resource/dist/images",//图片路径
 	"localDataUrl" : "resource/jsons/",//本地数据路径
 	"pageContainer" : ".loading-page",//页面容器
@@ -18,7 +18,7 @@ var _CONFIG = {
 	//服务配置,不同的前缀可以访问不同的server服务，如'ADMIN/system/user'为ADMIN server的system/user服务
 	"SERVERS" : {
 		"LIST" : ["ADMIN","WEIXIN"],//启用服务列表
-		"LOCAL_DATA" : [],
+		"LOCAL_DATA" : ["ADMIN"],
 		"DEFAULT" : "ADMIN"
 	},
 	"KEYS" : {

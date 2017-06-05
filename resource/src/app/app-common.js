@@ -77,7 +77,9 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 				}
 				return null;
 			},
-
+			getPageContainer:function(self){
+				return _queryContainer(self).closest(APP.pageContainer).get();
+			},
 			getViewPort: function() {
 				var e = window,
 					a = 'inner';
@@ -155,7 +157,6 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 						dataType: "html",
 						success: function(res) {
 							var page = $(res);
-
 							page.prepend("<a class='btn btn-circle btn-icon-only blue return-page'> 返回 </a>");
 							page.on('click','.return-page',function(){
 								page.fadeOut(function(){

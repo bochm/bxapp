@@ -661,7 +661,7 @@ define('app/datatables',['jquery','app/common','app/api',
 				var curr_row = otable.row($(this).closest('td'));
 				curr_row.select();
 				if(default_opt.detailPage)
-					APP.loadInnerPage(_table.closest(APP.pageContainer).get(),default_opt.detailPage,curr_row);
+					APP.loadInnerPage(APP.getPageContainer(_table),default_opt.detailPage,curr_row);
 			})
 			//checkbox选择
 			if(default_opt.checkboxSelect){
@@ -810,7 +810,7 @@ define('app/datatables',['jquery','app/common','app/api',
 	DataTable.Api.register( 'query()', function (params,callback) {
 		var _table = this;
 		var opts = _table.init();
-		opts.params = params;
+		if(params) opts.params = params;
 		var $table = $("#"+opts.tableId).get();
 		if(opts.tableType == 'treetable'){
 			/*_table.destroy();
@@ -819,7 +819,7 @@ define('app/datatables',['jquery','app/common','app/api',
 		}else{
 			_table.clear().draw();
 			APP.blockUI({'target':$table,'gif':'load-tables'});
-			API.ajax(opts.dataUrl,params||{},true,function(ret,status){
+			API.ajax(opts.dataUrl,opts.params,true,function(ret,status){
 				_table.rows.add(API.respData(ret)).draw();
 				APP.unblockUI($table);
 			});

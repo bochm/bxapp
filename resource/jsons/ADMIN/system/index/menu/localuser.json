@@ -31,6 +31,6 @@
     {"id":"0205","icon":"iconfont icon-lock","name":"角色管理","target":"pages/system/role/role-list","permission":"","type":"0","parent_id":"02"},
     {"id":"0206","icon":"iconfont icon-lock","name":"测试","target":"pages/system/test/testtable","permission":"","type":"0","parent_id":"02"},
 
-    {"id":"04","icon":"iconfont icon-magicwand","name":"礼品管理","target":"pages/weixin/gift/gift-list","permission":"","type":"0","parent_id":"-1"}
+    {"id":"04","icon":"iconfont icon-magicwand","name":"礼品管理","target":"pages/weixin/gift/gift-main","permission":"","type":"0","parent_id":"-1"}
   ]
 }
