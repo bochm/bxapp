@@ -2215,7 +2215,7 @@ Page content
     margin-left: 235px;
     margin-top: 0px;
     min-height: 600px;
-    padding: 10px 20px 10px 20px;
+    padding: 5px 15px 5px 15px;
   }
   .page-content-wrapper .page-content.no-min-height {
     min-height: auto;
@@ -2972,7 +2972,7 @@ General User Record Listing
   background-color: rgba(255, 255, 255, 0.97);
 }
 .loading-page > .scroller{
-  height: 500px;
+  height: 475px;
 }
 .close-tab {
   font-size: 10px;

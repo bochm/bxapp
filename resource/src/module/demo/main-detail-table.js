@@ -1,43 +1,44 @@
 define('module/demo/main-detail-table',['app/common','app/datatables'],function(APP,DT) {
-	function inti_table(param){
-		$('table#table-demo-main-detail-m').initTable({
-			"title" : "明细测试表",
-			"params" : param,
-			"scrollY": "350px",
-			"detailPage" : "pages/demo/datatable/main-detail/detail-table"
-		});
-	}
+
+	var main = {
+		"table" : {
+			"id" : "#table-demo-main-detail-m",
+			"options" : {
+				"title" : "明细测试表",
+				"columns": [
+					{"data": "id", "title": "id", "visible": false},
+					{"data": "students", "title": "学生","visible": false},
+					{"data": "className", "title": "班级名称"},
+					{"data": "studentCount", "title": "学生数量"},
+					{"data": "classMaster", "title": "班主任"}
+				],
+				"ordering": false,
+				"paging" : true,
+				"info" : true,
+				"addRecord" : function(e,dt){
+					APP.loadInnerPage(APP.getPageContainer('#table-demo-main-detail-m'),'pages/demo/datatable/main-detail/detail-table');
+				}
+			}
+		},
+		"init" : function(param){
+			this.table.options.params = param || {};
+			var _table = this.table;
+			$(this.table.id).initTable(this.table.options,function(otable){
+				_table.obj = otable;
+			});
+
+		}
+	};
+
 	function handleEdit(){
 		
 	}
 	return {
-		inti_table : inti_table,
-		handleEdit : handleEdit,
 		init : function(param){
-			this.inti_table({"company_id" : "1"});
-			this.handleEdit();
+			main.init({});
 		},
 		initDetail : function(param){
-			console.log(param.data());
-			$('table#table-demo-main-detail-d-stu').initTable({
-				"title" : "学生表",
-				"params" : param,
-				"scrollY": "350px",
-				"addTest":function(e,dt){
-					$('table#table-demo-main-detail-m').dataTable().api().row.add( {
-						"className": "测试",
-						"stuCount": 5,
-						"classMaster": "中国",
-						"courseCount": 34
-					}).draw(true);
-				}
-			});
-			$('table#table-demo-main-detail-d-course').initTable({
-			"title" : "课程表",
-			"params" : param,
-			"scrollY": "350px"
-			});
-
+			
 		}
 		
 	}
