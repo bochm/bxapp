@@ -1,4 +1,4 @@
-define('module/demo/main-detail-table',['app/common','app/datatables'],function(APP,DT) {
+define('module/demo/main-detail-table',['app/common','app/datatables','app/form'],function(APP,DT,FM) {
 
 	var main = {
 		"table" : {
@@ -16,7 +16,8 @@ define('module/demo/main-detail-table',['app/common','app/datatables'],function(
 				"paging" : true,
 				"info" : true,
 				"addRecord" : function(e,dt){
-					APP.loadInnerPage(APP.getPageContainer('#table-demo-main-detail-m'),'pages/demo/datatable/main-detail/detail-table');
+					APP.loadInnerPage(APP.getPageContainer('#table-demo-main-detail-m'),'pages/demo/datatable/main-detail/detail-table',
+						{classId:-1});
 				}
 			}
 		},
@@ -30,15 +31,52 @@ define('module/demo/main-detail-table',['app/common','app/datatables'],function(
 		}
 	};
 
-	function handleEdit(){
-		
-	}
+	var detail = {
+		"table" : {
+			"id" : "#table-demo-main-detail-student",
+			"options" : {
+				"title" : "明细测试表-细表",
+				"dataUrl":"ADMIN/demo/datatable/maindetail/student",
+				"columns": [
+					{"data": "id",  "visible": false},
+					{"data": "classId", "visible": false},
+					{"data": "no", "title": "学号"},
+					{"data": "name", "title": "姓名"},
+					{"data": "age", "title": "年龄"}
+				],
+				"ordering": false,
+				"paging" : true,
+				"info" : true,
+				"rowOperation" : ["edit","delete"],
+				"addEditForm" : {
+					"title":"明细测试表-细表",
+					"editModal":"#demo-main-detail-student-modal",
+					"id" : "#demo-main-detail-student-form"
+				}
+			}
+		},
+		"form" : {
+			"id" : "#demo-main-detail-class-form",
+			"url" : "ADMIN/demo/datatable/maindetail/classes/add"
+		},
+		"init" : function(param){
+			this.table.options.params = param || {};
+			this.form.formData = param;
+			$(this.form.id).initForm(this.form);
+			var _table = this.table;
+			$(this.table.id).initTable(this.table.options,function(otable){
+				_table.obj = otable;
+			});
+
+		}
+	};
 	return {
 		init : function(param){
 			main.init({});
 		},
 		initDetail : function(param){
-			
+			console.log(param);
+			detail.init(param);
 		}
 		
 	}

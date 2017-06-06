@@ -1,92 +1,70 @@
 <div class="loading-page inner" data-js-module="module/demo/main-detail-table" data-js-main="initDetail">
 	<div class="form">
-		<!-- BEGIN FORM-->
-		<form action="#">
+		<form method="post" role="form" id="demo-main-detail-class-form">
 			<div class="form-body">
-				<div class="portlet box blue" panel-title="主表" panel-tools="expand">
+				<div class="portlet box green-turquoise" panel-title="录入细表" panel-icon="fa fa-pencil">
+					<div class="actions">
+						<a href="#" class="btn btn-default" data-submit="#demo-main-detail-class-form"><i class="fa fa-save"></i> 保存 </a>
+						<a href="#" class="btn btn-default" data-page-return="true"><i class="fa fa-times"></i> 返回 </a>
+					</div>
 					<div class="portlet-body">
-					<div class="row">
-						<div class="col-md-6">
-							<div class="form-group">
-								<label class="control-label">First Name</label>
-								<input type="text" id="firstName" class="form-control" placeholder="Chee Kin">
-																<span class="help-block">
-																This is inline help </span>
-							</div>
-						</div>
-						<!--/span-->
-						<div class="col-md-6">
-							<div class="form-group has-error">
-								<label class="control-label">Last Name</label>
-								<input type="text" id="lastName" class="form-control" placeholder="Lim">
-																<span class="help-block">
-																This field has error. </span>
-							</div>
-						</div>
-						<!--/span-->
-					</div>
-					<!--/row-->
-					<div class="row">
-						<div class="col-md-6">
-							<div class="form-group">
-								<label class="control-label">Gender</label>
-								<select class="form-control">
-									<option value="">Male</option>
-									<option value="">Female</option>
-								</select>
-																<span class="help-block">
-																Select your gender </span>
-							</div>
-						</div>
-						<!--/span-->
-						<div class="col-md-6">
-							<div class="form-group">
-								<label class="control-label">Date of Birth</label>
-								<input type="text" class="form-control" placeholder="dd/mm/yyyy">
-							</div>
-						</div>
-						<!--/span-->
-					</div>
-					<!--/row-->
-					<div class="row">
-						<div class="col-md-6">
-							<div class="form-group">
-								<label class="control-label">Category</label>
-								<select class="select2_category form-control" data-placeholder="Choose a Category" tabindex="1">
-									<option value="Category 1">Category 1</option>
-									<option value="Category 2">Category 2</option>
-									<option value="Category 3">Category 5</option>
-									<option value="Category 4">Category 4</option>
-								</select>
-							</div>
-						</div>
-						<!--/span-->
-						<div class="col-md-6">
-							<div class="form-group">
-								<label class="control-label">Membership</label>
-								<div class="radio-list">
-									<label class="radio-inline">
-										<input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked> Option 1 </label>
-									<label class="radio-inline">
-										<input type="radio" name="optionsRadios" id="optionsRadios2" value="option2"> Option 2 </label>
+						<div class="scroller" data-scroll-height="450">
+							<div class="col-md-3">
+								<div class="form-group">
+									<label class="control-label">班级名称<span class="required">*</span></label>
+									<div class="input-icon right"> <i class="fa validate-icon"></i>
+										<input type="text" name="className" maxlength="25" class="form-control required">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="control-label">班主任</label>
+									<div class="input-icon right"> <i class="fa validate-icon"></i>
+										<input type="text" name="classMaster"  class="form-control">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="control-label">学生数量</label>
+									<input type="text" name="studentCount" value="0" class="form-control" readonly>
 								</div>
 							</div>
+
+							<div class="col-md-9" >
+								<span id="table-demo-main-detail-student-toolbar" class="hide">
+								<a data-role="addRecord"/>
+								</span>
+								<table id="table-demo-main-detail-student" data-form="student" class="table datatable table-striped"  width="100%" >
+								</table>
+							</div>
 						</div>
-						<!--/span-->
-					</div>
 					</div>
 				</div>
-				<!--/row-->
-				<div class="portlet box blue" panel-title="细表" panel-tools="expand">
-					<div class="portlet-body">
-					</div>
-				</div>
-			</div>
-			<div class="form-actions right">
-				<button type="button" class="btn default"><i class="fa fa-times"></i> 取消</button>
-				<button type="submit" class="btn blue"><i class="fa fa-check"></i> 保存</button>
 			</div>
 		</form>
-		<!-- END FORM-->
+	</div>
+	<div class="modal fade" id="demo-main-detail-student-modal" data-backdrop="static" data-width="500" >
+		<form method="post" role="form" id="demo-main-detail-student-form">
+			<input type="hidden" name="id" >
+			<input type="hidden" name="classId" >
+			<div class="row"><div class="col-md-12">
+				<div class="form-group">
+					<label class="control-label">学号<span class="required">*</span></label>
+					<div class="input-icon right"> <i class="fa validate-icon"></i>
+						<input type="text" name="no" maxlength="25" class="form-control required">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">姓名<span class="required">*</span></label>
+					<div class="input-icon right"> <i class="fa validate-icon"></i>
+						<input type="text" name="name" maxlength="25" class="form-control required">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">年龄</label>
+					<div class="input-icon right"> <i class="fa validate-icon"></i>
+						<input type="text" name="age"  class="form-control number">
+					</div>
+				</div>
+			</div></div>
+		</form>
 	</div>
 </div>

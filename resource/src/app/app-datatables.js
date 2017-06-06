@@ -324,24 +324,26 @@ define('app/datatables',['jquery','app/common','app/api',
 		var _options = dt.init();
 		if(typeof _options.deleteRecord === 'function'){
 			_options.deleteRecord.call(this,dt,node,e);
-		}else if(!APP.isEmpty(_options.deleteRecord) && !APP.isEmpty(_options.deleteRecord.url)){
-			APP.confirm('','是否删除选择的记录?',function(){
-				//按选定行的id列删除（_options.deleteRecord.id），或者按选择的行数据删除（_options.deleteRecord.row=id）
-				var params = _options.deleteRecord.row ? dt.selectedRowsData(_options.deleteRecord.id) : dt.selectedColumn(_options.deleteRecord.id ? _options.deleteRecord.id : 'id');
-				console.log(params);
-				API.ajax(_options.deleteRecord.url,params,false,function(ret,status){
-					if(API.isError(ret)){
-						APP.error(ret);
-					}else{
-						dt.deleteSelectedRow();
-						APP.success(API.respMsg(ret),null,true);
-					}
-				},function(err){
-					APP.error(err);
-				});
-			})
 		}else{
-			alert("请初始化表格参数中的deleteRecord选项");
+			APP.confirm('','是否删除选择的记录?',function(){
+				if(!APP.isEmpty(_options.deleteRecord) && !APP.isEmpty(_options.deleteRecord.url)){
+				//按选定行的id列删除（_options.deleteRecord.id），或者按选择的行数据删除（_options.deleteRecord.row=id）
+					var params = _options.deleteRecord.row ? dt.selectedRowsData(_options.deleteRecord.id) : dt.selectedColumn(_options.deleteRecord.id ? _options.deleteRecord.id : 'id');
+					API.ajax(_options.deleteRecord.url,params,false,function(ret,status){
+						if(API.isError(ret)){
+							APP.error(ret);
+						}else{
+							dt.deleteSelectedRow();
+							APP.success(API.respMsg(ret),null,true);
+						}
+					},function(err){
+						APP.error(err);
+					});
+				}else{
+					dt.deleteSelectedRow();
+					APP.success(API.respMsg("记录已删除"),null,true);
+				}
+			})
 		}
 	}
 	/**
@@ -667,7 +669,13 @@ define('app/datatables',['jquery','app/common','app/api',
 					var curr_row = otable.row($(this).closest('td'));
 					curr_row.select();
 					_addEditRecord(e,otable, curr_row,'save');
+				});
+				_table.on('click','td a[dt-delete]',function(e){
+					var curr_row = otable.row($(this).closest('td'));
+					curr_row.select();
+					_deleteRecord(e,otable, curr_row,'save');
 				})
+
 			}
 
 			//checkbox选择
@@ -761,7 +769,6 @@ define('app/datatables',['jquery','app/common','app/api',
 			}
 			//先从服务器加载数据，然后再绘制表格
 			else{
-
 				var _data_table = $table.DataTable(default_opt);
 				APP.blockUI({'target':$table.get(),'gif':'load-tables'});
 				setTimeout(function(){

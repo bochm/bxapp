@@ -423,7 +423,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(opts.modal)_in_modal = opts.modal.get();
 				//没有定义url则直接调用回调函数
 				if(APP.isEmpty(opts.url)) {
-					_form_submit_success(formData,opts,_this,_in_modal,callback);
+					console.log(_formData2Object(formData));
+					_form_submit_success(_formData2Object(formData),opts,_this,_in_modal,callback);
 					return false;
 				}
 				//本地数据返回不修改任何數據
@@ -438,12 +439,17 @@ define('app/form',["jquery","app/common","app/api","moment",
 					return false;
 				}else{
 					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
+					jqForm.find("table.datatable[data-form]").each(function(){
+						formData.push({"name":"students","value":[{"id":11111,"name":"aaa"},{"id":11111,"name":"aaa"}]});
+						console.log(formData);
+					})
 					/*针对spring @RequestBody对于form提交的字符解析有问题，使用两种提交方式*/
 					/*使用@RequestBody注解的参数使用json方式  设置opts.submitJson为true*/
 					if(opts.submitJson){
 						_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,false);
 						return false
 					}
+
 					return true;
 				}
 				
@@ -492,7 +498,11 @@ define('app/form',["jquery","app/common","app/api","moment",
 	}
 	/*json方式提交form*/
 	function _form_submit_success(response,opts,_form,_in_modal,callback){
-		if(!APP.isEmpty(opts.url)) APP.notice('',API.respMsg(response),'success',_in_modal,opts.autoClose);
+		if(!APP.isEmpty(opts.url)) {
+			APP.notice('',API.respMsg(response),'success',_in_modal,opts.autoClose);
+		}else{
+			opts.submitClear = true;
+		}
 		if(opts.submitClear) {
 			_form.clearForm(true);
 			//file控件在提交清空后由于hidden发生变化需要重新初始化
@@ -515,8 +525,12 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}
 		});
 		if(typeof callback === 'function'){
-			if(!APP.isEmpty(opts.url)) callback.call(this,API.respData(response));
-			else callback.call(this,response);
+			if(!APP.isEmpty(opts.url)) {
+				callback.call(this,API.respData(response));
+			} else {
+				callback.call(this,response);
+				if(_in_modal != 'body') $(_in_modal).modal('hide');
+			}
 
 		} else if(typeof opts.onSuccess === 'function'){
 			opts.onSuccess.call(this,API.respData(response));
