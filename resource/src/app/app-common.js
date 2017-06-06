@@ -157,8 +157,10 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 						dataType: "html",
 						success: function(res) {
 							var page = $(res);
-							page.prepend("<a class='btn btn-circle btn-icon-only blue return-page'> 返回 </a>");
-							page.on('click','.return-page',function(){
+							if(page.find("[data-page-return='true']").length == 0) {
+								page.prepend("<a class='btn btn-circle btn-icon-only blue return-page' data-page-return='true'> 返回 </a>");
+							}
+							page.on("click","[data-page-return='true']",function(){
 								page.fadeOut(function(){
 									$(target).fadeIn();
 									$(target).find("table.datatable").resize();//datatable在隐藏时会有列宽显示不正常问题
@@ -573,8 +575,8 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			_portlet.prepend(_head);
 			if(!APP.isEmpty(_data_url)){
 				var _body = $("<div class='portlet-body'>");
-				if(_portlet.attr('data-scroll-height')){
-					var _scroller = $("<div class='scroller' data-scroll-height="+_portlet.attr('data-scroll-height')+" data-always-visible='1' data-rail-visible='0'>");
+				if(_portlet.data('scroll-height')){
+					var _scroller = $("<div class='scroller' data-scroll-height="+_portlet.data('scroll-height')+" data-always-visible='1' data-rail-visible='0'>");
 					APP.loadPage(_scroller,_data_url);
 					APP.initScroll(_scroller.get());
 					_body.append(_scroller);

@@ -54,7 +54,8 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
             "options" : {
                 "title": "礼品购进",
                 "columns": [
-                    {"data": "id", "title": "id", "visible": false},
+                    {"data": "id", "visible": false},
+                    {"data": "purchaseDetail", "visible": false},
                     {"data": "applyNo", "title": "购进单号"},
                     {"data": "applyDate", "title": "购进日期"},
                     {"data": "amount", "title": "金额"},
@@ -63,7 +64,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
                 "ordering": false,
                 "deleteRecord": {url: 'WEIXIN/gift/deleteBatch', row: true, id: "id"},
                 "addRecord" : function(dt,node,e){
-
+                    APP.loadInnerPage(APP.getPageContainer("#table-weixin-gift-purchase"),'pages/weixin/gift/gift-purchase-edit');
                 },
                 "saveRecord" : function(dt,node,e){
 
@@ -78,10 +79,48 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
 
         }
     };
+    var purchaseEdit = {
+        "table" : {
+            "id" : "#table-weixin-gift-purchase-detail",
+            "options" : {
+                "title": "礼品购进",
+                "dataUrl":"WEIXIN/giftpurchase/selectDetail",
+                "columns": [
+                    {"data": "id", "visible": false},
+                    {"data": "applyId", "visible": false},
+                    {"data": "applyNo", "visible": false},
+                    {"data": "giftId", "visible": false},
+                    {"data": "giftName", "title": "礼品名称"},
+                    {"data": "price", "title": "价格"},
+                    {"data": "unit", "title": "单位"},
+                    {"data": "qtyPurchase", "title": "数量"},
+                    {"data": "amount", "title": "金额"}
+                ],
+                "rowOperation" : ["edit","delete"],
+                "ordering": false,
+                "deleteRecord": {url: 'WEIXIN/gift/deleteBatch', row: true, id: "id"},
+                "addEditForm" : {
+                    "title":"礼品购进明细",
+                    "editModal":"#weixin-gift-purchase-detail-edit-modal",
+                    "id" : "#weixin-gift-purchase-detail-form",
+                    "submitJson" : true
+                }
+            }
+        },
+        "init" : function(param){
+            this.table.options.params = param || {};
+            $(this.table.id).initTable(this.table.options,function(otable){
+                purchaseEdit.table.obj = otable;
+            });
 
+        }
+    };
     return {
         initPurchase : function(param){
             purchase.init(param);
+        },
+        initPurchaseEdit : function(param){
+            purchaseEdit.init(param);
         },
         init : function(param){
             gift.init(param);

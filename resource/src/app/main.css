@@ -1658,7 +1658,7 @@ Font Awesome 4.x Demo
   padding: 0 !important;
 }
 .form .form-body {
-  padding: 0px;
+  padding: 2px;
 }
 .portlet.light .form .form-body {
   padding-left: 0;
@@ -5448,6 +5448,75 @@ Bootstrap Daterangepicker
   background-color: #333333;
 }
 
+/***
+自定义页面内部tab菜单
+***/
+.ver-inline-menu {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.ver-inline-menu li {
+  position: relative;
+  margin-bottom: 1px;
+}
+.ver-inline-menu li i {
+  width: 37px;
+  height: 37px;
+  display: inline-block;
+  color: #b9cbd5;
+  font-size: 15px;
+  padding: 12px 10px 10px 8px;
+  margin: 0 8px 0 0;
+  text-align: center;
+  background: #e0eaf0 !important;
+}
+.ver-inline-menu li a {
+  font-size: 14px;
+  font-weight: 300;
+  color: #557386;
+  display: block;
+  background: #f0f6fa;
+  border-left: solid 2px #c4d5df;
+}
+.ver-inline-menu li:hover a {
+  background: #e0eaf0;
+  text-decoration: none;
+}
+.ver-inline-menu li:hover i {
+  color: #fff;
+  background: #c4d5df !important;
+}
+.ver-inline-menu li.active a {
+  border-left: solid 2px #0c91e5;
+}
+.ver-inline-menu li.active i {
+  background: #0c91e5 !important;
+}
+.ver-inline-menu li.active a, .ver-inline-menu li.active i {
+  color: #fff;
+  background: #169ef4;
+  text-decoration: none;
+}
+.ver-inline-menu li.active a, .ver-inline-menu li:hover a {
+  font-size: 14px;
+}
+.ver-inline-menu li.active:after {
+  content: '';
+  display: inline-block;
+  border-bottom: 6px solid transparent;
+  border-top: 6px solid transparent;
+  border-left: 6px solid #169ef4;
+  position: absolute;
+  top: 12px;
+  right: -5px;
+}
+
+@media (max-width: 767px) {
+  .ver-inline-menu > li.active:after {
+    display: none;
+  }
+}
 /*
  Colorbox灯箱插件
 */
@@ -5816,7 +5885,148 @@ Green Default
   background: #35aa47 !important;
   color: #FFFFFF !important;
 }
+/***
+Green Turquoise
+***/
+/* Button */
+.green-turquoise.btn {
+  color: #FFFFFF;
+  background-color: #36D7B7;
+  border-color: "";
+}
+.green-turquoise.btn:hover, .green-turquoise.btn:focus, .green-turquoise.btn:active, .green-turquoise.btn.active {
+  color: #FFFFFF;
+  background-color: #27c3a4;
+}
+.open .green-turquoise.btn.dropdown-toggle {
+  color: #FFFFFF;
+  background-color: #27c3a4;
+}
+.green-turquoise.btn:active, .green-turquoise.btn.active {
+  background-image: none;
+  background-color: #22ad92;
+}
+.green-turquoise.btn:active:hover, .green-turquoise.btn.active:hover {
+  background-color: #24b699;
+}
+.open .green-turquoise.btn.dropdown-toggle {
+  background-image: none;
+}
+.green-turquoise.btn.disabled, .green-turquoise.btn.disabled:hover, .green-turquoise.btn.disabled:focus, .green-turquoise.btn.disabled:active, .green-turquoise.btn.disabled.active, .green-turquoise.btn[disabled], .green-turquoise.btn[disabled]:hover, .green-turquoise.btn[disabled]:focus, .green-turquoise.btn[disabled]:active, .green-turquoise.btn[disabled].active, fieldset[disabled] .green-turquoise.btn, fieldset[disabled] .green-turquoise.btn:hover, fieldset[disabled] .green-turquoise.btn:focus, fieldset[disabled] .green-turquoise.btn:active, fieldset[disabled] .green-turquoise.btn.active {
+  background-color: #36D7B7;
+}
+.green-turquoise.btn .badge {
+  color: #36D7B7;
+  background-color: #FFFFFF;
+}
 
+/* Button Strip */
+.btn.green-turquoise-stripe {
+  border-left: 3px solid #36D7B7;
+}
+
+/* Portlet */
+.portlet > .portlet-body.green-turquoise,
+.portlet.green-turquoise {
+  background-color: #36D7B7;
+}
+
+.portlet.solid.green-turquoise > .portlet-title,
+.portlet.solid.green-turquoise > .portlet-body {
+  border: 0;
+  color: #FFFFFF;
+}
+.portlet.solid.green-turquoise > .portlet-title > .caption > i {
+  color: #FFFFFF;
+}
+.portlet.solid.green-turquoise > .portlet-title > .tools > a.remove {
+  background-image: url(../img/portlet-remove-icon-white.png);
+}
+.portlet.solid.green-turquoise > .portlet-title > .tools > a.config {
+  background-image: url(../img/portlet-config-icon-white.png);
+}
+.portlet.solid.green-turquoise > .portlet-title > .tools > a.reload {
+  background-image: url(../img/portlet-reload-icon-white.png);
+}
+.portlet.solid.green-turquoise > .portlet-title > .tools > a.expand {
+  background-image: url(../img/portlet-expand-icon-white.png);
+}
+.portlet.solid.green-turquoise > .portlet-title > .tools > a.collapse {
+  background-image: url(../img/portlet-collapse-icon-white.png);
+}
+.portlet.solid.green-turquoise > .portlet-title > .tools > a.fullscreen {
+  color: #fdfdfd;
+}
+
+.portlet.box.green-turquoise {
+  border: 1px solid #61dfc6;
+  border-top: 0;
+}
+.portlet.box.green-turquoise > .portlet-title {
+  background-color: #36D7B7;
+}
+.portlet.box.green-turquoise > .portlet-title > .caption {
+  color: #FFFFFF;
+}
+.portlet.box.green-turquoise > .portlet-title > .caption > i {
+  color: #FFFFFF;
+}
+.portlet.box.green-turquoise > .portlet-title > .actions .btn-default {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 1px solid #94ead9;
+  color: #a9eee0;
+}
+.portlet.box.green-turquoise > .portlet-title > .actions .btn-default > i {
+  color: #b6f0e5;
+}
+.portlet.box.green-turquoise > .portlet-title > .actions .btn-default:hover, .portlet.box.green-turquoise > .portlet-title > .actions .btn-default:focus, .portlet.box.green-turquoise > .portlet-title > .actions .btn-default:active, .portlet.box.green-turquoise > .portlet-title > .actions .btn-default.active {
+  border: 1px solid #bef2e8;
+  color: #d3f6ef;
+}
+
+/* Statistic Block */
+.dashboard-stat.green-turquoise {
+  background-color: #36D7B7;
+}
+.dashboard-stat.green-turquoise.dashboard-stat-light:hover {
+  background-color: #29cfae;
+}
+.dashboard-stat.green-turquoise .visual > i {
+  color: #FFFFFF;
+  opacity: 0.1;
+  filter: alpha(opacity=10);
+}
+.dashboard-stat.green-turquoise .details .number {
+  color: #FFFFFF;
+}
+.dashboard-stat.green-turquoise .details .desc {
+  color: #FFFFFF;
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+.dashboard-stat.green-turquoise .more {
+  color: #FFFFFF;
+  background-color: #29cfae;
+}
+
+/* General Element */
+.bg-green-turquoise {
+  border-color: #36D7B7 !important;
+  background-image: none !important;
+  background-color: #36D7B7 !important;
+  color: #FFFFFF !important;
+}
+
+/* General Text & Icon Font Colors */
+.font-green-turquoise {
+  color: #36D7B7 !important;
+}
+
+.progress-bar.green-turquoise {
+  background: #36D7B7 !important;
+  color: #FFFFFF !important;
+}
 /***********
 Red --------------------------------------------------------------------------------
 ************/

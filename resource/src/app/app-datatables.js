@@ -275,11 +275,10 @@ define('app/datatables',['jquery','app/common','app/api',
 				_form_validate = _form.validate;
 			}
 			var _field_opts = _form.fieldOpts || {};
-			if( _form[type+'Url'] === undefined && _form.url === undefined
-				&& _form.id === undefined && $(_form.id).attr("action") === undefined){
-				alert("请初始化表格form参数中["+type+"Url|url|id和form.action属性]");
+			var _form_url = null;
+			if( _form[type+'Url'] !== undefined || _form.url !== undefined || $(_form.id).attr("action") !== undefined){
+				_form_url = _form[type+'Url'] || _form.url || $(_form.id).attr("action") + "/" + type;
 			}
-			var _form_url = _form[type+'Url'] || _form.url || $(_form.id).attr("action") + "/" + type;
 			var form_opts = {
 				submitClear : true, //submit之后是否清空数据
 				initClear : true,//form初始化时是否清空数据
@@ -663,6 +662,14 @@ define('app/datatables',['jquery','app/common','app/api',
 				if(default_opt.detailPage)
 					APP.loadInnerPage(APP.getPageContainer(_table),default_opt.detailPage,curr_row);
 			})
+			if($.isArray(default_opt.rowOperation)){
+				_table.on('click','td a[dt-edit]',function(e){
+					var curr_row = otable.row($(this).closest('td'));
+					curr_row.select();
+					_addEditRecord(e,otable, curr_row,'save');
+				})
+			}
+
 			//checkbox选择
 			if(default_opt.checkboxSelect){
 				$(otable.column('.select-checkbox').header()).click(function(){
@@ -686,16 +693,24 @@ define('app/datatables',['jquery','app/common','app/api',
 	* @param  {Arrays} opts 初始化参数,兼容多表格的数组形式[{},{}]
 	**/
 	function _getDataTable($table,default_opt,callback){
-		default_opt.dataUrl = $table.data('url');
+		if(APP.isEmpty(default_opt.dataUrl)) default_opt.dataUrl = $table.data('url');
+
 		default_opt.serverSide = ($table.data('server-side') != undefined && $table.data('server-side') == "true");
 		
 		var ajax_params = {};
 		if(default_opt.params) ajax_params = default_opt.params;//页面定义Ajax请求参数
-		
-		
+
+		//行操作([edit,view,delete]),暂时只支持columns数组方式，权限还未考虑
+		if($.isArray(default_opt.rowOperation) && $.isArray(default_opt.columns)){
+			var _operation = '';
+			for(var i=0;i<default_opt.rowOperation.length;i++){
+				_operation += "<a dt-"+default_opt.rowOperation[i]+"><i class='iconfont icon-"+default_opt.rowOperation[i]+"' style='font-size:1.5em'></i></a> "
+			}
+			default_opt.columns.push({'data' : null,'orderable':false,'title':'操作','defaultContent' : _operation});
+		}
 		
 		if(default_opt.dataUrl != undefined){
-			if(default_opt.columns){
+			if($.isArray(default_opt.columns)){
 				//treetable排序使用TreeBean中的treeSort(parentIds + id),否则显示层级不正确
 				if(default_opt.tableType == 'treetable'){
 					default_opt.ordering = true;//暂时只能使用treeSort列排序

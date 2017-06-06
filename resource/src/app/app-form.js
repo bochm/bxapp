@@ -404,10 +404,12 @@ define('app/form',["jquery","app/common","app/api","moment",
 		var _in_modal = (_this.parents('.modal').size() > 0) ? _this.parents('.modal').get(0) : 'body';
 
 		var _form_url = opts.url || _this.attr('action');
-		var _srv = API.getServerByUrl(_form_url);
-		var _url = _srv.getUrl(_form_url);
-		opts.url = _srv.srvUrl + _url;
-
+		var _srv,_url;
+		if(!APP.isEmpty(_form_url)) {
+			_srv = API.getServerByUrl(_form_url);
+			_url = _srv.getUrl(_form_url);
+			opts.url = _srv.srvUrl + _url;
+		}
 		//表单中存在文件控件，如果opts.formData直接使用则会导致jquery.form插件无法识别文件提交失败
 		//后续考虑使用单独文件上传控件
 		if($('input[type=file]:enabled', _this).length > 0){
@@ -419,6 +421,11 @@ define('app/form',["jquery","app/common","app/api","moment",
 			ajax:true,
 			beforeSubmit : function(formData, jqForm, options){
 				if(opts.modal)_in_modal = opts.modal.get();
+				//没有定义url则直接调用回调函数
+				if(APP.isEmpty(opts.url)) {
+					_form_submit_success(formData,opts,_this,_in_modal,callback);
+					return false;
+				}
 				//本地数据返回不修改任何數據
 				if(_srv.isLocalData){
 					_local_data_submit(opts,_this,_form_url,_in_modal,callback,errorback);
@@ -485,7 +492,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	}
 	/*json方式提交form*/
 	function _form_submit_success(response,opts,_form,_in_modal,callback){
-		APP.notice('',API.respMsg(response),'success',_in_modal,opts.autoClose);
+		if(!APP.isEmpty(opts.url)) APP.notice('',API.respMsg(response),'success',_in_modal,opts.autoClose);
 		if(opts.submitClear) {
 			_form.clearForm(true);
 			//file控件在提交清空后由于hidden发生变化需要重新初始化
@@ -507,8 +514,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 				_c_form_field.rules( "add", opts.rules[_c_field_name]);
 			}
 		});
-		if(typeof callback === 'function')callback.call(this,API.respData(response));
-		else if(typeof opts.onSuccess === 'function') opts.onSuccess.call(this,API.respData(response));
+		if(typeof callback === 'function'){
+			if(!APP.isEmpty(opts.url)) callback.call(this,API.respData(response));
+			else callback.call(this,response);
+
+		} else if(typeof opts.onSuccess === 'function'){
+			opts.onSuccess.call(this,API.respData(response));
+		}
 	}
 	/*formData转为json对象,暂时只支持扁平json，多表关联字段（如dept.id）类型还没有实现解析*/
 	function _formData2Object(formData){
@@ -1154,24 +1166,28 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(typeof errorback === 'function') errorback.call(this,data);
 			});
 		}else if(opts.editModal){
-			var modalDefOpts = {
-				title : formOtps.title,
-				show : true,
-				buttons : {"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
-					modal.find('form').submit();
-				}}
+			//静态modal直接显示
+			if(opts.editModal instanceof $ && opts.editModal.length == 1){
+				
+			}else{
+				var modalDefOpts = {
+					title : formOtps.title,
+					show : true,
+					buttons : {"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
+						modal.find('form').submit();
+					}}
+				}
+				var modalOpts = {};
+				//只指定modal.id的静态modal
+				if(typeof opts.editModal === 'string'){
+					modalOpts = $.extend(modalDefOpts,{id:opts.editModal})
+				}else if(typeof opts.editModal === 'object'){//指定modal初始化参数
+					modalOpts = $.extend(modalDefOpts,opts.editModal);
+				}
+				APP.modal(modalOpts.id,modalOpts,function(){
+					_initModalForm(modalOpts.id,formOtps,editback,errorback);
+				});
 			}
-			var modalOpts = {};
-			//只指定modal.id的静态modal
-			if(typeof opts.editModal === 'string'){
-				modalOpts = $.extend(modalDefOpts,{id:opts.editModal})
-			}else if(typeof opts.editModal === 'object'){//指定modal初始化参数
-				modalOpts = $.extend(modalDefOpts,opts.editModal);
-			}
-			APP.modal(modalOpts.id,modalOpts,function(){
-				_initModalForm(modalOpts.id,formOtps,editback,errorback);
-			});
-
 		}
 		
 	}
