@@ -735,7 +735,11 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		if (default_options.delay > 0) {
 			$alert.delay(default_options.delay).slideUp('fast',function() {
 				$(this).remove();
-				if(autoClose) $(default_options.ele).closest('.modal').modal('hide');
+				if(autoClose) {
+					var _el = $(default_options.ele);
+					if(_el.hasClass('modal')) _el.modal('hide');
+					if(_el.hasClass('inner')) APP.returnPage(_el);
+				}
 			});
 		}
 	};

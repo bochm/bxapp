@@ -23,9 +23,8 @@ define('module/demo/main-detail-table',['app/common','app/datatables','app/form'
 		},
 		"init" : function(param){
 			this.table.options.params = param || {};
-			var _table = this.table;
 			$(this.table.id).initTable(this.table.options,function(otable){
-				_table.obj = otable;
+				
 			});
 
 		}
@@ -57,15 +56,20 @@ define('module/demo/main-detail-table',['app/common','app/datatables','app/form'
 		},
 		"form" : {
 			"id" : "#demo-main-detail-class-form",
-			"url" : "ADMIN/demo/datatable/maindetail/classes/add"
+			"url" : "ADMIN/demo/datatable/maindetail/classes/add",
+			"submitJson" : true
 		},
 		"init" : function(param){
 			this.table.options.params = param || {};
 			this.form.formData = param;
-			$(this.form.id).initForm(this.form);
-			var _table = this.table;
+			this.form.autoClose = true;
+			this.form.submitClear = true;
+			$(this.form.id).initForm(this.form,function(ret){
+				DT.getTable(main.table.id).addRow(ret);
+			});
+
 			$(this.table.id).initTable(this.table.options,function(otable){
-				_table.obj = otable;
+				
 			});
 
 		}

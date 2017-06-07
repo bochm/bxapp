@@ -948,5 +948,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			return a + b;
 		}, 0 );
 	} );
+
+	
 	return DataTable;
 });

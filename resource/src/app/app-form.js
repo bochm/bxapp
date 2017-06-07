@@ -401,7 +401,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			
 		});
 		//表单显示位置,返回提示使用
-		var _in_modal = (_this.parents('.modal').size() > 0) ? _this.parents('.modal').get(0) : 'body';
+		var _in_modal = (_this.parents('.modal').size() > 0) ? _this.parents('.modal').get(0) : APP.getPageContainer(_this);
 
 		var _form_url = opts.url || _this.attr('action');
 		var _srv,_url;
