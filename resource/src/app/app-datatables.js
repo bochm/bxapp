@@ -816,6 +816,17 @@ define('app/datatables',['jquery','app/common','app/api',
 		return listData;
 	} );
 	/**
+	 * 获取表格数据,转换为纯对象数组
+	 */
+	DataTable.Api.register( 'tableData()', function (col) {
+		var data = this.data();
+		var listData = new Array();
+		for(var i=0;i<data.length;i++){
+			listData.push(data[i]);
+		}
+		return listData;
+	} );
+	/**
      * 获取选择行的指定列数据 col列名
      */
 	DataTable.Api.register( 'selectedColumn()', function (col) {
@@ -921,6 +932,21 @@ define('app/datatables',['jquery','app/common','app/api',
      */
 	DataTable.Api.register( 'selectedCount()', function () {
 		return this.rows('.selected').count();
+	} );
+	/**
+	 * 汇总
+	 */
+	DataTable.Api.register( 'sum()', function ( ) {
+		return this.flatten().reduce( function ( a, b ) {
+			if ( typeof a === 'string' ) {
+				a = a.replace(/[^\d.-]/g, '') * 1;
+			}
+			if ( typeof b === 'string' ) {
+				b = b.replace(/[^\d.-]/g, '') * 1;
+			}
+
+			return a + b;
+		}, 0 );
 	} );
 	return DataTable;
 });

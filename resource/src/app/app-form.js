@@ -42,7 +42,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		var _target = $(this);
 		require(['bootstrap/datepicker'],function(){
 			var default_opt = $.extend(true,{
-				language:'zh-CN',autoclose: true,todayHighlight:true,format:'yyyy-mm-dd'
+				language:'zh-CN',autoclose: true,todayHighlight:true,format:'yyyy-mm-dd',zIndexOffset:9999,orientation:'auto'
 			},opts);
 			var _event_type = "changeDate";
 			if(default_opt.viewType == "year"){
@@ -423,7 +423,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(opts.modal)_in_modal = opts.modal.get();
 				//没有定义url则直接调用回调函数
 				if(APP.isEmpty(opts.url)) {
-					console.log(_formData2Object(formData));
 					_form_submit_success(_formData2Object(formData),opts,_this,_in_modal,callback);
 					return false;
 				}
@@ -439,14 +438,26 @@ define('app/form',["jquery","app/common","app/api","moment",
 					return false;
 				}else{
 					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
-					jqForm.find("table.datatable[data-form]").each(function(){
-						formData.push({"name":"students","value":[{"id":11111,"name":"aaa"},{"id":11111,"name":"aaa"}]});
+					/*jqForm.find("table.datatable[data-form]").each(function(){
+						var _table_data = JSON.stringify([{"id":11111,"name":"aaa"},{"id":11111,"name":"aaa"}]);
+						formData.push({"name":$(this).data('form'),"value":_table_data});
 						console.log(formData);
-					})
+					})*/
 					/*针对spring @RequestBody对于form提交的字符解析有问题，使用两种提交方式*/
 					/*使用@RequestBody注解的参数使用json方式  设置opts.submitJson为true*/
+					/*表单中如果有明细对象（表格），也使用json提交*/
 					if(opts.submitJson){
-						_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,false);
+						//提取表单中的表格数据
+						if(jqForm.find("table.datatable[data-form]").length > 0){
+							require(['app/datatables'],function(DT){
+								jqForm.find("table.datatable[data-form]").each(function(){
+									formData.push({"name":$(this).data('form'),"value":$(this).dataTable().api().tableData()});
+								})
+								_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,false);
+							});
+						}else{
+							_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,false);
+						}
 						return false
 					}
 
@@ -513,6 +524,12 @@ define('app/form',["jquery","app/common","app/api","moment",
 			_form.find("[form-role='richEdit']").each(function(){
 				$(this).summernote('reset');
 			});
+			//细表数据清空
+			require(['app/datatables'],function(DT) {
+				_form.find("table.datatable[data-form]").each(function () {
+					$(this).dataTable().api().clear().draw();
+				})
+			});
 		}
 		//动态更新规格，否则会造成重复提交验证不通过
 		_form.find('.checkExists').each(function(){
@@ -544,6 +561,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		}
 		return params;
 	}
+	//form中带有细表数据
 	//服务器不支持 multipart/form-data 方式的提交时使用(springmvc @RequestBody注解的参数)
 	function _json_data_submit(opts,_form,_form_url,formData,_in_modal,callback,errorback,_is_query){
 		if(_form.valid()){
@@ -648,11 +666,24 @@ define('app/form',["jquery","app/common","app/api","moment",
 		_clear_select_validate(_select);
 	}
 	function _get_options_data(opts){
-		var url = opts.url || API.urls.stmListUrl;
+		var url = opts.dataUrl || API.urls.stmListUrl;
 		var paramData = {};
 		if(opts.stmID) url += ("/" + opts.stmID+_CONFIG.HTTP.SUFFIX);
 		if(opts.param) paramData.param=opts.param;
-		return API.jsonData(url,paramData);
+		var _data = API.jsonData(url,paramData);
+		if(opts.idProperty || opts.textProperty){
+			if($.isArray(_data)){
+				for(var i=0;i<_data.length;i++){
+					if(opts.idProperty) _data[i].id = _data[i][opts.idProperty];
+					if(opts.textProperty) _data[i].text = _data[i][opts.textProperty];
+				}
+			}else if(!APP.isEmpty(_data)){
+				if(opts.idProperty) _data.id = _data[opts.idProperty];
+				if(opts.textProperty) _data.text = _data[opts.textProperty];
+			}
+
+		}
+		return _data;
 	}
 	$.fn.select = function ( options ) {
 		var _select = $(this);
@@ -660,7 +691,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		select2_default_opts.data = null;
 		select2_default_opts.ajax = null;
 
-		if((opts.jsonData||opts.stmID) && opts.data === undefined){//增加jsonData选项获取静态.json文件或者直接通过sqlMapper的sqlID获取数组数据
+		if((opts.jsonData||opts.stmID||opts.dataUrl) && opts.data === undefined){//增加jsonData选项获取静态.json文件或者直接通过sqlMapper的sqlID获取数组数据
 			if(APP.isEmpty(opts.param)) opts.param = {};
 			if(_select.data("parent-for")){
 				var _parent_sel = $(_select.data("parent-for"));

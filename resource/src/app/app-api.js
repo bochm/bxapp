@@ -96,6 +96,12 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 		if(server) return API.getLocalData(server+_key_user);
 		return API.getLocalData(_key_user);
 	}
+	function _get_user_id(server){
+		return _local_user(server).id;
+	}
+	function _get_user_name(server){
+		return _local_user(server).name;
+	}
 	function _store_user(u,server){
 		if(server) API.setLocalData(server+_key_user,u);
 		else API.setLocalData(_key_user,u);

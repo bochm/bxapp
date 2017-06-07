@@ -2536,6 +2536,10 @@ label {
   right: 8px;
   float: right;
 }
+/*add by bcm select控件有下拉按钮*/
+.input-icon.select.right > i {
+  right: 12px;
+}
 .input-icon.input-icon-lg > i {
   margin-top: 16px;
 }

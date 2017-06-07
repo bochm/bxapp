@@ -182,6 +182,9 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 					});
 				}
 			},
+			returnPage : function(ctl){
+				_queryContainer(ctl).closest(APP.pageContainer).find("[data-page-return='true']").click();
+			},
 			getResponsiveBreakpoint: function(size) {
 				// bootstrap 响应尺寸
 				var sizes = {

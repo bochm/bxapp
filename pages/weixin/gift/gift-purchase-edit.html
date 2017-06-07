@@ -1,10 +1,13 @@
 <div class="loading-page inner" data-js-module="module/weixin/gift" data-js-main="initPurchaseEdit">
     <div class="form">
-        <form action="#">
+        <form id="weixin-gift-purchase-form" method="post" role="form">
+            <input type="hidden" name="id" >
+            <input type="hidden" name="companyId" value="100">
+            <input type="hidden" name="deptId" value="100">
             <div class="form-body">
                 <div class="portlet box green-turquoise" panel-title="购进单录入" panel-icon="fa fa-pencil">
                     <div class="actions">
-                        <a href="#" class="btn btn-default"><i class="fa fa-save"></i> 保存 </a>
+                        <a href="#" class="btn btn-default" data-submit="#weixin-gift-purchase-form"><i class="fa fa-save"></i> 保存 </a>
                         <a href="#" class="btn btn-default" data-page-return="true"><i class="fa fa-times"></i> 返回 </a>
                     </div>
                     <div class="portlet-body">
@@ -19,7 +22,7 @@
                         <div class="form-group">
                             <label class="control-label">购进日期</label>
                             <div class="input-icon right"> <i class="fa validate-icon"></i>
-                                <input type="text" name="applyDate"  class="form-control">
+                                <input type="text" name="applyDate" form-role="date"  class="form-control">
                             </div>
                         </div>
                         <div class="form-group">
@@ -36,7 +39,7 @@
                         <span id="table-weixin-gift-purchase-detail-toolbar" class="hide">
                         <a data-role="addRecord"/>
                         </span>
-                        <table id="table-weixin-gift-purchase-detail" class="table datatable table-striped"  width="100%">
+                        <table id="table-weixin-gift-purchase-detail" data-form="purchaseDetail" class="table datatable table-striped"  width="100%">
                         </table>
                     </div>
                 </div>
@@ -50,36 +53,36 @@
             <input type="hidden" name="id" >
             <input type="hidden" name="applyId" >
             <input type="hidden" name="applyNo" >
-            <input type="hidden" name="giftId" >
+            <input name="giftName" type="hidden">
             <div class="row"><div class="col-md-12">
                 <div class="form-group">
                     <label class="control-label">礼品名称<span class="required">*</span></label>
+                    <div class="input-icon select right"> <i class="fa validate-icon"></i>
+                        <select name="giftId" form-role='select' class="form-control required selectOpt" data-init="-1"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">采购数量<span class="required">*</span></label>
                     <div class="input-icon right"> <i class="fa validate-icon"></i>
-                        <input type="text" name="giftName" maxlength="25" class="form-control required">
+                        <input type="text" name="qtyPurchase"  class="form-control required number">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label">单价</label>
                     <div class="input-icon right"> <i class="fa validate-icon"></i>
-                        <input type="text" name="price" data-digit="3" class="form-control decimal">
+                        <input type="text" name="price" data-digit="3" class="form-control" readonly>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label">是否上架</label>
+                    <label class="control-label">单位</label>
                     <div class="input-icon right"> <i class="fa validate-icon"></i>
-                        <input type="checkbox" name="sale" data-on-value="1" data-off-value="0"  checked class="bs-switch form-control">
+                        <input type="text" name="unit" maxlength="4" class="form-control" readonly>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label">单位<span class="required">*</span></label>
+                    <label class="control-label">金额</label>
                     <div class="input-icon right"> <i class="fa validate-icon"></i>
-                        <input type="text" name="unit" maxlength="4" class="form-control required">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">兑换积分</label>
-                    <div class="input-icon right"> <i class="fa validate-icon"></i>
-                        <input type="text" name="exchangeScore" class="form-control number">
+                        <input type="text" name="amount"  class="form-control number">
                     </div>
                 </div>
             </div></div>
