@@ -100,7 +100,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 				return (prefix || 'app_') + Math.floor(Math.random() * (new Date()).getTime());
 			},
 			isEmpty : function(v){
-				return v === undefined || v === null || $.trim(v) === '';
+				return $.isEmptyObject(v) || $.trim(v) === '';
 			},
 			jsPath:_CONFIG.jsBaseUrl,
 
@@ -114,12 +114,13 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			 * @param  {String} d_patterm 需要转换的字符串格式
 			 */
 			formatDate : function(patterm,d,d_patterm){
+				var _patterm = APP.isEmpty(patterm) ? 'YYYYMMDD' : patterm;
 				if(this.isEmpty(d))
-					return moment().format(patterm);
+					return moment().format(_patterm);
 				else if(this.isEmpty(d_patterm))
-					return moment(d).format(patterm);
+					return moment(d).format(_patterm);
 				else
-					return moment(d,d_patterm).format(patterm);
+					return moment(d,d_patterm).format(_patterm);
 			},
 			numeral : numeral,
 			loadPage : function(target,url,params,callback,errorback){

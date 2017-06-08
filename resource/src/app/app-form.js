@@ -1,7 +1,7 @@
 
 define('app/form',["jquery","app/common","app/api","moment",
                    "jquery/validate","jquery/form",
-					"switch","jquery/select2","jquery/summernote","bootstrap/typeahead"],function($,APP,API) {
+					"switch","jquery/select2","jquery/summernote","bootstrap/typeahead","bootstrap/datepicker"],function($,APP,API) {
 	var moment = require('moment');
 	moment.locale("zh-cn");
 	var FORM = {
@@ -40,32 +40,29 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 */
 	$.fn.datePicker = function(opts,callback){
 		var _target = $(this);
-		require(['bootstrap/datepicker'],function(){
-			var default_opt = $.extend(true,{
-				language:'zh-CN',autoclose: true,todayHighlight:true,format:'yyyy-mm-dd',zIndexOffset:9999,orientation:'auto'
-			},opts);
-			var _event_type = "changeDate";
-			if(default_opt.viewType == "year"){
-				default_opt.startView = 2;
-				default_opt.minViewMode = 2;
-				_event_type="changeYear";
-			}else if(default_opt.viewType == "month"){
-				default_opt.startView = 1;
-				default_opt.minViewMode = 1;
-				_event_type="changeMonth";
+		var default_opt = $.extend(true,{
+			language:'zh-CN',autoclose: true,todayHighlight:true,format:'yyyy-mm-dd',zIndexOffset:9999,orientation:'auto'
+		},opts);
+		var _event_type = "changeDate";
+		if(default_opt.viewType == "year"){
+			default_opt.startView = 2;
+			default_opt.minViewMode = 2;
+			_event_type="changeYear";
+		}else if(default_opt.viewType == "month"){
+			default_opt.startView = 1;
+			default_opt.minViewMode = 1;
+			_event_type="changeMonth";
+		}
+		_target.datepicker(default_opt);
+		_target.datepicker('update',APP.formatDate(default_opt.format.toUpperCase(),default_opt.defaultDate));
+		_target.data('date-value',APP.formatDate('YYYY-MM-DD',default_opt.defaultDate));
+		_target.datepicker().on(_event_type,function(e){
+			if(_target.data('date-value') != APP.formatDate('YYYY-MM-DD',e.date)){
+				_target.data('date-value',APP.formatDate('YYYY-MM-DD',e.date));
+				if(typeof callback === 'function') callback(APP.formatDate('YYYY-MM-DD',e.date));
+				else if(typeof opts.onChange === 'function') opts.onChange(APP.formatDate('YYYY-MM-DD',e.date));
 			}
-			_target.datepicker(default_opt);
-			var _default_date = default_opt.defaultDate ? default_opt.defaultDate : APP.formatDate('YYYY-MM-DD');
-			_target.datepicker('update',APP.formatDate(default_opt.format.toUpperCase(),_default_date));
-			_target.data('date-value',APP.formatDate('YYYY-MM-DD',_default_date));
-			_target.datepicker().on(_event_type,function(e){
-				if(_target.data('date-value') != APP.formatDate('YYYY-MM-DD',e.date)){
-					_target.data('date-value',APP.formatDate('YYYY-MM-DD',e.date));
-					if(typeof callback === 'function') callback(APP.formatDate('YYYY-MM-DD',e.date));
-					else if(typeof opts.onChange === 'function') opts.onChange(APP.formatDate('YYYY-MM-DD',e.date));
-				}
-			})
-    	});
+		})
 	};
 	
 	/**
@@ -282,12 +279,11 @@ define('app/form',["jquery","app/common","app/api","moment",
 				return;
 			}
 			formField.treeSelect(_treeSelectOpt);
-		}
-		else if(_fieldRole == 'date'){
+		} else if(_fieldRole == 'date'){
 			var _dateOpt = opts.fieldOpts[_fieldName] || {};
 			if(formField.data('view-type')) _dateOpt.viewType = formField.data('view-type');
-			if(formField.data('default')) _dateOpt.defaultDate = formField.data('default');
 			if(formField.data('format')) _dateOpt.format = formField.data('format');
+			_dateOpt.defaultDate = formField.data('original');
 			formField.datePicker(_dateOpt);
 		}else if(_fieldRole == 'dateRange'){
 			var _dateRangeOpt = opts.fieldOpts[_fieldName] || {};
@@ -337,12 +333,11 @@ define('app/form',["jquery","app/common","app/api","moment",
 					formField.bootstrapSwitch('state', _checked);
 					formField.trigger("switch:change", [_checked]);//强制触发change方法赋值
 				}
-			}else if(_fieldRole == 'select'){
-				formField.val(_fieldValue).trigger("change");
 			}else if(_fieldRole == 'file'){
 
+			}else if(_fieldRole == 'date'){
 			}else{
-				formField.val(_fieldValue);
+				formField.val(_fieldValue).trigger("change");
 			}
 			//记录该字段的初始值,验证唯一性和初始化特殊控件（summernode）使用
 			formField.data("original",_fieldValue);
@@ -356,7 +351,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 */
 	$.fn.initForm = function (opts,callback,errorback) {
 		var _this = $(this);
-
+		if(typeof opts.beforeInit === 'function') opts.beforeInit.call(this,opts);
 		if(opts.initClear)_this.clearForm(true); //静态modal中的form 先清空再初始化
 		if(APP.isEmpty(opts)) opts = {};
 		if(APP.isEmpty(opts.fieldOpts)) opts.fieldOpts = {};//fieldOpts表单元素的初始化参数
@@ -387,6 +382,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 
 			//初始化过的form不再重复
 			if(_this.data("form-init")){
+				var _fieldOpt = opts.fieldOpts[_fieldName]
 				//file控件由于需要重新绑定参数
 				if(_fieldRole == 'file' && opts.initClear) {
 					formField.fileUpload(opts.fieldOpts[_fieldName]);
@@ -394,6 +390,11 @@ define('app/form',["jquery","app/common","app/api","moment",
 				//summernote控件需要重新初始化值
 				if(_fieldRole == 'richEdit'){
 					formField.summernote('code',isInitValue ? formField.data('original') : '');
+				}
+				//date控件需要重新初始化值
+				if(_fieldRole == 'date'){
+					formField.datepicker('update',APP.formatDate(formField.data('format'),
+						isInitValue ? formField.data('original') : APP.formatDate('YYYY-MM-DD')));
 				}
 				return;
 			}
@@ -506,6 +507,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 		//已初始化标记
 		_this.data("form-init",true);
 		if(form_opt.ajax) _this.ajaxForm(form_opt);
+		//初始化完成回调
+		if(typeof opts.initComplete === 'function') opts.initComplete.call(this,opts);
 	}
 	/*json方式提交form*/
 	function _form_submit_success(response,opts,_form,_in_modal,callback){

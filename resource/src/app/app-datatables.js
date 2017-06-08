@@ -291,6 +291,8 @@ define('app/datatables',['jquery','app/common','app/api',
 				url:_form_url,//form提交url
 				title : _form.title,//form显示在modal中的标题
 				submitJson : _form.submitJson,//=true则为扁平json方式提交form,针对springmvc使用@RequestBody注解的参数
+				initComplete : _form.initComplete, //form初始化完成后执行
+				beforeInit :  _form.beforeInit //form初始化之前执行
 			};
 
 			if(type == 'save') {
@@ -819,10 +821,17 @@ define('app/datatables',['jquery','app/common','app/api',
 	 * 获取表格数据,转换为纯对象数组
 	 */
 	DataTable.Api.register( 'tableData()', function (col) {
-		var data = this.data();
+		var data = this.rows().data();
+		console.log(data);
 		var listData = new Array();
 		for(var i=0;i<data.length;i++){
-			listData.push(data[i]);
+			if(APP.isEmpty(col))
+				listData.push(data[i]);
+			else{
+				var d = {};
+				d[col] = data[i][col];
+				listData.push(d);
+			}
 		}
 		return listData;
 	} );
