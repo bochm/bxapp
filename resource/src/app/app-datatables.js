@@ -338,12 +338,14 @@ define('app/datatables',['jquery','app/common','app/api',
 							dt.deleteSelectedRow();
 							APP.success(API.respMsg(ret),null,true);
 						}
+						if(typeof _options.deleteRecord.onDeleted === 'function') _options.deleteRecord.onDeleted.call(this,ret);
 					},function(err){
 						APP.error(err);
 					});
 				}else{
 					dt.deleteSelectedRow();
 					APP.success(API.respMsg("记录已删除"),null,true);
+					if(typeof _options.deleteRecord.onDeleted === 'function') _options.deleteRecord.onDeleted.call(this,null);
 				}
 			})
 		}
@@ -406,14 +408,15 @@ define('app/datatables',['jquery','app/common','app/api',
 			"tableId" : tableid,
 			"processing" : true,
 			"serverSide" : false,
-			"paging": false,
-			"info": false,
+			"paging": true,
+			"info": true,
 			"lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "全部"]],
 			"pageLength": 10,
 			"autoWidth": true,
 			"permission" : true, //检测权限,buttons按页面toolbar中的按钮显示
 			"scrollCollapse": true,
 			"select": {style: 'os',info:false},
+			"scrollY": "",
 			"scrollX" : false,
 			"buttons": [],
 			//"buttons":[{extend: 'collection',text: '导出', buttons : ['selectAll','selectNone','print']},"addRecord","deleteRecord"],

@@ -673,6 +673,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		var paramData = {};
 		if(opts.stmID) url += ("/" + opts.stmID+_CONFIG.HTTP.SUFFIX);
 		if(opts.param) paramData.param=opts.param;
+		if(opts.paramData) paramData = opts.paramData;
 		var _data = API.jsonData(url,paramData);
 		if(opts.idProperty || opts.textProperty){
 			if($.isArray(_data)){
@@ -757,7 +758,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				APP.popover(_this,_adddiv.get(),"info","fa-plus","增加选择","auto right",235);
 			});
 		}
-		var default_opt = $.extend(true,select2_default_opts,opts);
+		var default_opt = $.extend(true,{},select2_default_opts,opts);
 		_select.select2(default_opt);
 		if(_select.data("original") || _select.data("init")) _select.val((_select.data("original") || _select.data("init"))).trigger("change");
 		else _select.val(_select.val()).trigger("change");
@@ -1238,6 +1239,9 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}
 		}
 		
+	}
+	$.fn.field = function(name){
+		return $(this).find("[name='"+name+"']");
 	}
 	return FORM;
 });
