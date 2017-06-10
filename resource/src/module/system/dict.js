@@ -2,8 +2,6 @@ define('module/system/dict',['app/common','app/api','app/datatables','app/form']
 
 	function inti_table(param){
 		$('table#table-system-dict-list').initTable({
-			"scrollY": "400px",
-			"autoWidth": true,
 			"order": [2,'asc'],
 			"queryModal" : {id : "#system-dict-query",url:"pages/system/dict/dict-query"},
 			"deleteRecord" : {"url" : 'ADMIN/system/dict/delete',"id" : 'id'},

@@ -233,17 +233,15 @@ define('app/datatables',['jquery','app/common','app/api',
 	
 	DataTable.Buttons.swfPath = APP.jsPath+'/lib/jquery/datatables/swf/flashExport.swf';
 	/**
-     * 表格默认新增修改方法
+     * 表格默认行处理方法
      */
 	function _addEditRecord(e,dt, node,type){
 		var _options = dt.init();
-		if(typeof _options.addRecord === 'function' && type == 'add'){
-			_options.addRecord.call(this,dt,node,e);
-		}else if(typeof _options.saveRecord === 'function' && type == 'save'){
-			_options.saveRecord.call(this,dt,node,e);
+		if(typeof _options[type+'Record'] === 'function'){
+			_options[type+'Record'].call(this,dt,node,e);
 		}else if(!APP.isEmpty(_options.addModal) || !APP.isEmpty(_options.addEditModal) || !APP.isEmpty(_options.editModal)){
+			//初始化表格编辑modal --针对表格页面和编辑页面不在同一个html中
 			var _modal =  _options.addEditModal || _options.addModal || _options.editModal;
-			
 			if(_modal.url && _modal.id){
 				var _modalUrl = _modal.url;
 				if(!APP.isEmpty(_options.addEditModal)){ //新增、修改共用modal区分act
@@ -261,53 +259,29 @@ define('app/datatables',['jquery','app/common','app/api',
 			}else{
 				alert("请指定modal的url和id属性");
 			}
-
 		}else if(!APP.isEmpty(_options.addForm) || !APP.isEmpty(_options.addEditForm) || !APP.isEmpty(_options.editForm)){
+			//初始化表格编辑form --针对表格和表单在同一个html中
 			var _form = _options.addEditForm || _options.addForm || _options.editForm;
-			var _form_validate = {};
-			if(_form.addValidate && type == 'add'){
-				if(typeof _form.addValidate === 'object') _form_validate = _form.addValidate;
-				else if(typeof _form.addValidate === 'function') _form_validate = _form.addValidate.call(this,dt);
-			}else if(_form.editValidate && type == 'save'){
-				if(typeof _form.editValidate === 'object') _form_validate = _form.editValidate;
-				else if(typeof _form.editValidate === 'function') _form_validate = _form.editValidate.call(this,dt);
-			}else if(_form.validate){
-				_form_validate = _form.validate;
+			var form_opts = $.extend(true,{},{
+				formData : (type == 'save' ? dt.selectedRows()[0] : null),
+				submitClear : !(type == 'save'),
+				autoClose : (type == 'save')
+			},_form);
+			if(_form[type+'Validate']){
+				if(typeof _form[type+'Validate'] === 'object') form_opts.validate = _form[type+'Validate'];
+				else if(typeof _form[type+'Validate'] === 'function') form_opts.validate = _form[type+'Validate'].call(this,dt);
 			}
-			var _field_opts = _form.fieldOpts || {};
-			var _form_url = null;
-			if( _form[type+'Url'] !== undefined || _form.url !== undefined || $(_form.id).attr("action") !== undefined){
-				_form_url = _form[type+'Url'] || _form.url || $(_form.id).attr("action") + "/" + type;
-			}
-			var form_opts = {
-				submitClear : true, //submit之后是否清空数据
-				initClear : true,//form初始化时是否清空数据
-				type : 'post',//提交方式
-				validate : _form_validate,//合法验证配置,jquery.validate配置对象
-				fieldOpts:_field_opts,//字段初始化对象
-				autoClose : false,//form显示在modal中是否在submit后自动关闭modal
-				rules : _form.rules,//字段验证规则
-				formData : null,//form初始化数据，一般为修改form初始化字段值
-				url:_form_url,//form提交url
-				title : _form.title,//form显示在modal中的标题
-				submitJson : _form.submitJson,//=true则为扁平json方式提交form,针对springmvc使用@RequestBody注解的参数
-				initComplete : _form.initComplete, //form初始化完成后执行
-				beforeInit :  _form.beforeInit //form初始化之前执行
-			};
 
-			if(type == 'save') {
-				form_opts.formData = dt.selectedRows()[0];
-				form_opts.submitClear = false;
-				form_opts.autoClose = true;
+			if( _form[type+'Url'] !== undefined || _form.url !== undefined || $(_form.id).attr("action") !== undefined){
+				form_opts.url = _form[type+'Url'] || _form.url || $(_form.id).attr("action") + "/" + type;
 			}
-			form_opts.editModal = _form.editModal;
 			require(['app/form'],function(FORM){
 				FORM.editForm(form_opts,function(data){
 					if(typeof _form.submitCallback === 'function'){
 						_form.submitCallback.call(this,data);
 					}else{
 						if(type == 'add') dt.addRow(data);
-						else dt.updateSelectedRow(data);
+						if(type == 'save') dt.updateSelectedRow(data);
 					}
 				});
 			});

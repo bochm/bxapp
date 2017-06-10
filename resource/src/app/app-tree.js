@@ -49,7 +49,7 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 		var _tmpV = data.getRoot(setting)._ver;
 		API.ajax(tools.apply(setting.async.url, [setting.treeId, node], setting.async.url),
 				setting.async.contentType.indexOf('application/json') > -1 ? JSON.stringify(tmpParam) : tmpParam,
-				true,function(ret) {
+				false,function(ret) {
 					if (_tmpV != data.getRoot(setting)._ver) {
 						return;
 					}
@@ -92,7 +92,7 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 		);
 		return true;
 	}
-	$.fn.tree = function(settings,zNodes){
+	$.fn.tree = function(settings,zNodes,callback){
 		var _this = $(this);
 		var _nodeData = zNodes;
 		var tree_id = _this.attr("id")
@@ -101,7 +101,7 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 			return null;
 		}
 		if(settings){
-			if(settings.stmID && settings.async === undefined && zNodes === undefined){//增加stmID选项获取sqlMapper的sqlID获取数组数据
+			if(settings.stmID && settings.async === undefined && APP.isEmpty(zNodes)){//增加stmID选项获取sqlMapper的sqlID获取数组数据
 				var url = settings.url || API.urls.stmListUrl;
 				var paramData = {};
 				if(settings.stmID) url += ("/" + settings.stmID+_CONFIG.HTTP.SUFFIX);
@@ -219,7 +219,9 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 		        }
 			}
 		}
-		
+		if(typeof callback === 'function'){
+			callback.call(this,zTree_obj);
+		}
 		return zTree_obj;
 	}
 	

@@ -46,8 +46,19 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 							treeObj.getNodesByParam("icons", "fa fa-user", treeNode).length == 0){
 						treeObj.removeNode(treeNode);
 					}
+					if(treeNode.checked){//由于人员树形包含组织机构,组织机构node不带有checked和open属性，需要重新展开节点
+						treeObj.checkNode(treeNode, true, true);
+					}
+				}
+			},null,function (treeObj) {
+				//由于人员树形包含组织机构,组织机构node不带有checked和open属性，需要重新展开节点
+				var nodes = treeObj.getNodesByFilter(function (node) { return node.level == 0 });
+				for(var i=0;i<nodes.length;i++){
+					if(treeObj.getNodesByParam("checked", true, nodes[i]).length > 0)
+						treeObj.expandNode(nodes[i], true, true, true);
 				}
 			});
+
 			$('#system-role-assign .btn-primary').on('click',function(){
 				var checkedNode = tree.getCheckedNodes(true);
 				var l = checkedNode.length;
@@ -67,7 +78,6 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 	}
 	function inti_table(param){
 		$('table#table-system-role-list').initTable({
-			"scrollY": "400px",
 			"autoWidth": true,
 			"columnDefs" : columnDefs,
 			"permission" : true,

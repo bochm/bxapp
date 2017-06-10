@@ -2214,7 +2214,7 @@ Page content
   .page-content-wrapper .page-content {
     margin-left: 235px;
     margin-top: 0px;
-    min-height: 600px;
+    min-height: 500px;
     padding: 5px 15px 5px 15px;
   }
   .page-content-wrapper .page-content.no-min-height {
@@ -2301,112 +2301,7 @@ Page content
     clear: both;
   }
 }
-/***
-Page footer
-***/
-.page-footer {
-  padding: 8px 20px 5px 20px;
-  font-size: 12px;
-  height: 33px;
-}
-.page-footer:before, .page-footer:after {
-  content: " ";
-  display: table;
-}
-.page-footer:after {
-  clear: both;
-}
-.page-footer .page-footer-inner {
-  float: left;
-  display: inline-block;
-}
-.page-footer-fixed.page-footer-fixed-mobile .page-footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  z-index: 10000;
-  bottom: 0;
-}
-.page-footer-fixed.page-footer-fixed-mobile.page-sidebar-fixed .page-footer {
-  margin-left: 0 !important;
-}
 
-@media (min-width: 900px) {
-  /* 900px */
-  /* Default footer */
-  .page-footer {
-    clear: left;
-  }
-
-  /* Fixed footer */
-  .page-footer-fixed .page-footer {
-    position: fixed;
-    left: 0;
-    right: 0;
-    z-index: 10000;
-    bottom: 0;
-  }
-
-  /* Footer with footer sidebar */
-  .page-sidebar-fixed.page-sidebar-closed .page-footer {
-    margin-left: 45px;
-  }
-  .page-sidebar-fixed.page-footer-fixed .page-footer {
-    margin-left: 0 !important;
-  }
-
-  /* Fixed Sidebar */
-  .page-sidebar-fixed .page-footer {
-    margin-left: 235px;
-    padding: 8px 20px 5px 20px;
-  }
-
-  /* Boxed page */
-  .page-boxed .page-footer {
-    padding: 8px 0 5px 0;
-  }
-  .page-boxed.page-sidebar-fixed .page-footer {
-    padding-right: 20px;
-    padding-left: 20px;
-  }
-
-  /* Page sidebar reversed */
-  .page-sidebar-reversed.page-sidebar-fixed .page-footer {
-    margin-left: 0;
-    margin-right: 235px;
-    padding: 8px 20px 5px 20px;
-  }
-  .page-sidebar-reversed.page-sidebar-fixed.page-footer-fixed .page-footer {
-    margin-left: 0;
-    margin-right: 0;
-  }
-  .page-sidebar-reversed.page-sidebar-fixed.page-sidebar-closed .page-footer {
-    margin-right: 45px;
-  }
-}
-@media (max-width: 899px) {
-  /* 899px */
-  /* Boxed Layout */
-  .page-boxed .page-footer {
-    padding-left: 0px;
-    padding-right: 0px;
-  }
-}
-@media (max-width: 767px) {
-  /* 767px */
-  /* Default footer & boxed footer */
-  .page-footer,
-  .page-boxed .page-footer {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
-  /* Fixed footer */
-  .page-footer-fixed .page-footer .container {
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
 /* Scroll Top Top */
 .scroll-to-top {
   display: inline-block;

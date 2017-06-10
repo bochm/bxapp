@@ -100,7 +100,8 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 				return (prefix || 'app_') + Math.floor(Math.random() * (new Date()).getTime());
 			},
 			isEmpty : function(v){
-				return $.isEmptyObject(v) || $.trim(v) === '';
+
+				return (!$.isNumeric(v) && $.isEmptyObject(v)) || $.trim(v) === '';
 			},
 			jsPath:_CONFIG.jsBaseUrl,
 
@@ -427,6 +428,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 				});
 			});
 		}
+
 		if(target) {
 			if(!page.hasClass('inner')){
 				APP.unblockUI(target);

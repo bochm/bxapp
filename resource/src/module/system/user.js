@@ -45,7 +45,6 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			"title" : "用户表",
 			"columns" : columns,
 			"params" : param, //测试
-			"scrollY": "350px",
 			"permission":true,
 			"checkboxSelect":true,
 			"ordering" : false,

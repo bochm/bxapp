@@ -249,9 +249,36 @@ define('app/form',["jquery","app/common","app/api","moment",
 		
 	}, "已存在");
 	//初始化表单字段(select 等特殊字段)
-	function _init_field(opts,formField,isInitValue){
+	function _init_field(opts,form,formField,isInitValue){
 		var _fieldName = formField.attr('name');
 		var _fieldRole = formField.attr('form-role');
+		//初始化js定义的验证规则,如有checkExists规则需要将original初始值作为入参
+		if(opts.rules && opts.rules[_fieldName]){
+			formField.rules( "remove");
+			if(opts.rules[_fieldName].checkExists){
+				opts.rules[_fieldName].checkExists.original = formField.val();
+			}
+			formField.rules( "add", opts.rules[_fieldName]);
+		}
+		//初始化过的form不再重复
+		if(form.data("form-init")){
+			var _fieldOpt = opts.fieldOpts[_fieldName]
+			//file控件由于需要重新绑定参数
+			if(_fieldRole == 'file' && opts.initClear) {
+				formField.fileUpload(opts.fieldOpts[_fieldName]);
+			}
+			//summernote控件需要重新初始化值
+			if(_fieldRole == 'richEdit'){
+				formField.summernote('code',isInitValue ? formField.data('original') : '');
+			}
+			//date控件需要重新初始化值
+			if(_fieldRole == 'date'){
+				formField.datepicker('update',APP.formatDate(formField.data('format'),
+					isInitValue ? formField.data('original') : APP.formatDate('YYYY-MM-DD')));
+			}
+			return;
+		}
+
 		if(_fieldRole == 'select'){
 			var _selectOpt = opts.fieldOpts[_fieldName] || {};
 			try{
@@ -341,70 +368,57 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}
 			//记录该字段的初始值,验证唯一性和初始化特殊控件（summernode）使用
 			formField.data("original",_fieldValue);
+		}else if(formField.data("init")) {
+			formField.val(formField.data("init"));
 		}
 	}
 	/**
 	 * 初始化form
-	 * @param  {Object} opts 初始化参数
+	 * @param  {Object} options 初始化参数
 	 * @param  {Function} callback 成功回调函数
 	 * @param  {Function} errorback 失败回调函数
 	 */
-	$.fn.initForm = function (opts,callback,errorback) {
+	$.fn.initForm = function (options,callback,errorback) {
 		var _this = $(this);
+
+		var opts = $.extend(true,{
+			ajax:true,//ajax方式提交
+			submitClear : true, //submit之后是否清空数据
+			initClear : true,//form初始化时是否清空数据
+			dataType : 'json',//返回数据方式
+			type : 'post',//提交方式
+			includeHidden : true,//是否包含hidden字段
+			validate : validate_default_settings,//合法验证配置,jquery.validate配置对象
+			fieldOpts:{},//字段初始化对象
+			autoClose : false,//form显示在modal中是否在submit后自动关闭modal
+			rules : null,//字段验证规则
+			formData : null,//form初始化数据，一般为修改form初始化字段值
+			url:_this.attr('action'),//form提交url
+			submitJson : false,//=true则为扁平json方式提交form,针对springmvc使用@RequestBody注解的参数
+			initComplete : null, //form初始化完成后执行
+			beforeInit :  null //form初始化之前执行
+
+		},options);
+
 		if(typeof opts.beforeInit === 'function') opts.beforeInit.call(this,opts);
 		if(opts.initClear)_this.clearForm(true); //静态modal中的form 先清空再初始化
-		if(APP.isEmpty(opts)) opts = {};
-		if(APP.isEmpty(opts.fieldOpts)) opts.fieldOpts = {};//fieldOpts表单元素的初始化参数
-		var validate_settings = $.extend(true,validate_default_settings,opts.validate);
-		var _validate = _this.validate(validate_settings);
-		//_validate.resetForm();
-		
-		var isInitValue = !APP.isEmpty(opts.formData);
-		var formField;
+		_this.validate(opts.validate);//.resetForm();//验证规则
+		var isInitValue = !APP.isEmpty(opts.formData);//是否初始化表单值
 		_this.find(opts.fieldSelector ? opts.fieldSelector : '*[name]').each(function(){
-			formField = $(this);
-			var _fieldName = formField.attr('name');
-			var _fieldRole = formField.attr('form-role');
-			if(formField.data("init")) formField.val(formField.data("init"));
+			var formField = $(this);
 			if(isInitValue){
 				_init_field_value(opts,formField);
 			}else{
 				formField.removeData("original");
 			}
-			//初始化js定义的验证规则,如有checkExists规则需要将original初始值作为入参
-			if(opts.rules && opts.rules[_fieldName]){
-				formField.rules( "remove");
-				if(opts.rules[_fieldName].checkExists){
-					opts.rules[_fieldName].checkExists.original = formField.val();
-				}
-				formField.rules( "add", opts.rules[_fieldName]);
-			}
-
-			//初始化过的form不再重复
-			if(_this.data("form-init")){
-				var _fieldOpt = opts.fieldOpts[_fieldName]
-				//file控件由于需要重新绑定参数
-				if(_fieldRole == 'file' && opts.initClear) {
-					formField.fileUpload(opts.fieldOpts[_fieldName]);
-				}
-				//summernote控件需要重新初始化值
-				if(_fieldRole == 'richEdit'){
-					formField.summernote('code',isInitValue ? formField.data('original') : '');
-				}
-				//date控件需要重新初始化值
-				if(_fieldRole == 'date'){
-					formField.datepicker('update',APP.formatDate(formField.data('format'),
-						isInitValue ? formField.data('original') : APP.formatDate('YYYY-MM-DD')));
-				}
-				return;
-			}
-			_init_field(opts,formField,isInitValue);
+			_init_field(opts,_this,formField,isInitValue);
 			
 		});
+
 		//表单显示位置,返回提示使用
 		var _in_modal = (_this.parents('.modal').size() > 0) ? _this.parents('.modal').get(0) : APP.getPageContainer(_this);
-
-		var _form_url = opts.url || _this.attr('action');
+	    //表单提交url初始化-
+		var _form_url = opts.url;
 		var _srv,_url;
 		if(!APP.isEmpty(_form_url)) {
 			_srv = API.getServerByUrl(_form_url);
@@ -412,16 +426,17 @@ define('app/form',["jquery","app/common","app/api","moment",
 			opts.url = _srv.srvUrl + _url;
 		}
 		//表单中存在文件控件，如果opts.formData直接使用则会导致jquery.form插件无法识别文件提交失败
-		//后续考虑使用单独文件上传控件
 		if($('input[type=file]:enabled', _this).length > 0){
 			opts.formData = null;
 		}
-		//提交后如果返回成功则自动清空表单
-		if(opts.submitClear === undefined) opts.submitClear = true;
+		//ajax表单初始化
 		var form_opt = $.extend(true,{
-			ajax:true,
+			beforeSend : function(request){
+				if(!opts.headers){
+					return API.createHeader(_srv,_url,request,errorback);
+				}
+			},
 			beforeSubmit : function(formData, jqForm, options){
-				if(opts.modal)_in_modal = opts.modal.get();
 				//没有定义url则直接调用回调函数
 				if(APP.isEmpty(opts.url)) {
 					_form_submit_success(_formData2Object(formData),opts,_this,_in_modal,callback);
@@ -439,11 +454,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 					return false;
 				}else{
 					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
-					/*jqForm.find("table.datatable[data-form]").each(function(){
-						var _table_data = JSON.stringify([{"id":11111,"name":"aaa"},{"id":11111,"name":"aaa"}]);
-						formData.push({"name":$(this).data('form'),"value":_table_data});
-						console.log(formData);
-					})*/
 					/*针对spring @RequestBody对于form提交的字符解析有问题，使用两种提交方式*/
 					/*使用@RequestBody注解的参数使用json方式  设置opts.submitJson为true*/
 					/*表单中如果有明细对象（表格），也使用json提交*/
@@ -461,22 +471,11 @@ define('app/form',["jquery","app/common","app/api","moment",
 						}
 						return false
 					}
-
 					return true;
 				}
-				
 			},
-			type : 'post',
-			dataType : 'json',
-			beforeSend : function(request){
-				if(!opts.headers){
-					return API.createHeader(_srv,_url,request,errorback);
-				}
-			},
-			includeHidden : true,
 			error:function(error){
-				if(opts.modal)_in_modal = opts.modal.get();
-				if(APP.debug)console.log(error);
+				console.error(error);
 				APP.unblockUI(_in_modal);
 				APP.notice('',"系统错误["+error.status+"] "+error.statusText,'error',_in_modal);
 				if(typeof errorback === 'function')errorback(error);
@@ -484,7 +483,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 			},
 			success:function(resp, status){
 				var response = _srv.resp(resp);
-				if(opts.modal)_in_modal = opts.modal.get();
 				if(APP.debug)console.log(response);
 				APP.unblockUI(_in_modal);
 				if(API.isError(response)){
@@ -892,7 +890,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 								var _selectedNode = zTree.getNodeByParam(_key_id,_id_filed.attr('value'),null);
 								zTree.selectNode(_selectedNode);
 								if(_selectedNode) {
-									_this.attr('value',_selectedNode[_key_name]);
+									_this.val(_selectedNode[_key_name]);
 									inputIcon.css('color','red');
 								}
 							}
@@ -1167,8 +1165,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 	function _initModalForm(mid,formOtps,submitback,errorback){
 		var formModal = $(mid);
 		var form = formModal.find('form');
-
-		formOtps.modal = formModal;
 		form.initForm(formOtps,function(data){
 			if(typeof submitback === 'function') submitback.call(this,data,function(){formModal.modal('hide')});
 			else formModal.modal('hide');
@@ -1195,7 +1191,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			if(typeof opts.queryModal === 'string'){
 				modalOpts = $.extend(modalDefOpts,{id:opts.queryModal})
 			}else if(typeof opts.queryModal === 'object'){//指定modal初始化参数
-				modalOpts = $.extend(modalDefOpts,opts.queryModal);
+				modalOpts = $.extend(true,modalDefOpts,opts.queryModal);
 			}
 			APP.modal(modalOpts.id,modalOpts,function(){
 				_initModalForm(modalOpts.id,queryOtps,queryback);
@@ -1205,9 +1201,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 	}
 	FORM.editForm = function(opts,editback,errorback){
 		var formOtps = $.extend(true,{
-			submitClear : false,initClear : true,type : 'post',autoClose : false
+			submitClear : false,initClear : true,autoClose : false
 		},opts);
-		formOtps.title = "<i class='fa fa-edit'/></i> " + (opts.title || "编辑");
 		if(opts.editForm){
 			$(opts.editForm).initForm(formOtps,function(data){
 				if(typeof editback === 'function') editback.call(this,data);
@@ -1215,28 +1210,24 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(typeof errorback === 'function') errorback.call(this,data);
 			});
 		}else if(opts.editModal){
-			//静态modal直接显示
-			if(opts.editModal instanceof $ && opts.editModal.length == 1){
-				
-			}else{
-				var modalDefOpts = {
-					title : formOtps.title,
-					show : true,
-					buttons : {"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
-						modal.find('form').submit();
-					}}
-				}
-				var modalOpts = {};
-				//只指定modal.id的静态modal
-				if(typeof opts.editModal === 'string'){
-					modalOpts = $.extend(modalDefOpts,{id:opts.editModal})
-				}else if(typeof opts.editModal === 'object'){//指定modal初始化参数
-					modalOpts = $.extend(modalDefOpts,opts.editModal);
-				}
-				APP.modal(modalOpts.id,modalOpts,function(){
-					_initModalForm(modalOpts.id,formOtps,editback,errorback);
-				});
+			formOtps.title = "<i class='fa fa-edit'/></i> " + (opts.title || "编辑");
+			var modalDefOpts = {
+				title : formOtps.title,
+				show : true,
+				buttons : {"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
+					modal.find('form').submit();
+				}}
 			}
+			var modalOpts = {};
+			//只指定modal.id的静态modal
+			if(typeof opts.editModal === 'string'){
+				modalOpts = $.extend(modalDefOpts,{id:opts.editModal})
+			}else if(typeof opts.editModal === 'object'){//指定modal初始化参数
+				modalOpts = $.extend(true,modalDefOpts,opts.editModal);
+			}
+			APP.modal(modalOpts.id,modalOpts,function(){
+				_initModalForm(modalOpts.id,formOtps,editback,errorback);
+			});
 		}
 		
 	}

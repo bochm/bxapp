@@ -33,11 +33,7 @@ define(['jquery','app/common'],function($,APP) {
 
     //计算固定边栏栏高度
     var _calculateFixedSidebarViewportHeight = function () {
-        var sidebarHeight = APP.getViewPort().height - $('.page-header').outerHeight();
-        if ($('body').hasClass("page-footer-fixed")) {
-            sidebarHeight = sidebarHeight - $('.page-footer').outerHeight();
-        }
-        return sidebarHeight;
+        return APP.getViewPort().height - $('.page-header').outerHeight();
     };
     var handleSidebarAndContentHeight = function () {
         var content = $('.page-content');
@@ -45,34 +41,22 @@ define(['jquery','app/common'],function($,APP) {
         var body = $('body');
         var height;
 
-        if (body.hasClass("page-footer-fixed") === true && body.hasClass("page-sidebar-fixed") === false) {
-            var available_height = APP.getViewPort().height - $('.page-footer').outerHeight() - $('.page-header').outerHeight();
-            if (content.height() < available_height) {
-                content.attr('style', 'min-height:' + available_height + 'px');
-            }
+        if (body.hasClass('page-sidebar-fixed')) {
+            height = _calculateFixedSidebarViewportHeight();
         } else {
-            if (body.hasClass('page-sidebar-fixed')) {
-                height = _calculateFixedSidebarViewportHeight();
-                if (body.hasClass('page-footer-fixed') === false) {
-                    height = height - $('.page-footer').outerHeight();
-                }
+            var headerHeight = $('.page-header').outerHeight();
+
+            if (APP.getViewPort().width < resBreakpointMd) {
+                height = APP.getViewPort().height - headerHeight;
             } else {
-                var headerHeight = $('.page-header').outerHeight();
-                var footerHeight = $('.page-footer').outerHeight();
-
-                if (APP.getViewPort().width < resBreakpointMd) {
-                    height = APP.getViewPort().height - headerHeight - footerHeight;
-                } else {
-                    height = sidebar.height() + 20;
-                }
-
-                if ((height + headerHeight + footerHeight) <= APP.getViewPort().height) {
-                    height = APP.getViewPort().height - headerHeight - footerHeight;
-                }
+                height = sidebar.height() + 20;
             }
-            content.attr('style', 'min-height:' + height + 'px');
-        }
 
+            if ((height + headerHeight) <= APP.getViewPort().height) {
+                height = APP.getViewPort().height - headerHeight;
+            }
+        }
+        content.attr('style', 'min-height:' + height + 'px');
     };
 
 
@@ -533,6 +517,7 @@ define(['jquery','app/common'],function($,APP) {
         });
     }
     function _initMenu(menus){
+        console.log(menus);
         var menubar =  $("ul#index-page-sidebar-menu");
         var home = menus[0];
         menubar.append("<li class='start active' data-menu-id='"+home.id+"'>" +
