@@ -2836,3 +2836,6 @@ General User Record Listing
 .main-page-content{
   min-height: 230px;
 }
+.page-content .tab-content.page{
+  padding-bottom: 0px !important;
+}

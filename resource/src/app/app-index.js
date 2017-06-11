@@ -605,7 +605,6 @@ define(['jquery','app/common'],function($,APP) {
             }
             //主页点击
             $('.page-sidebar li > a.act-menu:first').click();
-
         },function(err){
             APP.error(err);
         });

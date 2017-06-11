@@ -37,7 +37,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 			"addEditModal" : {"url" : "pages/system/menu/menu-edit","id":"#system-menu-edit","title":"菜单维护"},
 			"deleteRecord" : function(dt,node,e){
 				APP.confirm('','是否删除选择的菜单及包含的所有子菜单?',function(){
-					API.ajax("ADMIN/system/menu/delete",dt.selectedColumn("id"),null,function(ret,status){
+					API.ajax("ADMIN/system/menu/delete",dt.selectedColumnData("id"),null,function(ret,status){
 						if(API.isError(ret)){
 							APP.error(API.respMsg(ret));
 						}else{

@@ -3,7 +3,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 	   {"targets": 2,"render" : function(data){return API.getDictName("sys_role_type",data)}},
 	   {"targets": 3,"render" : function(data){return API.getDictName("sys_data_scope",data)}}
 	];
-	function permissionRole(e, dt, node){
+	function permissionRole(dt, node,e){
 		var selectedId = dt.selectedRows()[0].id;
 		APP.showModal("pages/system/role/role-permissions","#system-role-permissions",{},function(){
 			var tree = $("#system-role-permissions-tree").tree({
@@ -31,7 +31,7 @@ define('module/system/role',['app/common','app/api','app/datatables','app/form',
 			})
 		});
 	}
-	function assignRole(e, dt, node, config){
+	function assignRole(dt, node,e){
 		var selectedId = dt.selectedRows()[0].id;
 		APP.showModal("pages/system/role/role-assign","#system-role-assign",{},function(){
 			var tree = $("#system-role-assign-tree").tree({

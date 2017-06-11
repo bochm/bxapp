@@ -304,7 +304,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			APP.confirm('','是否删除选择的记录?',function(){
 				if(!APP.isEmpty(_options.deleteRecord) && !APP.isEmpty(_options.deleteRecord.url)){
 				//按选定行的id列删除（_options.deleteRecord.id），或者按选择的行数据删除（_options.deleteRecord.row=id）
-					var params = _options.deleteRecord.row ? dt.selectedRowsData(_options.deleteRecord.id) : dt.selectedColumn(_options.deleteRecord.id ? _options.deleteRecord.id : 'id');
+					var params = _options.deleteRecord.row ? dt.selectedRowsData(_options.deleteRecord.id) : dt.selectedColumnData(_options.deleteRecord.id ? _options.deleteRecord.id : 'id');
 					API.ajax(_options.deleteRecord.url,params,false,function(ret,status){
 						if(API.isError(ret)){
 							APP.error(ret);
@@ -319,7 +319,6 @@ define('app/datatables',['jquery','app/common','app/api',
 				}else{
 					dt.deleteSelectedRow();
 					APP.success(API.respMsg("记录已删除"),null,true);
-					if(typeof _options.deleteRecord.onDeleted === 'function') _options.deleteRecord.onDeleted.call(this,null);
 				}
 			})
 		}
@@ -531,7 +530,7 @@ define('app/datatables',['jquery','app/common','app/api',
 						if(_btn_type == 'addRecord') _addEditRecord(e,dt, node,'add');
 						else if(_btn_type == 'saveRecord') _addEditRecord(e,dt, node,'save');
 						else if(_btn_type == 'deleteRecord') _deleteRecord(e,dt, node);
-						else if(typeof default_opt[_btn.data("role")] === 'function') default_opt[_btn.data("role")].call(this,e,dt, node);
+						else if(typeof default_opt[_btn.data("role")] === 'function') default_opt[_btn.data("role")].call(this,dt, node,e);
 					}
 				});
 			}else{
@@ -698,12 +697,19 @@ define('app/datatables',['jquery','app/common','app/api',
 		
 		if(default_opt.dataUrl != undefined){
 			if($.isArray(default_opt.columns)){
+				for(var i=0;i<default_opt.columns.length;i++){
+					if(default_opt.tableType == 'treetable') {
+						default_opt.columns[i].orderable = false;
+					}
+					//为每列增加name属性,方便根据列名查找列
+					if(default_opt.columns[i].name === undefined) {
+						default_opt.columns[i].name = default_opt.columns[i].data;
+					}
+				}
 				//treetable排序使用TreeBean中的treeSort(parentIds + id),否则显示层级不正确
 				if(default_opt.tableType == 'treetable'){
 					default_opt.ordering = true;//暂时只能使用treeSort列排序
-					for(var i=0;i<default_opt.columns.length;i++){
-						default_opt.columns[i].orderable = false;
-					}
+
 					default_opt.columns.push({'data' : 'treeSort','visible' : false,'name':'treeSort'});
 					default_opt.order = [[default_opt.columns.length-1, 'asc']];
 				}
@@ -772,6 +778,12 @@ define('app/datatables',['jquery','app/common','app/api',
 	
 	//-----------------------------------自定义方法---------------------------------
 	/**
+	 * 获取选择行数据
+	 */
+	DataTable.Api.register( 'dataCount()', function () {
+		return this.data().count();
+	} );
+	/**
      * 获取选择行数据
      */
 	DataTable.Api.register( 'selectedRows()', function () {
@@ -813,9 +825,15 @@ define('app/datatables',['jquery','app/common','app/api',
 		return listData;
 	} );
 	/**
+	 * 获取指定列数据 col列名
+	 */
+	DataTable.Api.register( 'columnData()', function (col) {
+		return this.column(col+':name').data();
+	} );
+	/**
      * 获取选择行的指定列数据 col列名
      */
-	DataTable.Api.register( 'selectedColumn()', function (col) {
+	DataTable.Api.register( 'selectedColumnData()', function (col) {
 		var selectedRows = this.rows('.selected');
 		var a = [];
 		for(var i = 0;i<selectedRows.count();i++){

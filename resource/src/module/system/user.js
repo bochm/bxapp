@@ -24,14 +24,14 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 		"dept.id" : {param : {type : "部门"}},
 		"photo" : {fileServer:"ADMIN",param : {type:'user'}}
 	}
-	function _update_user(e,dt,node){
+	function _update_user(dt,node,e){
 		if(dt.selectedCount() != 1){
 			APP.info('请选择一条需要修改的用户');
 			return;
 		}
 		$('#sys-user-password').removeClass('required');//密码不填写视为不修改密码
 		FM.editForm({title:'修改用户',rules : form_rules,fieldOpts : field_opts,submitClear : false,formData : dt.selectedRows()[0],
-			"submitJson" : false,autoClose : true,url : "ADMIN/system/user/save",editModal:"#system-user-list-edit"},function(data){
+			"submitJson" : false,autoClose : true,url : "ADMIN/system/user/save",editModal:"#system-user-list-edit",isView:true},function(data){
 			dt.updateSelectedRow(data);
 		});
 

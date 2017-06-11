@@ -231,9 +231,11 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			initScroll: function(el,ct) {
 				var _scrollbar = _queryContainer(ct).find(el);
 				if(_scrollbar.length == 0) return;
+				
 				require(['jquery/scrollbar'],function(){
 					_scrollbar.each(function() {
 						if ($(this).attr("data-scrolled")) return;
+						if(APP.isEmpty($(this).data('scroll-height'))) $(this).attr('data-scroll-height',APP.getViewPort().height*0.65);
 						$(this).slimScroll({
 							allowPageScroll: true,
 							size: '7px',
@@ -452,6 +454,12 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 
 			}else {
 				page.fadeIn('slow');
+			}
+		}
+		if(page.hasClass('loading-page')) {
+			var page_height = $('.page-content').outerHeight() - 70;
+			if (page_height > 0) {
+				page.css('height', page_height + 'px');
 			}
 		}
 

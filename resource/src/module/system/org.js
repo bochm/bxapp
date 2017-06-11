@@ -9,7 +9,7 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 	];
 	function delete_record(dt,node,e){
 		APP.confirm('','是否删除选择的组织及包含的所有子组织?',function(){
-			API.ajax("ADMIN/system/org/delete",dt.selectedColumn("id"),null,function(ret,status){
+			API.ajax("ADMIN/system/org/delete",dt.selectedColumnData("id"),null,function(ret,status){
 				if(!API.isError(ret)){
 					dt.deleteSelectedRow();
 					APP.success(API.respMsg(ret));
@@ -23,15 +23,12 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 		$('table#table-system-org-list').treetable({
 			"tid":"id","tpid":"parentId","expandable": true,"expandBtn" : true,"columns": columns,
 			"addEditModal" : {title:"组织机构维护","url" : "pages/system/org/org-edit","id":"#system-org-edit"},
-			"deleteRecord" : delete_record,
-			"queryUser" : function(e,dt,node){
-				dt.query({"company_id":"d0d128c38b9a400981b6a3ac0e1f805c"});
-			}
+			"deleteRecord" : delete_record
 		});
 	}
 	
 	function handleEdit(params){
-		var act = APP.getParameterByName("act");
+		var act = params.act;
 		$("#system-org-edit-form [name='master.id']").on("change",function(){
 			$("#system-org-edit-form [name='master.name']").val($(this).children(":selected").text());
 		})

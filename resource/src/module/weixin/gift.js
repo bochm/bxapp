@@ -166,7 +166,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
             });
             purchaseEdit.table.options.addEditForm.initComplete = function(opts){
                 //修改下拉框请求参数，表格中已存在的礼品，下拉框中disable
-                var selectedGiftIds = DT.getTable(purchaseEdit.table.id).columns(3).data()[0];
+                var selectedGiftIds = DT.getTable(purchaseEdit.table.id).columnData('giftId');
                 for(var i=0;i<selectedGiftIds.length;i++){
                     _addEditForm.field("giftId").children("option[value='"+selectedGiftIds[i]+"']").remove();
                 }
@@ -177,8 +177,8 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
             });
             $(this.table.id).on( 'draw.dt', function () {
                 if(purchaseEdit.table.obj !== undefined){
-                    _form.field("qtyPurchase").val(purchaseEdit.table.obj.column(7).data().sum());
-                    _form.field("amount").val(purchaseEdit.table.obj.column(8).data().sum());
+                    _form.field("qtyPurchase").val(purchaseEdit.table.obj.columnData('qtyPurchase').sum());
+                    _form.field("amount").val(purchaseEdit.table.obj.columnData('amount').sum());
                 }
             });
             _addEditForm.on("select2:select","[name='giftId']",function(){

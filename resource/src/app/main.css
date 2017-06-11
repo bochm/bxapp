@@ -2286,7 +2286,8 @@ label {
 
 /* Static form control */
 .form-control-static {
-  margin: 2px 0;
+  /*mod by bcm*/
+  /*margin: 2px 0;*/
   display: inline-block;
 }
 

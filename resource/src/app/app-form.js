@@ -252,6 +252,18 @@ define('app/form',["jquery","app/common","app/api","moment",
 	function _init_field(opts,form,formField,isInitValue){
 		var _fieldName = formField.attr('name');
 		var _fieldRole = formField.attr('form-role');
+		//check或者switch需要设定状态
+		if(formField.attr('type') == 'checkbox'){
+			var _checked = !APP.isEmpty(formField.attr('checked'));
+			if(isInitValue) {
+				_checked = (formField.val() == ((formField.data('on-value') !== undefined) ? formField.data('on-value') + '' : '1'));
+				formField.prop('checked',_checked);
+			}
+			if(formField.hasClass('bs-switch')){
+				formField.bootstrapSwitch('state', _checked);
+				formField.trigger("switch:change", [_checked]);//强制触发change方法赋值
+			}
+		}
 		//初始化js定义的验证规则,如有checkExists规则需要将original初始值作为入参
 		if(opts.rules && opts.rules[_fieldName]){
 			formField.rules( "remove");
@@ -262,7 +274,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 		}
 		//初始化过的form不再重复
 		if(form.data("form-init")){
-			var _fieldOpt = opts.fieldOpts[_fieldName]
 			//file控件由于需要重新绑定参数
 			if(_fieldRole == 'file' && opts.initClear) {
 				formField.fileUpload(opts.fieldOpts[_fieldName]);
@@ -294,14 +305,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 						_selectOpt.data[i].text = _selectOpt.data[i].name;
 					}
 				}
-				
 			}
 			formField.select(_selectOpt);
 		}
 		else if(_fieldRole == 'treeSelect'){
 			var _treeSelectOpt = opts.fieldOpts[_fieldName] || {};
 			if(formField.data('stmid')) _treeSelectOpt.stmID = formField.data('stmid');
-			if(!formField.attr('id')){
+			if(APP.isEmpty(formField.attr('id'))){
 				alert("请指定treeSelect表单元素的id属性");
 				return;
 			}
@@ -353,23 +363,19 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}
 		}
 		if(_fieldValue != undefined){
-			if(formField.attr('type') == 'checkbox'){
-				var _checked = (_fieldValue == ((formField.data('on-value') !== undefined) ? formField.data('on-value')+'' : '1'));
-				formField.attr('checked',_checked);
-				if(formField.hasClass('bs-switch')){
-					formField.bootstrapSwitch('state', _checked);
-					formField.trigger("switch:change", [_checked]);//强制触发change方法赋值
-				}
-			}else if(_fieldRole == 'file'){
-
-			}else if(_fieldRole == 'date'){
-			}else{
-				formField.val(_fieldValue).trigger("change");
-			}
+			formField.val(_fieldValue).trigger("change");
 			//记录该字段的初始值,验证唯一性和初始化特殊控件（summernode）使用
 			formField.data("original",_fieldValue);
 		}else if(formField.data("init")) {
-			formField.val(formField.data("init"));
+			//控件有data-init属性初始化为初始值
+			formField.val(formField.data("init")).trigger("change");
+		}
+
+		if(opts.isView || (opts.fieldOpts[_fieldName] && opts.fieldOpts[_fieldName].isView)){
+			if(formField.hasClass('bs-switch')){
+				formField.closest('.bootstrap-switch-wrapper').hide().before("<p class='form-control-static'>"+
+					formField.bootstrapSwitch('onText')+"</p>");
+			}
 		}
 	}
 	/**
@@ -382,6 +388,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		var _this = $(this);
 
 		var opts = $.extend(true,{
+			isView : false,//只读form,也可以指定到具体field
 			ajax:true,//ajax方式提交
 			submitClear : true, //submit之后是否清空数据
 			initClear : true,//form初始化时是否清空数据
@@ -402,6 +409,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 
 		if(typeof opts.beforeInit === 'function') opts.beforeInit.call(this,opts);
 		if(opts.initClear)_this.clearForm(true); //静态modal中的form 先清空再初始化
+		_this.find('p.form-control-static').remove();//清空只读字段
 		_this.validate(opts.validate);//.resetForm();//验证规则
 		var isInitValue = !APP.isEmpty(opts.formData);//是否初始化表单值
 		_this.find(opts.fieldSelector ? opts.fieldSelector : '*[name]').each(function(){

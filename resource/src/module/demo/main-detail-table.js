@@ -5,6 +5,7 @@ define('module/demo/main-detail-table',['app/common','app/datatables','app/form'
 			"id" : "#table-demo-main-detail-m",
 			"options" : {
 				"title" : "明细测试表",
+				"dataUrl" : "ADMIN/demo/datatable/maindetail/classes",
 				"columns": [
 					{"data": "id", "title": "id", "visible": false},
 					{"data": "students", "title": "学生","visible": false},
@@ -15,9 +16,14 @@ define('module/demo/main-detail-table',['app/common','app/datatables','app/form'
 				"ordering": false,
 				"paging" : true,
 				"info" : true,
-				"addRecord" : function(e,dt){
+				"deleteRecord" : {url : 'ADMIN/demo/datatable/maindetail/classes/delete',id : 'id'},
+				"addRecord" : function(dt){
 					APP.loadInnerPage(APP.getPageContainer('#table-demo-main-detail-m'),'pages/demo/datatable/main-detail/detail-table',
-						{classId:-1});
+						{act:'add'});
+				},
+				"saveRecord" : function(dt){
+					APP.loadInnerPage(APP.getPageContainer('#table-demo-main-detail-m'),'pages/demo/datatable/main-detail/detail-table',
+						{act:'update',formData:dt.selectedRowsData()[0]});
 				}
 			}
 		},
@@ -56,22 +62,37 @@ define('module/demo/main-detail-table',['app/common','app/datatables','app/form'
 		},
 		"form" : {
 			"id" : "#demo-main-detail-class-form",
-			"url" : "ADMIN/demo/datatable/maindetail/classes/add",
-			"submitJson" : true
+			"submitJson" : true,
+			"autoClose" : true
 		},
 		"init" : function(param){
-			this.table.options.params = param || {};
-			this.form.formData = param;
-			this.form.autoClose = true;
-			this.form.submitClear = true;
-			$(this.form.id).initForm(this.form,function(ret){
-				DT.getTable(main.table.id).addRow(ret);
+			if(param.act == 'add'){
+				this.table.options.params = {id:-1};//新增默认查询参数
+				this.form.formData = null;
+				this.form.submitClear = true;
+				this.form.url = "ADMIN/demo/datatable/maindetail/classes/add";
+			}else if(param.act == 'update'){
+				this.table.options.params = {classId : param.formData.id};
+				this.form.formData = param.formData;
+				this.form.submitClear = false;
+				this.form.url = "ADMIN/demo/datatable/maindetail/classes/save";
+			}
+			var _form = $(this.form.id);
+			_form.initForm(this.form,function(ret){
+				if(param.act == 'add')
+					DT.getTable(main.table.id).addRow(ret);
+				if(param.act == 'update')
+					DT.getTable(main.table.id).updateSelectedRow(ret);
 			});
 
 			$(this.table.id).initTable(this.table.options,function(otable){
-				
+				detail.table.obj = otable;
 			});
-
+			$(this.table.id).on( 'draw.dt', function () {
+				if(detail.table.obj !== undefined){
+					_form.field("studentCount").val(detail.table.obj.dataCount());
+				}
+			});
 		}
 	};
 	return {
