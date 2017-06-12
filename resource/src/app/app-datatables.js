@@ -263,7 +263,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			//初始化表格编辑form --针对表格和表单在同一个html中
 			var _form = _options.addEditForm || _options.addForm || _options.editForm;
 			var form_opts = $.extend(true,{},{
-				formData : (type == 'save' ? dt.selectedRows()[0] : null),
+				formData : ((type == 'save' || type == 'view') ? dt.selectedRows()[0] : null),
 				submitClear : !(type == 'save'),
 				autoClose : (type == 'save'),
 				isView : (type == 'view')
@@ -305,7 +305,8 @@ define('app/datatables',['jquery','app/common','app/api',
 			APP.confirm('','是否删除选择的记录?',function(){
 				if(!APP.isEmpty(_options.deleteRecord) && !APP.isEmpty(_options.deleteRecord.url)){
 				//按选定行的id列删除（_options.deleteRecord.id），或者按选择的行数据删除（_options.deleteRecord.row=id）
-					var params = _options.deleteRecord.row ? dt.selectedRowsData(_options.deleteRecord.id) : dt.selectedColumnData(_options.deleteRecord.id ? _options.deleteRecord.id : 'id');
+					var id_col = _options.deleteRecord.id ? _options.deleteRecord.id : 'id';
+					var params = _options.deleteRecord.row ? dt.selectedRowsData(id_col) : dt.selectedColumnData(id_col);
 					API.ajax(_options.deleteRecord.url,params,false,function(ret,status){
 						if(API.isError(ret)){
 							APP.error(ret);
@@ -346,6 +347,20 @@ define('app/datatables',['jquery','app/common','app/api',
 				return;
 			}
 			_addEditRecord(e, dt, node,'save');
+		}
+	};
+	/**
+	 * 自定义按钮--查看
+	 */
+	$.fn.dataTable.ext.buttons.saveRecord = {
+		text: "<i class='fa fa-eye'></i> 查看",
+		className: 'btn btn-sm btn-primary btn-selectOne',
+		action: function ( e, dt, node, config ) {
+			if(dt.selectedCount() != 1){
+				APP.info('请选择一条需要查看的记录');
+				return;
+			}
+			_addEditRecord(e, dt, node,'view');
 		}
 	};
 	/**
@@ -544,6 +559,7 @@ define('app/datatables',['jquery','app/common','app/api',
 					action: function ( e, dt, node, config ) {
 						if(_btn_type == 'addRecord') _addEditRecord(e,dt, node,'add');
 						else if(_btn_type == 'saveRecord') _addEditRecord(e,dt, node,'save');
+						else if(_btn_type == 'viewRecord') _addEditRecord(e,dt, node,'view');
 						else if(_btn_type == 'deleteRecord') _deleteRecord(e,dt, node);
 						else if(typeof default_opt[_btn.data("role")] === 'function') default_opt[_btn.data("role")].call(this,dt, node,e);
 					}
@@ -554,24 +570,8 @@ define('app/datatables',['jquery','app/common','app/api',
 			_btn.remove();
 		});
 		return _getDataTable(_table,default_opt,function(otable){
-			/*datatable已经初始化后执行对otable对象的初始化操作*/
-			//初始化表格工具栏 ，增加ID约束
-			var toolbar = $("div#"+tableid+"_wrapper>div.dt-buttons");
-			var pageToolbar = $("#"+(default_opt.toolbar ? default_opt.toolbar : (tableid+"-toolbar")));
-			//初始化页面toolbar中的自定义按钮
-			pageToolbar.children('.btn[data-role]').each(function(){
-				var _btn = $(this);
-				var _btn_type = _btn.data('role');
-				_btn.click(function(e){
-					if(_btn_type == 'addRecord') _addEditRecord(e,otable, _btn.get(),'add');
-					else if(_btn_type == 'saveRecord') _addEditRecord(e,otable, _btn.get(),'save');
-					else if(_btn_type == 'deleteRecord') _deleteRecord(e,otable, _btn.get());
-					else if(typeof default_opt[_btn_type] === 'function') default_opt[_btn_type](e,otable, _btn.get());
-				});
-			});
+			/***datatable已经初始化后执行对otable对象的初始化操作***/
 
-			//页面toolbar中的按钮追加至dt-buttons
-			pageToolbar.children().appendTo(toolbar);
 			/*if(opts.exportBtns){
 				var _export_btn_group = $("<div class='btn-group'>");
 				var _export_btn_main = $("<button type='button' class='btn btn-sm btn-info'>测试</button>");
@@ -590,10 +590,9 @@ define('app/datatables',['jquery','app/common','app/api',
 					}
 					_export_btn_group.append(__export_btn_dropdown);
 				}
-				
 				pageToolbar.prepend(_export_btn_group);
 			}*/
-			
+			var toolbar = $("div#"+tableid+"_wrapper>div.dt-buttons");
 			//表格选择一条和多条记录(如新增、删除等必须要选择记录才能启用)按钮禁用约束
 			var _one_btn = toolbar.children('.btn-selectOne');
 			var _more_btn = toolbar.children('.btn-selectMore');
@@ -647,34 +646,30 @@ define('app/datatables',['jquery','app/common','app/api',
 					_scrollBody.css("overflow-y","scroll");
 				}
 			}
-			/*otable.on( 'column-sizing.dt', function ( e, settings ) {
-
-			} );*/
-
-
+			//明细页面
 			_table.on('click','td a[dt-detail]',function(){
 				var curr_row = otable.row($(this).closest('td'));
+				otable.rows().deselect();
 				curr_row.select();
 				if(default_opt.detailPage)
 					APP.loadInnerPage(APP.getPageContainer(_table),default_opt.detailPage,curr_row);
 			})
 			if($.isArray(default_opt.rowOperation)){
-				_table.on('click','td a[dt-edit]',function(e){
+				_table.on('click',"td a[data-operation^='dt-']",function(e){
 					var curr_row = otable.row($(this).closest('td'));
+					otable.rows().deselect();
 					curr_row.select();
-					_addEditRecord(e,otable, curr_row,'save');
+					var _operation = $(this).data('operation').replace('dt-','');
+					if(_operation == 'edit')
+						_addEditRecord(e,otable, $(this),'save');
+					else if(_operation == 'delete')
+						_deleteRecord(e,otable, $(this));
+					else if(_operation == 'view')
+						_addEditRecord(e,otable, $(this),'view');
+					else if(typeof default_opt[_operation] === 'function'){
+						default_opt[_operation].call(this,otable, $(this),e);
+					}
 				});
-				_table.on('click','td a[dt-delete]',function(e){
-					var curr_row = otable.row($(this).closest('td'));
-					curr_row.select();
-					_deleteRecord(e,otable, curr_row,'save');
-				})
-				_table.on('click','td a[dt-view]',function(e){
-					var curr_row = otable.row($(this).closest('td'));
-					curr_row.select();
-					_addEditRecord(e,otable, curr_row,'view');
-				});
-
 			}
 
 			//checkbox选择
@@ -705,11 +700,22 @@ define('app/datatables',['jquery','app/common','app/api',
 		var ajax_params = {};
 		if(default_opt.params) ajax_params = default_opt.params;//页面定义Ajax请求参数
 
-		//行操作([edit,view,delete]),暂时只支持columns数组方式，权限还未考虑
+		//行操作([edit,view,delete]定义了addEdit和delete默认方法 或者[{operation:自定义方法,text:文字,icon:图标,title:文字说明}]),
+		//暂时只支持columns数组方式，权限还未考虑
 		if($.isArray(default_opt.rowOperation) && $.isArray(default_opt.columns)){
 			var _operation = '';
 			for(var i=0;i<default_opt.rowOperation.length;i++){
-				_operation += "<a dt-"+default_opt.rowOperation[i]+"><i class='iconfont icon-"+default_opt.rowOperation[i]+"' style='font-size:1.5em'></i></a> "
+				var _dt_oper = default_opt.rowOperation[i];
+				if(typeof default_opt.rowOperation[i] === 'string'){
+					_dt_oper = {"operation" : _dt_oper,
+						"text" : "<i class='iconfont icon-"+_dt_oper+"' style='font-size:1.5em'></i>",
+						"title" : (_dt_oper == "edit" ? "修改" : (_dt_oper == "delete" ? "删除" : "查看"))
+					};
+				}else{
+					if(_dt_oper.icon) _dt_oper.text = "<i class='"+_dt_oper.icon+"' style='font-size:1.5em'></i>";
+					if(_dt_oper.title === undefined) _dt_oper.title = "";
+				}
+				_operation += "<a data-operation='dt-"+_dt_oper.operation+"' title='"+_dt_oper.title+"'>"+_dt_oper.text+"</a> "
 			}
 			default_opt.columns.push({'data' : null,'orderable':false,'title':'操作','defaultContent' : _operation});
 		}

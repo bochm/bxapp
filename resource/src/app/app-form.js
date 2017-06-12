@@ -403,8 +403,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}else if(_fieldRole == 'file'){
 				formField.siblings('div.file-upload-zone').find(".fileinput-button,.drop-file").hide();
 			}else if(_fieldRole == 'richEdit'){
-				formField.siblings('div.note-editor').hide().before("<p class='form-control-static'>"+
-					formField.val()+"</p>");
+				formField.siblings('div.note-editor').hide().before("<p class='form-control-static'></p>");
+				formField.siblings('.form-control-static').html(formField.val());
 			}else{
 				if(formField.parent('.input-group').length == 1){
 					formField.parent('.input-group').hide().before("<p class='form-control-static'>"+
@@ -1276,7 +1276,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			var modalDefOpts = {
 				title : formOtps.title,
 				show : true,
-				buttons : formOtps.isView ? null : {"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
+				buttons :  {"text" : "保存","classes" : "btn-primary btn-save",action : function(e,btn,modal){
 					modal.find('form').submit();
 				}}
 			}
@@ -1288,6 +1288,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 				modalOpts = $.extend(true,modalDefOpts,opts.editModal);
 			}
 			APP.modal(modalOpts.id,modalOpts,function(){
+				if(formOtps.isView) $(modalOpts.id).find('.btn-save').hide();
+				else $(modalOpts.id).find('.btn-save').show();
 				_initModalForm(modalOpts.id,formOtps,editback,errorback);
 			});
 		}

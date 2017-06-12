@@ -51,13 +51,16 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			"ordering" : false,
 			"info" : false,
 			"queryModal" : "#system-user-query",
-			"rowOperation" : ["edit","delete","view"],
+			"rowOperation" : [{operation:"updateUser",icon:"iconfont icon-edit",title:"修改记录"},{operation:"viewUser",text:"查看"},"delete"],
 			"deleteRecord" : {url : 'ADMIN/system/user/delete',id : 'id'},
 			"addRecord" : function(dt){
 				if(!$('#sys-user-password').hasClass('required'))$('#sys-user-password').addClass('required');//新增必须输入密码
 				FM.editForm({title:'新增用户',submitClear : true,rules : form_rules,fieldOpts : field_opts,url : "ADMIN/system/user/add",editModal:"#system-user-list-edit"},function(data){
 					dt.addRow(data);
 				});
+			},
+			"viewUser" : function(dt){
+				FM.editForm({title:'查看用户',fieldOpts : field_opts,formData : dt.selectedRows()[0],editModal:"#system-user-list-edit",isView:true});
 			},
 			"updateUser" : _update_user
 		},function(otable){
