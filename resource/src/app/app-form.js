@@ -371,10 +371,65 @@ define('app/form',["jquery","app/common","app/api","moment",
 			formField.val(formField.data("init")).trigger("change");
 		}
 
-		if(opts.isView || (opts.fieldOpts[_fieldName] && opts.fieldOpts[_fieldName].isView)){
-			if(formField.hasClass('bs-switch')){
+	}
+	//只读字段处理（隐藏原有控件，使用form-control-static方式显示静态值）
+	function _toggle_view_form(opts,_form,formField){
+		var _fieldName = formField.attr('name');
+		var _fieldRole = formField.attr('form-role');
+		if((opts.isView || (opts.fieldOpts[_fieldName] && opts.fieldOpts[_fieldName].isView)) &&
+			(_form.type != 'hidden' || _fieldRole == 'file')){
+			if(_form.type == 'password'){
+				formField.hide().before("<p class='form-control-static'>****</p>");
+			}else if(formField.hasClass('bs-switch')){
 				formField.closest('.bootstrap-switch-wrapper').hide().before("<p class='form-control-static'>"+
-					formField.bootstrapSwitch('onText')+"</p>");
+					(formField.bootstrapSwitch('state') ? formField.bootstrapSwitch('onText') : formField.bootstrapSwitch('offText'))+"</p>");
+				formField.on("switch:change", function(event, state){
+					formField.closest('.bootstrap-switch-wrapper').siblings("p.form-control-static").html(
+						(state ? formField.bootstrapSwitch('onText') : formField.bootstrapSwitch('offText'))
+					);
+				});
+			}else if(_fieldRole == 'select'){
+				formField.siblings('.select2.select2-container').hide().before("<p class='form-control-static'>"+
+					formField.find("option:selected").text()+"</p>");
+				formField.change(function(){
+					formField.siblings('p.form-control-static').html(formField.find("option:selected").text());
+				})
+			}else if(_fieldRole == 'treeSelect'){
+				formField.closest('div.tree-select').hide();
+				formField.change(function(){
+					formField.closest('div.tree-select').before("<p class='form-control-static'>"+
+						formField.val()+"</p>");
+				})
+			}else if(_fieldRole == 'file'){
+				formField.siblings('div.file-upload-zone').find(".fileinput-button,.drop-file").hide();
+			}else if(_fieldRole == 'richEdit'){
+				formField.siblings('div.note-editor').hide().before("<p class='form-control-static'>"+
+					formField.val()+"</p>");
+			}else{
+				if(formField.parent('.input-group').length == 1){
+					formField.parent('.input-group').hide().before("<p class='form-control-static'>"+
+						formField.val()+"</p>");
+				}else{
+					formField.hide().before("<p class='form-control-static'>"+
+						formField.val()+"</p>");
+				}
+				formField.change(function(){
+					formField.siblings(".form-control-static").html($(this).val());
+				})
+			}
+		}else{
+			if(formField.hasClass('bs-switch')){
+				formField.closest('.bootstrap-switch-wrapper').show();
+			}else if(_fieldRole == 'select'){
+				formField.siblings('.select2.select2-container').show();
+			}else if(_fieldRole == 'treeSelect'){
+				formField.closest('div.tree-select').show();
+			}else if(_fieldRole == 'file'){
+				formField.siblings('div.file-upload-zone').find(".fileinput-button,.drop-file").show();
+			}else if(_fieldRole == 'richEdit'){
+				formField.siblings('div.note-editor').show();
+			}else{
+				formField.show();
 			}
 		}
 	}
@@ -389,6 +444,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 
 		var opts = $.extend(true,{
 			isView : false,//只读form,也可以指定到具体field
+			fieldSelector : '*[name]',//field选择器
 			ajax:true,//ajax方式提交
 			submitClear : true, //submit之后是否清空数据
 			initClear : true,//form初始化时是否清空数据
@@ -412,7 +468,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		_this.find('p.form-control-static').remove();//清空只读字段
 		_this.validate(opts.validate);//.resetForm();//验证规则
 		var isInitValue = !APP.isEmpty(opts.formData);//是否初始化表单值
-		_this.find(opts.fieldSelector ? opts.fieldSelector : '*[name]').each(function(){
+		_this.find(opts.fieldSelector).each(function(){
 			var formField = $(this);
 			if(isInitValue){
 				_init_field_value(opts,formField);
@@ -420,9 +476,9 @@ define('app/form',["jquery","app/common","app/api","moment",
 				formField.removeData("original");
 			}
 			_init_field(opts,_this,formField,isInitValue);
-			
-		});
 
+			_toggle_view_form(opts,this,formField);
+		});
 		//表单显示位置,返回提示使用
 		var _in_modal = (_this.parents('.modal').size() > 0) ? _this.parents('.modal').get(0) : APP.getPageContainer(_this);
 	    //表单提交url初始化-
@@ -829,26 +885,24 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(settings.data.simpleData.pIdKey) _key_parent = settings.data.simpleData.pIdKey;
 			}
 		}
+		//为当前控件增加必要的显示控件和树形下拉菜单
+		var inputGroup = $("<div class='input-group tree-select'></div>");//为当前控件增加图标
+		var inputIconDiv = $("<div class='input-icon'>");
+		var inputIcon = $("<i class='fa fa-times fa-fw'></i>");
+		inputIconDiv.append(inputIcon);
+		var selBtn = $("<span class='input-group-btn' style='cursor: pointer;'><button class='btn btn-success' type='button'><i class='fa fa-list'></i></span>");//图标-点击显示下拉菜单
+		inputIconDiv.append(_this);
+		_this.css("cursor","pointer");
+		//_this.appendTo(inputIconDiv);//将当前控件放入input-group
+		inputGroup.append(inputIconDiv);
+		inputGroup.append(selBtn);//增加图标
+
+		_parent.append(inputGroup);//将input-group放入当前控件原父节点
+		var menuContent = $("<div id='"+treeId+"_MenuContent' style='display:none;height: 150px;overflow-y: auto; background-color: #F5F5F5;'></div>");//下拉菜单显示层
+		var treeSel = $("<ul id='"+treeId+"' class='ztree treeSelect' style='margin-top:0; width:100%;'></ul>");//ztree控件
+		menuContent.append(treeSel);//将树形放入下拉菜单显示层
+		_parent.append(menuContent);//将下拉菜单显示层放入当前节点原父节点
 		require(['app/tree'],function(){
-			
-			//为当前控件增加必要的显示控件和树形下拉菜单
-			var inputGroup = $("<div class='input-group'></div>");//为当前控件增加图标
-			var inputIconDiv = $("<div class='input-icon'>");
-			var inputIcon = $("<i class='fa fa-times fa-fw'></i>");
-			inputIconDiv.append(inputIcon);
-			var selBtn = $("<span class='input-group-btn' style='cursor: pointer;'><button class='btn btn-success' type='button'><i class='fa fa-list'></i></span>");//图标-点击显示下拉菜单
-			inputIconDiv.append(_this);
-			_this.css("cursor","pointer");
-			//_this.appendTo(inputIconDiv);//将当前控件放入input-group
-			inputGroup.append(inputIconDiv);
-			inputGroup.append(selBtn);//增加图标
-			
-			_parent.append(inputGroup);//将input-group放入当前控件原父节点
-			var menuContent = $("<div id='"+treeId+"_MenuContent' style='display:none;height: 150px;overflow-y: auto; background-color: #F5F5F5;'></div>");//下拉菜单显示层
-			var treeSel = $("<ul id='"+treeId+"' class='ztree treeSelect' style='margin-top:0; width:100%;'></ul>");//ztree控件
-			menuContent.append(treeSel);//将树形放入下拉菜单显示层
-			_parent.append(menuContent);//将下拉菜单显示层放入当前节点原父节点
-			
 			var treesel_settings = $.extend(true,{
 				data : {
 					key : {name : _key_name},
@@ -880,7 +934,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 						}
 						if (_name.length > 0 ) _name = _name.substring(0, _name.length-1);
 						if (_id.length > 0 ) _id = _id.substring(0, _id.length-1);
-						_this.val(_name);
+						_this.val(_name).trigger('change');
 						//validate字段去除
 						_this.closest('.form-group').removeClass('has-error');
 						_this.parent().siblings("span#"+_this.attr("id")+"-error").remove();
@@ -898,7 +952,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 								var _selectedNode = zTree.getNodeByParam(_key_id,_id_filed.attr('value'),null);
 								zTree.selectNode(_selectedNode);
 								if(_selectedNode) {
-									_this.val(_selectedNode[_key_name]);
+									_this.val(_selectedNode[_key_name]).trigger('change');
 									inputIcon.css('color','red');
 								}
 							}
@@ -1103,14 +1157,14 @@ define('app/form',["jquery","app/common","app/api","moment",
 				options.param.ownerid = APP.getUniqueID('200');
 				options.param.path = ownerid.replace(_srv.fileSrvUrl,'');
 				var params = _srv.getFileListParam(options.param);
-				API.ajax(_srv.getFileListUrl(),params,true,function(resp){
+				API.ajax(_srv.getFileListUrl(),params,false,function(resp){
 					var response = _srv.respFile(resp);
 					_parse_file(response,_srv,_files_box,options,errorback);
 				});
 			}else{
 				options.param.ownerid = ownerid;
 				var params = _srv.getFileListParam(options.param);
-				API.ajax(_srv.getFileListUrl(params),params,true,function(resp){
+				API.ajax(_srv.getFileListUrl(params),params,false,function(resp){
 					var response = _srv.respFile(resp);
 					_parse_file(response,_srv,_files_box,options,errorback);
 				});
@@ -1222,7 +1276,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			var modalDefOpts = {
 				title : formOtps.title,
 				show : true,
-				buttons : {"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
+				buttons : formOtps.isView ? null : {"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
 					modal.find('form').submit();
 				}}
 			}

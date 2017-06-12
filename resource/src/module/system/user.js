@@ -31,7 +31,7 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 		}
 		$('#sys-user-password').removeClass('required');//密码不填写视为不修改密码
 		FM.editForm({title:'修改用户',rules : form_rules,fieldOpts : field_opts,submitClear : false,formData : dt.selectedRows()[0],
-			"submitJson" : false,autoClose : true,url : "ADMIN/system/user/save",editModal:"#system-user-list-edit",isView:true},function(data){
+			"submitJson" : false,autoClose : true,url : "ADMIN/system/user/save",editModal:"#system-user-list-edit"},function(data){
 			dt.updateSelectedRow(data);
 		});
 
@@ -44,11 +44,14 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 		$('table#table-system-user-list').initTable({
 			"title" : "用户表",
 			"columns" : columns,
+			"footer" : [{"data":"loginName","title":"合计"},{"data":"name","type":"count"},{"data":"no","type":"sum","format":"0.00"}],
 			"params" : param, //测试
 			"permission":true,
 			"checkboxSelect":true,
 			"ordering" : false,
+			"info" : false,
 			"queryModal" : "#system-user-query",
+			"rowOperation" : ["edit","delete","view"],
 			"deleteRecord" : {url : 'ADMIN/system/user/delete',id : 'id'},
 			"addRecord" : function(dt){
 				if(!$('#sys-user-password').hasClass('required'))$('#sys-user-password').addClass('required');//新增必须输入密码

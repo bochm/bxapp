@@ -517,7 +517,6 @@ define(['jquery','app/common'],function($,APP) {
         });
     }
     function _initMenu(menus){
-        console.log(menus);
         var menubar =  $("ul#index-page-sidebar-menu");
         var home = menus[0];
         menubar.append("<li class='start active' data-menu-id='"+home.id+"'>" +

@@ -249,9 +249,9 @@ define('app/datatables',['jquery','app/common','app/api',
 					else _modalUrl = _modal.url + '?act='+type;
 				}
 				var modalOpts = $.extend(true,{
-					buttons : [{"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
+					buttons : (type == 'view' ? null : [{"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
 						modal.find('form').submit();
-		    		}}],
+		    		}}]),
 		    		params : {"act" : type,"table" : dt} //参数方式传递act和table
 				},_modal);
 				modalOpts.url = _modalUrl;
@@ -265,7 +265,8 @@ define('app/datatables',['jquery','app/common','app/api',
 			var form_opts = $.extend(true,{},{
 				formData : (type == 'save' ? dt.selectedRows()[0] : null),
 				submitClear : !(type == 'save'),
-				autoClose : (type == 'save')
+				autoClose : (type == 'save'),
+				isView : (type == 'view')
 			},_form);
 			if(_form[type+'Validate']){
 				if(typeof _form[type+'Validate'] === 'object') form_opts.validate = _form[type+'Validate'];
@@ -404,33 +405,47 @@ define('app/datatables',['jquery','app/common','app/api',
 					}
 					//数据汇总
 					var api = this.api();
-					if(typeof opts.footerFormat === 'function') {
-						opts.footerFormat.call(this,api, tfoot, data, start, end, display);
-					}else{
-						//sum类型汇总,带分页且页数大于1则显示当前页和总和
-						$(tfoot).children("th[data-sum-column]").each(function(){
-							var idx = $(this).data("sum-column");
-							var pageTotal = api.column( idx, { page: 'current'} ).data().reduce( function (a, b) {
+					//sum类型汇总,带分页且页数大于1则显示当前页和总和
+					$(tfoot).children("th[data-sum-column]").each(function(){
+						var idx = $(this).data("sum-column");
+						var pageTotal = api.column( idx, { page: 'current'} ).data().reduce( function (a, b) {
+							return APP.numeral(a).value()+APP.numeral(b).value();
+						},0);
+						//numeral格式化
+						var format = $(this).data("format") ? $(this).data("format") : '0';
+						if(api.page.info() && api.page.info().pages > 1){
+							var total = api.column( idx ).data().reduce( function (a, b) {
 								return APP.numeral(a).value()+APP.numeral(b).value();
 							},0);
-							//numeral格式化
-							var format = $(this).data("format") ? $(this).data("format") : '0';
-							if(api.page.info() && api.page.info().pages > 1){
-								var total = api.column( idx ).data().reduce( function (a, b) {
-									return APP.numeral(a).value()+APP.numeral(b).value();
-								},0);
-								$(api.column(idx).footer()).html(APP.numeral(pageTotal).format(format) +
-									'/'+ APP.numeral(total).format(format) );
-							}else{
-								$(api.column(idx).footer()).html(APP.numeral(pageTotal).format(format));
-							}
+							$(api.column(idx).footer()).html(APP.numeral(pageTotal).format(format) +
+								'/'+ APP.numeral(total).format(format) );
+						}else{
+							$(api.column(idx).footer()).html(APP.numeral(pageTotal).format(format));
+						}
 
-						});
+					});
+					$(tfoot).children("th[data-count-column]").each(function(){
+						var idx = $(this).data("count-column");
+						var pageTotal = api.column( idx, { page: 'current'} ).data().count();
+						if(api.page.info() && api.page.info().pages > 1){
+							var total = api.column( idx ).data().count();
+							$(api.column(idx).footer()).html(pageTotal+ '/'+ total );
+						}else{
+							$(api.column(idx).footer()).html(pageTotal);
+						}
+
+					});
+					if(typeof opts.footerFormat === 'function') {
+						opts.footerFormat.call(this,api, tfoot, data, start, end, display);
 					}
 
 				}
 			},
 			"headerCallback": function( thead, data, start, end, display ) {
+				if(typeof opts.headerFormat === 'function') {
+					var api = this.api();
+					opts.headerFormat.call(this,api, thead, data, start, end, display);
+				}
 			},
 	        "initComplete":function(oSettings, json){
 	        	APP.unblockUI(_table.get());
@@ -539,6 +554,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			_btn.remove();
 		});
 		return _getDataTable(_table,default_opt,function(otable){
+			/*datatable已经初始化后执行对otable对象的初始化操作*/
 			//初始化表格工具栏 ，增加ID约束
 			var toolbar = $("div#"+tableid+"_wrapper>div.dt-buttons");
 			var pageToolbar = $("#"+(default_opt.toolbar ? default_opt.toolbar : (tableid+"-toolbar")));
@@ -653,6 +669,11 @@ define('app/datatables',['jquery','app/common','app/api',
 					curr_row.select();
 					_deleteRecord(e,otable, curr_row,'save');
 				})
+				_table.on('click','td a[dt-view]',function(e){
+					var curr_row = otable.row($(this).closest('td'));
+					curr_row.select();
+					_addEditRecord(e,otable, curr_row,'view');
+				});
 
 			}
 
@@ -675,14 +696,12 @@ define('app/datatables',['jquery','app/common','app/api',
 		});
 	};
 	/**
-	* 表格初始化
+	* 表格初始化数据、表头、表脚
 	* @param  {Arrays} opts 初始化参数,兼容多表格的数组形式[{},{}]
 	**/
 	function _getDataTable($table,default_opt,callback){
 		if(APP.isEmpty(default_opt.dataUrl)) default_opt.dataUrl = $table.data('url');
 
-		default_opt.serverSide = ($table.data('server-side') != undefined && $table.data('server-side') == "true");
-		
 		var ajax_params = {};
 		if(default_opt.params) ajax_params = default_opt.params;//页面定义Ajax请求参数
 
@@ -694,43 +713,64 @@ define('app/datatables',['jquery','app/common','app/api',
 			}
 			default_opt.columns.push({'data' : null,'orderable':false,'title':'操作','defaultContent' : _operation});
 		}
-		
-		if(default_opt.dataUrl != undefined){
-			if($.isArray(default_opt.columns)){
-				for(var i=0;i<default_opt.columns.length;i++){
-					if(default_opt.tableType == 'treetable') {
-						default_opt.columns[i].orderable = false;
-					}
-					//为每列增加name属性,方便根据列名查找列
-					if(default_opt.columns[i].name === undefined) {
-						default_opt.columns[i].name = default_opt.columns[i].data;
-					}
-				}
-				//treetable排序使用TreeBean中的treeSort(parentIds + id),否则显示层级不正确
-				if(default_opt.tableType == 'treetable'){
-					default_opt.ordering = true;//暂时只能使用treeSort列排序
-
-					default_opt.columns.push({'data' : 'treeSort','visible' : false,'name':'treeSort'});
-					default_opt.order = [[default_opt.columns.length-1, 'asc']];
-				}
-			}else{//两种方式并立，不能同时存在，否则列次序混乱
-				var columnArray = new Array();
-				$table.find('thead th[data-column]').each(function(index){
-					var col_data = $(this).data('column');
-					if(col_data === 'dt-detail'){
-						columnArray.push({'data' : null,'orderable':false,'defaultContent' : "<a dt-detail><i class='iconfont icon-chevronright'></i></a>"});
-					}else if(col_data === ''){
-						columnArray.push({'data' : null,'defaultContent' : '','orderable':false});
-					}else if(col_data ==='select-checkbox'){
-						columnArray.push({'data' : null,'defaultContent' : ''});
-					}else{
-						columnArray.push({'data' : col_data});
-					}
-					
-				});
-				default_opt['columns'] = columnArray;
+		//初始化表头
+		if($.isArray(default_opt.columns)){
+			//初始化表脚
+			if($.isArray(default_opt.footer)){
+				if($table.children('tfoot').length  == 0) $table.append("<tfoot><tr></tr></tfoot>");
 			}
+			for(var i=0;i<default_opt.columns.length;i++){
+				if(default_opt.tableType == 'treetable') {
+					default_opt.columns[i].orderable = false;
+				}
+				//为每列增加name属性,方便根据列名查找列
+				if(default_opt.columns[i].name === undefined) {
+					default_opt.columns[i].name = default_opt.columns[i].data;
+				}
+				//表脚初始化
+				if($.isArray(default_opt.footer)){
+					var _th = $("<th></th>")
+					for(var j=0;j<default_opt.footer.length;j++){
+						if(default_opt.columns[i].name == default_opt.footer[j].data){
+							if(default_opt.footer[j].title)_th.html(default_opt.footer[j].title);
+							if(default_opt.footer[j].type)_th.attr('data-'+default_opt.footer[j].type+'-column',i);
+							if(default_opt.footer[j].format)_th.attr('data-format',default_opt.footer[j].format);
+							break;
+						}
+					}
+					$table.find("tfoot>tr").append(_th);
+				}
 
+			}
+			//treetable排序使用TreeBean中的treeSort(parentIds + id),否则显示层级不正确
+			if(default_opt.tableType == 'treetable'){
+				default_opt.ordering = true;//暂时只能使用treeSort列排序
+
+				default_opt.columns.push({'data' : 'treeSort','visible' : false,'name':'treeSort'});
+				default_opt.order = [[default_opt.columns.length-1, 'asc']];
+				//表脚初始化
+				if($.isArray(default_opt.footer))$table.find("tfoot>tr").append("<th></th>");
+			}
+		}else{//两种方式并立，不能同时存在，否则列次序混乱
+			var columnArray = new Array();
+			$table.find('thead th[data-column]').each(function(index){
+				var col_data = $(this).data('column');
+				if(col_data === 'dt-detail'){
+					columnArray.push({'data' : null,'orderable':false,'defaultContent' : "<a dt-detail><i class='iconfont icon-chevronright'></i></a>"});
+				}else if(col_data === ''){
+					columnArray.push({'data' : null,'defaultContent' : '','orderable':false});
+				}else if(col_data ==='select-checkbox'){
+					columnArray.push({'data' : null,'defaultContent' : ''});
+				}else{
+					columnArray.push({'data' : col_data});
+				}
+
+			});
+			default_opt['columns'] = columnArray;
+		}
+
+		//初始化数据
+		if(default_opt.dataUrl != undefined){
 			//启用data-server-side时表格,不启用搜索框,适合于数据量较大，需要物理分页	
 			if(default_opt.serverSide){ 
 				default_opt.ajax = {
