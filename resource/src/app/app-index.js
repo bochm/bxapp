@@ -562,6 +562,8 @@ define(['jquery','app/common'],function($,APP) {
             APP.initScroll('.scroller');
             APP.addResizeHandler(handleFixedSidebar);
             APP.addResizeHandler(handleSidebarAndContentHeight);
+            $(".dropdown-user .username").html(user.name);
+            $(".dropdown-user img").attr('src',APP.isEmpty(user.photo) ? "resource/dist/images/user-admin-sm.jpg" : user.photo);
             require(['domReady!'],function(doc){
                 $('body').fadeIn('slow');
             });
