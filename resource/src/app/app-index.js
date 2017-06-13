@@ -382,25 +382,7 @@ define(['jquery','app/common'],function($,APP) {
         // 侧边菜单搜索点击回车
         $('.page-sidebar .sidebar-search').on('keypress', 'input.form-control', function(e) {
             if (e.which == 13) {
-                $('.sidebar-search').submit();
                 return false;
-            }
-        });
-
-        // 侧边菜单搜索提交
-        $('.sidebar-search .submit').on('click', function(e) {
-            e.preventDefault();
-            if ($('body').hasClass("page-sidebar-closed")) {
-                if ($('.sidebar-search').hasClass('open') === false) {
-                    if ($('.page-sidebar-fixed').size() === 1) {
-                        $('.page-sidebar .sidebar-toggler').click();
-                    }
-                    $('.sidebar-search').addClass("open");
-                } else {
-                    $('.sidebar-search').submit();
-                }
-            } else {
-                $('.sidebar-search').submit();
             }
         });
 
@@ -540,6 +522,22 @@ define(['jquery','app/common'],function($,APP) {
             }
         }
     }
+    function _init_sidebar_search(menu){
+        require(['app/form'],function(FM){
+            $('.sidebar-search input').typeaHead({source:menu,displayText:function(item){
+                return "<i class='"+item.icon+"'></i> "+item.name;
+            },afterSelect:function(item){
+                $('.sidebar-search input').val(item.name).trigger('change');
+            }});
+            $('.sidebar-search input').change(function() {
+                var current = $(this).typeahead("getActive");
+                if (current && current.name == $(this).val()) {
+                    $(".page-sidebar li[data-menu-id='"+current.id+"'] > a.act-menu:first").click();
+                }
+            });
+        })
+
+    }
     APP.showIndex = function(){
         API.getLoginUser(function(user){
             APP.initIndex(user);
@@ -560,6 +558,7 @@ define(['jquery','app/common'],function($,APP) {
             handleSidebarMenu();
             handleSidebarToggler();
             handleHeader();
+            _init_sidebar_search(menus);
             APP.initScroll('.scroller');
             APP.addResizeHandler(handleFixedSidebar);
             APP.addResizeHandler(handleSidebarAndContentHeight);

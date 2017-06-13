@@ -456,12 +456,12 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 				page.fadeIn('slow');
 			}
 		}
-		if(page.hasClass('loading-page')) {
+		/*if(page.hasClass('loading-page')) {
 			var page_height = $('.page-content').outerHeight() - 70;
 			if (page_height > 0) {
 				page.css('height', page_height + 'px');
 			}
-		}
+		}*/
 
 	}
 	/**
