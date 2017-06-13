@@ -7,7 +7,7 @@ define('module/system/dict',['app/common','app/api','app/datatables','app/form']
 			"deleteRecord" : {"url" : 'ADMIN/system/dict/delete',"id" : 'id'},
 			"addEditForm" : {
 				"addUrl" : "ADMIN/system/dict/add",
-				"saveUrl" : "ADMIN/system/dict/save",
+				"editUrl" : "ADMIN/system/dict/edit",
 				"title":"字典维护",
 				"editModal":"#system-dict-list-edit",
 				"rules":{

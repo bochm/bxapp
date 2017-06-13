@@ -45,7 +45,7 @@ define('module/system/org',['app/common','app/api','app/treetable','app/form'],f
 				 }
 		};
 		 
-		if(act == 'save'){
+		if(act == 'edit'){
 			_formInitOpt.formData = table.selectedRows()[0];
 			_formInitOpt.submitClear = false;
 			_formInitOpt.fieldOpts.parentOrgName.param = {"parentOrg" : _formInitOpt.formData.id};

@@ -24,7 +24,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
                     "editModal": "#weixin-gift-edit-modal",
                     "id": "#weixin-gift-edit-form",
                     "addUrl": "WEIXIN/gift/add",
-                    "saveUrl": "WEIXIN/gift/update",
+                    "editUrl": "WEIXIN/gift/update",
                     "submitJson": true,
                     "fieldOpts": {
                         "picture": {
@@ -90,7 +90,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
                 "addRecord" : function(dt,node,e){
                     APP.loadInnerPage(APP.getPageContainer("#table-weixin-gift-purchase"),'pages/weixin/gift/gift-purchase-edit',{act:'add'});
                 },
-                "saveRecord" : function(dt,node,e){
+                "editRecord" : function(dt,node,e){
                     APP.loadInnerPage(APP.getPageContainer("#table-weixin-gift-purchase"),
                         'pages/weixin/gift/gift-purchase-edit',{act:'update',formData:dt.selectedRowsData()[0]});
                 }
@@ -159,7 +159,10 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
             }
             var _form = $(this.form.id);
             var _addEditForm = $(this.table.options.addEditForm.id);
-
+            this.form.initComplete = function(opts){
+                _form.field('companyId').val(API.localUser().company_id);
+                _form.field('deptId').val(API.localUser().dept_id);
+            }
             $(this.form.id).initForm(this.form,function(data){
                 DT.getTable(purchase.table.id).query();
                 DT.getTable(gift.table.id).query();
@@ -167,10 +170,13 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
             purchaseEdit.table.options.addEditForm.initComplete = function(opts){
                 //修改下拉框请求参数，表格中已存在的礼品，下拉框中disable
                 var selectedGiftIds = DT.getTable(purchaseEdit.table.id).columnData('giftId');
-                for(var i=0;i<selectedGiftIds.length;i++){
-                    _addEditForm.field("giftId").children("option[value='"+selectedGiftIds[i]+"']").remove();
+                var seleData = _addEditForm.field("giftId").data('options');
+                for(var i=0;i<seleData.length;i++){
+                    if($.inArray(seleData[i].id,selectedGiftIds) >= 0 ) seleData[i].disabled = true;
+                    else seleData[i].disabled = false;
                 }
-
+                _addEditForm.field("giftId").empty();
+                _addEditForm.field("giftId").select({data:seleData});
             };
             $(this.table.id).initTable(this.table.options,function(otable){
                 purchaseEdit.table.obj = otable;
@@ -181,6 +187,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
                     _form.field("amount").val(purchaseEdit.table.obj.columnData('amount').sum());
                 }
             });
+
             _addEditForm.on("select2:select","[name='giftId']",function(){
                 var _selected_data = $(this).select2('data')[0];
                 _addEditForm.field("giftName").val(_selected_data.giftName);

@@ -21,7 +21,7 @@ define('module/demo/main-detail-table',['app/common','app/datatables','app/form'
 					APP.loadInnerPage(APP.getPageContainer('#table-demo-main-detail-m'),'pages/demo/datatable/main-detail/detail-table',
 						{act:'add'});
 				},
-				"saveRecord" : function(dt){
+				"editRecord" : function(dt){
 					APP.loadInnerPage(APP.getPageContainer('#table-demo-main-detail-m'),'pages/demo/datatable/main-detail/detail-table',
 						{act:'update',formData:dt.selectedRowsData()[0]});
 				}
@@ -75,7 +75,7 @@ define('module/demo/main-detail-table',['app/common','app/datatables','app/form'
 				this.table.options.params = {classId : param.formData.id};
 				this.form.formData = param.formData;
 				this.form.submitClear = false;
-				this.form.url = "ADMIN/demo/datatable/maindetail/classes/save";
+				this.form.url = "ADMIN/demo/datatable/maindetail/classes/edit";
 			}
 			var _form = $(this.form.id);
 			_form.initForm(this.form,function(ret){

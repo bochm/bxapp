@@ -263,9 +263,9 @@ define('app/datatables',['jquery','app/common','app/api',
 			//初始化表格编辑form --针对表格和表单在同一个html中
 			var _form = _options.addEditForm || _options.addForm || _options.editForm;
 			var form_opts = $.extend(true,{},{
-				formData : ((type == 'save' || type == 'view') ? dt.selectedRows()[0] : null),
-				submitClear : !(type == 'save'),
-				autoClose : (type == 'save'),
+				formData : ((type == 'edit' || type == 'view') ? dt.selectedRows()[0] : null),
+				submitClear : !(type == 'edit'),
+				autoClose : (type == 'edit'),
 				isView : (type == 'view')
 			},_form);
 			if(_form[type+'Validate']){
@@ -282,12 +282,12 @@ define('app/datatables',['jquery','app/common','app/api',
 						_form.submitCallback.call(this,data);
 					}else{
 						if(type == 'add') dt.addRow(data);
-						if(type == 'save') dt.updateSelectedRow(data);
+						if(type == 'edit') dt.updateSelectedRow(data);
 					}
 				});
 			});
 		}else{
-			alert("请初始化表格参数中的addForm|addEditForm|addModal|addEditModal|addRecord|saveRecord选项");
+			alert("请初始化表格参数中的addForm|addEditForm|addModal|addEditModal|addRecord|editRecord|viewRecord选项");
 		}
 	}
 	/**
@@ -338,7 +338,7 @@ define('app/datatables',['jquery','app/common','app/api',
 	/**
      * 自定义按钮--修改
      */
-	$.fn.dataTable.ext.buttons.saveRecord = {
+	$.fn.dataTable.ext.buttons.editRecord = {
 		text: "<i class='fa fa-edit'></i> 修改",
 		className: 'btn btn-sm btn-primary btn-selectOne',
 		action: function ( e, dt, node, config ) {
@@ -346,13 +346,13 @@ define('app/datatables',['jquery','app/common','app/api',
 				APP.info('请选择一条需要修改的记录');
 				return;
 			}
-			_addEditRecord(e, dt, node,'save');
+			_addEditRecord(e, dt, node,'edit');
 		}
 	};
 	/**
 	 * 自定义按钮--查看
 	 */
-	$.fn.dataTable.ext.buttons.saveRecord = {
+	$.fn.dataTable.ext.buttons.viewRecord = {
 		text: "<i class='fa fa-eye'></i> 查看",
 		className: 'btn btn-sm btn-primary btn-selectOne',
 		action: function ( e, dt, node, config ) {
@@ -558,7 +558,7 @@ define('app/datatables',['jquery','app/common','app/api',
 					className: _btn.attr("class"),
 					action: function ( e, dt, node, config ) {
 						if(_btn_type == 'addRecord') _addEditRecord(e,dt, node,'add');
-						else if(_btn_type == 'saveRecord') _addEditRecord(e,dt, node,'save');
+						else if(_btn_type == 'editRecord') _addEditRecord(e,dt, node,'edit');
 						else if(_btn_type == 'viewRecord') _addEditRecord(e,dt, node,'view');
 						else if(_btn_type == 'deleteRecord') _deleteRecord(e,dt, node);
 						else if(typeof default_opt[_btn.data("role")] === 'function') default_opt[_btn.data("role")].call(this,dt, node,e);
@@ -661,7 +661,7 @@ define('app/datatables',['jquery','app/common','app/api',
 					curr_row.select();
 					var _operation = $(this).data('operation').replace('dt-','');
 					if(_operation == 'edit')
-						_addEditRecord(e,otable, $(this),'save');
+						_addEditRecord(e,otable, $(this),'edit');
 					else if(_operation == 'delete')
 						_deleteRecord(e,otable, $(this));
 					else if(_operation == 'view')
@@ -857,7 +857,6 @@ define('app/datatables',['jquery','app/common','app/api',
 	 */
 	DataTable.Api.register( 'tableData()', function (col) {
 		var data = this.rows().data();
-		console.log(data);
 		var listData = new Array();
 		for(var i=0;i<data.length;i++){
 			if(APP.isEmpty(col))

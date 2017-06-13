@@ -93,18 +93,10 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 		})
 	}
 	function _local_user(server){
-		if(server) return API.getLocalData(server+_key_user);
-		return API.getLocalData(_key_user);
-	}
-	function _get_user_id(server){
-		return _local_user(server).id;
-	}
-	function _get_user_name(server){
-		return _local_user(server).name;
+		return API.getLocalData((server || _SERVERS.DEFAULT.KEY) + _key_user);
 	}
 	function _store_user(u,server){
-		if(server) API.setLocalData(server+_key_user,u);
-		else API.setLocalData(_key_user,u);
+		API.setLocalData((server || _SERVERS.DEFAULT.KEY)+_key_user,u);
 	}
 	function _get_server_by_url(url){
 		try{
@@ -411,7 +403,7 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 	 * @return  {Array} 功能数组 如:["sys:role:add","sys:role:update"]
 	 */
 	API.getPermission = function(role,callback){
-		//var permissions = ["sys:role:add","sys:role:save","sys:role:delete","sys:role:assignRole"];
+		//var permissions = ["sys:role:add","sys:role:edit","sys:role:delete","sys:role:assignRole"];
 		var _srv = _get_server_by_url(_CONFIG.URLS.permissionUrl);
 		if(_srv.isLocalData){
 			callback.call(this,null,true);

@@ -2,8 +2,8 @@
     <div class="form">
         <form id="weixin-gift-purchase-form" method="post" role="form">
             <input type="hidden" name="id" >
-            <input type="hidden" name="companyId" value="100">
-            <input type="hidden" name="deptId" value="100">
+            <input type="hidden" name="companyId">
+            <input type="hidden" name="deptId">
             <div class="form-body">
                 <div class="portlet box green-turquoise" panel-title="购进单录入" panel-icon="fa fa-pencil">
                     <div class="actions">
@@ -58,7 +58,9 @@
                 <div class="form-group">
                     <label class="control-label">礼品名称<span class="required">*</span></label>
                     <div class="input-icon select right"> <i class="fa validate-icon"></i>
-                        <select name="giftId" form-role='select' class="form-control required selectOpt" data-init="-1"/>
+                        <select name="giftId" form-role='select' class="form-control required selectOpt" data-init="-1">
+                            <option value="111" disabled>111</option>
+                            </select>
                     </div>
                 </div>
                 <div class="form-group">

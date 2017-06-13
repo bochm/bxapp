@@ -33,7 +33,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 			"tid":"id","tpid":"parentId",
 			"expandable": true,"expandBtn" : true,
 			"columns": columns,"columnDefs": columnDefs,
-			"buttons" : ['addRecord','saveRecord','deleteRecord'],
+			"buttons" : ['addRecord','editRecord','deleteRecord'],
 			"addEditModal" : {"url" : "pages/system/menu/menu-edit","id":"#system-menu-edit","title":"菜单维护"},
 			"deleteRecord" : function(dt,node,e){
 				APP.confirm('','是否删除选择的菜单及包含的所有子菜单?',function(){
@@ -82,7 +82,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 				 }
 		};
 		 
-		if(act == 'save'){
+		if(act == 'edit'){
 			_formInitOpt.formData = menuTable.selectedRows()[0];
 			_formInitOpt.submitClear = false;
 			_formInitOpt.fieldOpts.parentMenuName.param = {"parentMenu" : _formInitOpt.formData.id};

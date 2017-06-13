@@ -758,7 +758,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 
 	//创建按钮 opt : {text:"确认",classes : "btn-sm btn-warning",attr:{"data-role":"###","height":"150px"},action : function(e,btn){}}
 	function _createModalButton(opt,modal){
-		var btn = $("<button type='button' class='btn'>"+(opt.text ? opt.text : '')+"</button>");
+		var btn = $("<button type='button' class='btn' data-action='true'>"+(opt.text ? opt.text : '')+"</button>");
 		if(opt.classes) btn.addClass(opt.classes);
 		if(opt.attr) btn.attr(opt.attr);
 		if(typeof opt.action === 'function'){
@@ -767,6 +767,20 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			})
 		}
 		return btn;
+	}
+	function _initModalFooter(_modal,opts,clear){
+		var _footer = _modal.children(".modal-footer");
+		if(clear) _footer.children('[data-action]').remove();
+		if(opts.buttons){
+			if($.isArray(opts.buttons)){
+				for(var i=0;i<opts.buttons.length;i++){
+					_footer.append(_createModalButton(opts.buttons[i],_modal));
+				}
+			}else{
+				_footer.append(_createModalButton(opts.buttons,_modal));
+			}
+		}
+
 	}
 	function _loadModal(src,params,callback,errorback){
 		$.ajax({
@@ -805,10 +819,15 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		if(_modal.children(".modal-header").length == 0){
 			_modal.prepend("<div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>"+
 				"<h4 class='modal-title'>"+opts.title+"</h4></div>");
+		}else if(opts.title != ''){
+			_modal.find('.modal-title').html(opts.title);
 		}
-		if(opts.hasFooter && _modal.children(".modal-footer").length == 0){
-			_modal.append("<div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>关闭</button></div>");
+		if(opts.hasFooter){
+			if(_modal.children(".modal-footer").length == 0){
+				_modal.append("<div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>关闭</button></div>");
+			}
 			var _footer = _modal.children(".modal-footer");
+			_footer.children('[data-action]').remove();
 			if(opts.buttons){
 				if($.isArray(opts.buttons)){
 					for(var i=0;i<opts.buttons.length;i++){
@@ -818,6 +837,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 					_footer.append(_createModalButton(opts.buttons,_modal));
 				}
 			}
+
 		}
 
 

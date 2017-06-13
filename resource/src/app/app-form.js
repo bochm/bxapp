@@ -292,20 +292,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 
 		if(_fieldRole == 'select'){
 			var _selectOpt = opts.fieldOpts[_fieldName] || {};
-			try{
-				if(formField.attr('placeholder') && !isInitValue) _selectOpt.placeholder = JSON.parse(formField.attr('placeholder'));
-			}catch(e){alert("placeholder属性值必须为json字符串");}
-			if(formField.data('json')) _selectOpt.jsonData = formField.data('json');
-			else if(formField.data('stmid')) _selectOpt.stmID = formField.data('stmid');
-			else if(formField.data('dict-type')){
-				_selectOpt.data = API.getDictByType(formField.data('dict-type'));
-				if($.isArray(_selectOpt.data)){
-					for(var i=0;i<_selectOpt.data.length;i++){//select2使用text显示
-						_selectOpt.data[i].id = _selectOpt.data[i].value;
-						_selectOpt.data[i].text = _selectOpt.data[i].name;
-					}
-				}
-			}
 			formField.select(_selectOpt);
 		}
 		else if(_fieldRole == 'treeSelect'){
@@ -753,9 +739,25 @@ define('app/form',["jquery","app/common","app/api","moment",
 	}
 	$.fn.select = function ( options ) {
 		var _select = $(this);
-		var opts = options || {};
-		select2_default_opts.data = null;
-		select2_default_opts.ajax = null;
+		var _selectOpt = {};
+		try{
+			if(_select.attr('placeholder')) _selectOpt.placeholder = JSON.parse(_select.attr('placeholder'));
+		}catch(e){alert("placeholder属性值必须为json字符串");}
+		if(APP.isEmpty(options.data)){
+			if(_select.data('json')) _selectOpt.jsonData = _select.data('json');
+			else if(_select.data('stmid')) _selectOpt.stmID = _select.data('stmid');
+			else if(_select.data('dict-type')){
+				_selectOpt.data = API.getDictByType(_select.data('dict-type'));
+				if($.isArray(_selectOpt.data)){
+					for(var i=0;i<_selectOpt.data.length;i++){//select2使用text显示
+						_selectOpt.data[i].id = _selectOpt.data[i].value;
+						_selectOpt.data[i].text = _selectOpt.data[i].name;
+					}
+				}
+			}
+		}
+
+		var opts = $.extend(true,_selectOpt,options);
 
 		if((opts.jsonData||opts.stmID||opts.dataUrl) && opts.data === undefined){//增加jsonData选项获取静态.json文件或者直接通过sqlMapper的sqlID获取数组数据
 			if(APP.isEmpty(opts.param)) opts.param = {};
@@ -822,6 +824,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 		}
 		var default_opt = $.extend(true,{},select2_default_opts,opts);
 		_select.select2(default_opt);
+		_select.data('options',default_opt.data);
 		if(_select.data("original") || _select.data("init")) _select.val((_select.data("original") || _select.data("init"))).trigger("change");
 		else _select.val(_select.val()).trigger("change");
 		//避免单页面时重复执行事件
@@ -1272,13 +1275,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 				if(typeof errorback === 'function') errorback.call(this,data);
 			});
 		}else if(opts.editModal){
-			formOtps.title = "<i class='fa fa-edit'/></i> " + (opts.title || "编辑");
+			formOtps.title = "<i class='fa fa-edit'/></i> " + (opts.title || "");
 			var modalDefOpts = {
 				title : formOtps.title,
 				show : true,
-				buttons :  {"text" : "保存","classes" : "btn-primary btn-save",action : function(e,btn,modal){
+				buttons : (formOtps.isView ? null : {"text" : "保存","classes" : "btn-primary",action : function(e,btn,modal){
 					modal.find('form').submit();
-				}}
+				}})
 			}
 			var modalOpts = {};
 			//只指定modal.id的静态modal
@@ -1288,8 +1291,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 				modalOpts = $.extend(true,modalDefOpts,opts.editModal);
 			}
 			APP.modal(modalOpts.id,modalOpts,function(){
-				if(formOtps.isView) $(modalOpts.id).find('.btn-save').hide();
-				else $(modalOpts.id).find('.btn-save').show();
 				_initModalForm(modalOpts.id,formOtps,editback,errorback);
 			});
 		}
