@@ -165,47 +165,6 @@ define(['jquery','app/common'],function($,APP) {
         if(actMenu.attr("href")){
             var url = actMenu.attr("href");
             addPageTab(actMenu);
-            //$('.page-content-wrapper>.page-content').children().remove();
-            //$('.page-content-wrapper>.page-content').css('display','none');
-            /*APP.loadPage(pageContent,url,{},function(){
-             if (isInSidebar && actMenu.parents('li.open').size() === 0) {
-             $('.page-sidebar-menu > li.open > a').click();
-             }
-             handleSidebarAndContentHeight();
-             $currPage = url;
-             var _page_bar = $("<div class='page-bar'>");
-             var _page_breadcrumb = $("<ul class='page-breadcrumb'>");
-             actMenu.parentsUntil("#index-page-sidebar-menu",'li').each(function(){
-             var _parent_menu = $(this).children('a');
-             var _p_menu_icon = _parent_menu.children('i').attr('class');
-             var _p_menu_text = _parent_menu.text();
-             _page_breadcrumb.prepend("<li><i class='fa fa-angle-right'></i><i class='"+_p_menu_icon+"'></i>"+_p_menu_text+"</li>");
-             });
-             _page_breadcrumb.find('i.fa-angle-right').first().remove();
-             _page_bar.append(_page_breadcrumb);
-             var _page_tool_bar = $('<div class="page-toolbar">');
-             if(APP.debug){
-             var _page_debug_tool = $("<div class='btn-group pull-right'>" +
-             "<button class='btn btn-fit-height grey-salt dropdown-toggle' " +
-             "data-toggle='dropdown' data-hover='dropdown' data-delay='1000' " +
-             "data-close-others='true'>调试 <i class='fa fa-angle-down'></button></div>");
-             var _page_debug_tool_menu = $("<ul class='dropdown-menu pull-right' role='menu'>");
-             var _page_debug_tool_src = $("<li><a><i class='iconfont icon-code'></i> 链接</a></li>");
-             var _page_debug_tool_ref = $("<li><a><i class='iconfont icon-undo'></i> 刷新</a></li>");
-             _page_debug_tool_src.click(function(){
-             APP.info(url);
-             })
-             _page_debug_tool_ref.click(function(){
-             handleMenuAction(true,actMenu);
-             })
-             _page_debug_tool_menu.append(_page_debug_tool_src);
-             _page_debug_tool_menu.append(_page_debug_tool_ref);
-             _page_debug_tool.append(_page_debug_tool_menu);
-             _page_tool_bar.append(_page_debug_tool);
-             }
-             _page_bar.append(_page_tool_bar);
-             $(pageContent).prepend(_page_bar);
-             });*/
         }
     }
 
@@ -473,6 +432,8 @@ define(['jquery','app/common'],function($,APP) {
                     }else{
                         var _user = API.respData(response);
                         API.storeUser(_user,API.getServerByUrl($('form.login-form').attr('action')).KEY);
+                        //登陆weixin服务
+                        API.backLogin(API.getServerByKey('WEIXIN'));
                         $('.login-page').slideUp('slow',function() {
                             $(this).remove();
                             APP.initIndex(_user);

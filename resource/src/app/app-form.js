@@ -1,7 +1,7 @@
 
 define('app/form',["jquery","app/common","app/api","moment",
                    "jquery/validate","jquery/form",
-					"switch","jquery/select2","jquery/summernote","bootstrap/typeahead","bootstrap/datepicker"],function($,APP,API) {
+					"switch","bootstrap/typeahead","bootstrap/datepicker"],function($,APP,API) {
 	var moment = require('moment');
 	moment.locale("zh-cn");
 	var FORM = {
@@ -280,7 +280,9 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}
 			//summernote控件需要重新初始化值
 			if(_fieldRole == 'richEdit'){
-				formField.summernote('code',isInitValue ? formField.data('original') : '');
+				require(["jquery/summernote"],function(){
+					formField.summernote('code',isInitValue ? formField.data('original') : '');
+				});
 			}
 			//date控件需要重新初始化值
 			if(_fieldRole == 'date'){
@@ -324,12 +326,14 @@ define('app/form',["jquery","app/common","app/api","moment",
 		} else if(_fieldRole == 'richEdit'){
 			var _richEditOpt = opts.fieldOpts[_fieldName] || {};
 			formField.summerNote(_richEditOpt);
-			if(opts.initClear){
-				formField.summernote('reset');
-			}
-			if(isInitValue){
-				formField.summernote('code',formField.data('original'));
-			}
+			require(["jquery/summernote"],function() {
+				if (opts.initClear) {
+					formField.summernote('reset');
+				}
+				if (isInitValue) {
+					formField.summernote('code', formField.data('original'));
+				}
+			});
 		}else if(_fieldRole == 'file'){
 			var _fileOpt = opts.fieldOpts[_fieldName] || {};
 			formField.fileUpload(_fileOpt);
@@ -723,6 +727,10 @@ define('app/form',["jquery","app/common","app/api","moment",
 		if(opts.param) paramData.param=opts.param;
 		if(opts.paramData) paramData = opts.paramData;
 		var _data = API.jsonData(url,paramData);
+		_format_options_data(opts,_data);
+		return _data;
+	}
+	function _format_options_data(opts,_data){
 		if(opts.idProperty || opts.textProperty){
 			if($.isArray(_data)){
 				for(var i=0;i<_data.length;i++){
@@ -735,7 +743,6 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}
 
 		}
-		return _data;
 	}
 	$.fn.select = function ( options ) {
 		var _select = $(this);
@@ -755,6 +762,8 @@ define('app/form',["jquery","app/common","app/api","moment",
 					}
 				}
 			}
+		}else{
+			_format_options_data(options,options.data);
 		}
 
 		var opts = $.extend(true,_selectOpt,options);
@@ -823,7 +832,10 @@ define('app/form',["jquery","app/common","app/api","moment",
 			});
 		}
 		var default_opt = $.extend(true,{},select2_default_opts,opts);
-		_select.select2(default_opt);
+		require(["jquery/select2"],function(){
+			_select.select2(default_opt);
+		});
+		//附加data到select上，方便页面使用
 		_select.data('options',default_opt.data);
 		if(_select.data("original") || _select.data("init")) _select.val((_select.data("original") || _select.data("init"))).trigger("change");
 		else _select.val(_select.val()).trigger("change");
@@ -1031,34 +1043,37 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 */
 	$.fn.summerNote = function(options){
 		var _this = $(this);
-		var default_settings = $.extend(true,{
-			toolbar: [
-				['style', ['bold', 'italic', 'underline','color', 'clear','strikethrough', 'superscript', 'subscript','fontsize','height']],
-				['para', ['ul', 'ol', 'paragraph']],
-				['insert', ['picture','link','video','table','hr']],
-				['misc', ['undo','redo','codeview']]
-			],
-			lang : 'zh-CN',
-			placeholder : _this.data('placeholder') || '',
-			minHeight : 200,
-			dialogsFade : true,// Add fade effect on dialogs
-			dialogsInBody : true,// Dialogs can be placed in body, not in
-			disableDragAndDrop : true,// default false You can disable drag
-			callbacks : {
-				onImageUpload : function(files) {
-					var _srv = API.getServerByKey(options.fileServer);
-					var formData = new FormData();
-					formData.append('file',files[0]);
-					API.uploadFile(_srv,formData,{type:'_rich_edit_',ownerid:APP.getUniqueID('565')},function(fileRet){
-						_this.summernote('insertImage', _srv.fileSrvUrl + fileRet.url, function ($image) {
-							$image.css({'width': $image.width() / 3,'height':$image.height() / 3});
-							$image.attr('data-fileid', fileRet.id);
+		require(["jquery/summernote"],function(){
+			var default_settings = $.extend(true,{
+				toolbar: [
+					['style', ['bold', 'italic', 'underline','color', 'clear','strikethrough', 'superscript', 'subscript','fontsize','height']],
+					['para', ['ul', 'ol', 'paragraph']],
+					['insert', ['picture','link','video','table','hr']],
+					['misc', ['undo','redo','codeview']]
+				],
+				lang : 'zh-CN',
+				placeholder : _this.data('placeholder') || '',
+				minHeight : 200,
+				dialogsFade : true,// Add fade effect on dialogs
+				dialogsInBody : true,// Dialogs can be placed in body, not in
+				disableDragAndDrop : true,// default false You can disable drag
+				callbacks : {
+					onImageUpload : function(files) {
+						var _srv = API.getServerByKey(options.fileServer);
+						var formData = new FormData();
+						formData.append('file',files[0]);
+						API.uploadFile(_srv,formData,{type:'_rich_edit_',ownerid:APP.getUniqueID('565')},function(fileRet){
+							_this.summernote('insertImage', _srv.fileSrvUrl + fileRet.url, function ($image) {
+								$image.css({'width': $image.width() / 3,'height':$image.height() / 3});
+								$image.attr('data-fileid', fileRet.id);
+							});
 						});
-					});
+					}
 				}
-			}
-		},options);
-		_this.summernote(default_settings);
+			},options);
+			_this.summernote(default_settings);
+		});
+
 
 	}
 

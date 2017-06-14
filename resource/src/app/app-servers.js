@@ -96,7 +96,7 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
             "srvUrl" : "http://localhost:8080",
             "fileSrvUrl" : "http://10.20.11.63/",//文件服务器地址,用于非本地图片显示
             "ctx" : "/neu-weixin-web/",
-            "useLoginForm" : false,//后台登陆,不使用form
+            "useLoginForm" : true,// false:后台登陆,不使用form  true:form登陆
             "AUTH" : {
                 "rpToken" : "authToken",
                 "userName" : "userCode",
@@ -107,8 +107,8 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
                 return "login.do";
             },
             "createLoginHeader" : function(request,form){
-                request.setRequestHeader("userCode","admin");
-                request.setRequestHeader("password","123456admin");
+                request.setRequestHeader("userCode",form.find("input[data-role='username']").val());
+                request.setRequestHeader("password",form.find("input[data-role='password']").val());
                 return true;
             },
             "resp" : function(response){

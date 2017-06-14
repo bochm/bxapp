@@ -1107,8 +1107,11 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 	}
 	//图片弹出层初始化
 	APP.initImagebox = function (ct) {
+		var _imgBox = _queryContainer(ct).find(".image-box-button");
+		var _videoBox = _queryContainer(ct).find(".video-box-button");
+		if(_imgBox.length == 0 || _videoBox.length == 0) return;
 		require(['jquery/colorbox'],function(){
-			_queryContainer(ct).find(".image-box-button").each(function(){
+			_imgBox.each(function(){
 				var rel = $(this).data('rel');
 				$(this).colorbox({
 					maxWidth : '85%',
@@ -1117,7 +1120,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 					title : $(this).data('title') || ''
 				});
 			});
-			_queryContainer(ct).find('.video-box-button').colorbox({iframe:true, innerWidth:640, innerHeight:480});
+			_videoBox.colorbox({iframe:true, innerWidth:640, innerHeight:480});
 		});
 	}
 	return APP;

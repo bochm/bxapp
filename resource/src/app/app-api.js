@@ -126,7 +126,8 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 			dataType : 'json',
 			async:false,
 			beforeSend : function(request){
-				return srv.createLoginHeader(request);
+				//如果给srv指定loginForm则使用form的用户名密码，用于srv之间共用一个user表
+				return srv.createLoginHeader(request,$('form.login-form'));
 			},
 			success:function(response,status){
 				var ret = srv.resp(response);
@@ -137,7 +138,7 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
 					if(_user != null && _user != undefined){
 						_store_user(_user,srv.KEY);
 						if(url != undefined && url != null)_ajax(url,data,isSync,callback,errorback);
-						else if(form != undefined && url != null) form.submit();
+						else if(form != undefined && form != null) form.submit();
 					}else{
 						API.defaultError(ret);
 					}
@@ -182,7 +183,9 @@ define('app/api',['jquery','store','app/servers'],function($,STORE,_SERVERS) {
     	if(local_user != null && local_user != undefined) {
     		document.forms['login-form'].loginname.value = local_user[_srv.AUTH.userName];
     	}
+		var form_url = _srv.KEY + '/' + _srv.loginUrl();
 		$('form.login-form').initForm({
+			url : form_url,
 			beforeSend : function(request){
 				return _srv.createLoginHeader(request,$('form.login-form'));
 			},
