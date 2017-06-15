@@ -485,7 +485,7 @@ define(['jquery','app/common'],function($,APP) {
         }
     }
     function _init_sidebar_search(menu){
-        require(['app/form'],function(FM){
+        require(['app/form','bootstrap/typeahead'],function(FM){
             $('.sidebar-search input').typeaHead({source:menu,displayText:function(item){
                 return "<i class='"+item.icon+"'></i> "+item.name;
             },afterSelect:function(item){

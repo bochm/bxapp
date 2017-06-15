@@ -1,7 +1,5 @@
 
-define('app/form',["jquery","app/common","app/api","moment",
-                   "jquery/validate","jquery/form",
-					"switch","bootstrap/typeahead","bootstrap/datepicker"],function($,APP,API) {
+define('app/form',["jquery","app/common","app/api","moment","jquery/validate","jquery/form"],function($,APP,API) {
 	var moment = require('moment');
 	moment.locale("zh-cn");
 	var FORM = {
@@ -63,6 +61,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 				else if(typeof opts.onChange === 'function') opts.onChange(APP.formatDate('YYYY-MM-DD',e.date));
 			}
 		})
+
 	};
 	
 	/**
@@ -72,73 +71,70 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 */
 	$.fn.dateRangePicker = function(opts,callback){
 		var _target = $(this);
-		require(['bootstrap/daterangepicker'],function(){
-			var default_opt = $.extend(true,{
-				opens: (APP.isRTL ? 'left' : 'right'),
-				startDate: moment().subtract('days', 29).format('YYYY-MM-DD'),
-                endDate: moment().format('YYYY-MM-DD'),
-                minDate: '2012-01-01',
-                maxDate: moment().format('YYYY-MM-DD'),
-                dateLimit: {days: 365},
-                showDropdowns: true,
-                showWeekNumbers: true,
-                timePicker: false,
-                timePickerIncrement: 1,
-                timePicker12Hour: true,
-                /*ranges: {
-                    '今天': [moment().format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
-                    '昨天': [moment().subtract('days', 1).format('YYYY-MM-DD'), moment().subtract('days', 1).format('YYYY-MM-DD')],
-                    '近7天': [moment().subtract('days', 6).format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
-                    '近30天': [moment().subtract('days', 29).format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
-                    '本月': [moment().startOf('month').format('YYYY-MM-DD'), moment().endOf('month').format('YYYY-MM-DD')],
-                    '上月': [moment().subtract('month', 1).startOf('month').format('YYYY-MM-DD'), moment().subtract('month', 1).endOf('month').format('YYYY-MM-DD')]
-                },*/
-                buttonClasses: ['btn'],
-                applyClass: 'green',
-                cancelClass: 'default',
-                format: 'YYYY-MM-DD',
-                separator: ' 到 ',
-                locale: {
-                    "applyLabel": '确定',
-                    "cancelLabel": '取消',
-                    "fromLabel": '从',
-                    "toLabel": '到',
-                    "customRangeLabel": '日期区间选择',
-                    "daysOfWeek": ["日","一","二","三","四","五","六"],
-			        "monthNames": ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"],
-                    "firstDay": 1
-                },
-                startName : "startDate",
-                endName : "endDate"
-			},opts);
-			var start_date_field = $("<input type='hidden' name='"+default_opt.startName+"'>");
-			var end_date_field = $("<input type='hidden' name='"+default_opt.endName+"'>");
-			_target.append(start_date_field).append(end_date_field);
-			_target.daterangepicker(default_opt,function(start, end, label){
-				if(typeof callback === 'function'){
-					callback(start, end, label);
-	        	}else{
-	        		var _date_range = start.format('YYYY年MM月DD日') + ' - ' + end.format('YYYY年MM月DD日');
-	        		if(_target.hasClass('input-group')){
-	        			_target.children("input:text").val(_date_range);
-	        		}else{
-	        			_target.children('span').html(_date_range);
-	        		}
-	        		start_date_field.val(start.format(default_opt.format));
-	        		end_date_field.val(end.format(default_opt.format));
-	        		//$(target+' span')
-	        	}
-			});
-			var _date_range_default = moment(default_opt.startDate).format('YYYY年MM月DD日') + ' - ' + moment(default_opt.endDate).format('YYYY年MM月DD日');
-			if(_target.hasClass('input-group')){
-				_target.children('input:text').val(_date_range_default);
-    		}else{
-    			_target.children('span').html(_date_range_default);
-    		}
-			start_date_field.val(default_opt.startDate);
-    		end_date_field.val(default_opt.endDate);
-			
-		})
+		var default_opt = $.extend(true,{
+			opens: (APP.isRTL ? 'left' : 'right'),
+			startDate: moment().subtract('days', 29).format('YYYY-MM-DD'),
+			endDate: moment().format('YYYY-MM-DD'),
+			minDate: '2012-01-01',
+			maxDate: moment().format('YYYY-MM-DD'),
+			dateLimit: {days: 365},
+			showDropdowns: true,
+			showWeekNumbers: true,
+			timePicker: false,
+			timePickerIncrement: 1,
+			timePicker12Hour: true,
+			/*ranges: {
+			 '今天': [moment().format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
+			 '昨天': [moment().subtract('days', 1).format('YYYY-MM-DD'), moment().subtract('days', 1).format('YYYY-MM-DD')],
+			 '近7天': [moment().subtract('days', 6).format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
+			 '近30天': [moment().subtract('days', 29).format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
+			 '本月': [moment().startOf('month').format('YYYY-MM-DD'), moment().endOf('month').format('YYYY-MM-DD')],
+			 '上月': [moment().subtract('month', 1).startOf('month').format('YYYY-MM-DD'), moment().subtract('month', 1).endOf('month').format('YYYY-MM-DD')]
+			 },*/
+			buttonClasses: ['btn'],
+			applyClass: 'green',
+			cancelClass: 'default',
+			format: 'YYYY-MM-DD',
+			separator: ' 到 ',
+			locale: {
+				"applyLabel": '确定',
+				"cancelLabel": '取消',
+				"fromLabel": '从',
+				"toLabel": '到',
+				"customRangeLabel": '日期区间选择',
+				"daysOfWeek": ["日","一","二","三","四","五","六"],
+				"monthNames": ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"],
+				"firstDay": 1
+			},
+			startName : "startDate",
+			endName : "endDate"
+		},opts);
+		var start_date_field = $("<input type='hidden' name='"+default_opt.startName+"'>");
+		var end_date_field = $("<input type='hidden' name='"+default_opt.endName+"'>");
+		_target.append(start_date_field).append(end_date_field);
+		_target.daterangepicker(default_opt,function(start, end, label){
+			if(typeof callback === 'function'){
+				callback(start, end, label);
+			}else{
+				var _date_range = start.format('YYYY年MM月DD日') + ' - ' + end.format('YYYY年MM月DD日');
+				if(_target.hasClass('input-group')){
+					_target.children("input:text").val(_date_range);
+				}else{
+					_target.children('span').html(_date_range);
+				}
+				start_date_field.val(start.format(default_opt.format));
+				end_date_field.val(end.format(default_opt.format));
+				//$(target+' span')
+			}
+		});
+		var _date_range_default = moment(default_opt.startDate).format('YYYY年MM月DD日') + ' - ' + moment(default_opt.endDate).format('YYYY年MM月DD日');
+		if(_target.hasClass('input-group')){
+			_target.children('input:text').val(_date_range_default);
+		}else{
+			_target.children('span').html(_date_range_default);
+		}
+		start_date_field.val(default_opt.startDate);
+		end_date_field.val(default_opt.endDate);
 	};
 	
 	
@@ -252,6 +248,16 @@ define('app/form',["jquery","app/common","app/api","moment",
 	function _init_field(opts,form,formField,isInitValue){
 		var _fieldName = formField.attr('name');
 		var _fieldRole = formField.attr('form-role');
+
+		//初始化js定义的验证规则,如有checkExists规则需要将original初始值作为入参
+		if(opts.rules && opts.rules[_fieldName]){
+			formField.rules( "remove");
+			if(opts.rules[_fieldName].checkExists){
+				opts.rules[_fieldName].checkExists.original = formField.val();
+			}
+			formField.rules( "add", opts.rules[_fieldName]);
+		}
+
 		//check或者switch需要设定状态
 		if(formField.attr('type') == 'checkbox'){
 			var _checked = !APP.isEmpty(formField.attr('checked'));
@@ -263,15 +269,9 @@ define('app/form',["jquery","app/common","app/api","moment",
 				formField.bootstrapSwitch('state', _checked);
 				formField.trigger("switch:change", [_checked]);//强制触发change方法赋值
 			}
+			return;
 		}
-		//初始化js定义的验证规则,如有checkExists规则需要将original初始值作为入参
-		if(opts.rules && opts.rules[_fieldName]){
-			formField.rules( "remove");
-			if(opts.rules[_fieldName].checkExists){
-				opts.rules[_fieldName].checkExists.original = formField.val();
-			}
-			formField.rules( "add", opts.rules[_fieldName]);
-		}
+
 		//初始化过的form不再重复
 		if(form.data("form-init")){
 			//file控件由于需要重新绑定参数
@@ -280,9 +280,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			}
 			//summernote控件需要重新初始化值
 			if(_fieldRole == 'richEdit'){
-				require(["jquery/summernote"],function(){
-					formField.summernote('code',isInitValue ? formField.data('original') : '');
-				});
+				formField.summernote('code',isInitValue ? formField.data('original') : '');
 			}
 			//date控件需要重新初始化值
 			if(_fieldRole == 'date'){
@@ -326,14 +324,12 @@ define('app/form',["jquery","app/common","app/api","moment",
 		} else if(_fieldRole == 'richEdit'){
 			var _richEditOpt = opts.fieldOpts[_fieldName] || {};
 			formField.summerNote(_richEditOpt);
-			require(["jquery/summernote"],function() {
-				if (opts.initClear) {
-					formField.summernote('reset');
-				}
-				if (isInitValue) {
-					formField.summernote('code', formField.data('original'));
-				}
-			});
+			if (opts.initClear) {
+				formField.summernote('reset');
+			}
+			if (isInitValue) {
+				formField.summernote('code', formField.data('original'));
+			}
 		}else if(_fieldRole == 'file'){
 			var _fileOpt = opts.fieldOpts[_fieldName] || {};
 			formField.fileUpload(_fileOpt);
@@ -363,12 +359,13 @@ define('app/form',["jquery","app/common","app/api","moment",
 
 	}
 	//只读字段处理（隐藏原有控件，使用form-control-static方式显示静态值）
-	function _toggle_view_form(opts,_form,formField){
+	function _toggle_view_form(opts,formField){
 		var _fieldName = formField.attr('name');
 		var _fieldRole = formField.attr('form-role');
+		var _fieldType = formField.attr('type');
 		if((opts.isView || (opts.fieldOpts[_fieldName] && opts.fieldOpts[_fieldName].isView)) &&
-			(_form.type != 'hidden' || _fieldRole == 'file')){
-			if(_form.type == 'password'){
+			(_fieldType != 'hidden' || _fieldRole == 'file')){
+			if(_fieldType == 'password'){
 				formField.hide().before("<p class='form-control-static'>****</p>");
 			}else if(formField.hasClass('bs-switch')){
 				formField.closest('.bootstrap-switch-wrapper').hide().before("<p class='form-control-static'>"+
@@ -426,141 +423,154 @@ define('app/form',["jquery","app/common","app/api","moment",
 	/**
 	 * 初始化form
 	 * @param  {Object} options 初始化参数
-	 * @param  {Function} callback 成功回调函数
-	 * @param  {Function} errorback 失败回调函数
+	 * @param  {Function} callback form提交成功回调函数
+	 * @param  {Function} errorback form提交失败回调函数
 	 */
 	$.fn.initForm = function (options,callback,errorback) {
 		var _this = $(this);
-
-		var opts = $.extend(true,{
-			isView : false,//只读form,也可以指定到具体field
-			fieldSelector : '*[name]',//field选择器
-			ajax:true,//ajax方式提交
-			submitClear : true, //submit之后是否清空数据
-			initClear : true,//form初始化时是否清空数据
-			dataType : 'json',//返回数据方式
-			type : 'post',//提交方式
-			includeHidden : true,//是否包含hidden字段
-			validate : validate_default_settings,//合法验证配置,jquery.validate配置对象
-			fieldOpts:{},//字段初始化对象
-			autoClose : false,//form显示在modal中是否在submit后自动关闭modal
-			rules : null,//字段验证规则
-			formData : null,//form初始化数据，一般为修改form初始化字段值
-			url:_this.attr('action'),//form提交url
-			submitJson : false,//=true则为扁平json方式提交form,针对springmvc使用@RequestBody注解的参数
-			initComplete : null, //form初始化完成后执行
-			beforeInit :  null //form初始化之前执行
-
-		},options);
-
-		if(typeof opts.beforeInit === 'function') opts.beforeInit.call(this,opts);
-		if(opts.initClear)_this.clearForm(true); //静态modal中的form 先清空再初始化
-		_this.find('p.form-control-static').remove();//清空只读字段
-		_this.validate(opts.validate);//.resetForm();//验证规则
-		var isInitValue = !APP.isEmpty(opts.formData);//是否初始化表单值
-		_this.find(opts.fieldSelector).each(function(){
-			var formField = $(this);
-			if(isInitValue){
-				_init_field_value(opts,formField);
-			}else{
-				formField.removeData("original");
-			}
-			_init_field(opts,_this,formField,isInitValue);
-
-			_toggle_view_form(opts,this,formField);
+		var dependencies = new Array();
+		_this.find("[form-role]").each(function(){
+			var _form_role = $(this).attr("form-role");
+			if(_form_role == "select") dependencies.push("jquery/select2");
+			else if(_form_role == "richEdit") dependencies.push("jquery/summernote");
+			else if(_form_role == "treeSelect") dependencies.push("app/tree");
+			else if(_form_role == "file") dependencies.push("jquery/fileupload");
+			else if(_form_role == "dateRange") dependencies.push("bootstrap/daterangepicker");
+			else if(_form_role == "date") dependencies.push("bootstrap/datepicker");
+			else if(_form_role == "typeahead") dependencies.push("bootstrap/typeahead");
 		});
-		//表单显示位置,返回提示使用
-		var _in_modal = (_this.parents('.modal').size() > 0) ? _this.parents('.modal').get(0) : APP.getPageContainer(_this);
-	    //表单提交url初始化-
-		var _form_url = opts.url;
-		var _srv,_url;
-		if(!APP.isEmpty(_form_url)) {
-			_srv = API.getServerByUrl(_form_url);
-			_url = _srv.getUrl(_form_url);
-			opts.url = _srv.srvUrl + _url;
-		}
-		//表单中存在文件控件，如果opts.formData直接使用则会导致jquery.form插件无法识别文件提交失败
-		if($('input[type=file]:enabled', _this).length > 0){
-			opts.formData = null;
-		}
-		//ajax表单初始化
-		var form_opt = $.extend(true,{
-			beforeSend : function(request){
-				if(!opts.headers){
-					return API.createHeader(_srv,_url,request,errorback);
-				}
-			},
-			beforeSubmit : function(formData, jqForm, options){
-				//没有定义url则直接调用回调函数
-				if(APP.isEmpty(opts.url)) {
-					_form_submit_success(_formData2Object(formData),opts,_this,_in_modal,callback);
-					return false;
-				}
-				//本地数据返回不修改任何數據
-				if(_srv.isLocalData){
-					_local_data_submit(opts,_this,_form_url,_in_modal,callback,errorback);
-					return false;
-				}
-				//spring @RequestBody对于form提交的字符解析有问题，暂时使用json提交代替form提交
-				if(opts.queryForm){
-					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "查询中",gif : 'form-submit'});
-					_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,true);
-					return false;
+
+		require(dependencies,function(){
+			var opts = $.extend(true,{
+				isView : false,//只读form,也可以指定到具体field
+				fieldSelector : '*[name]',//field选择器
+				ajax:true,//ajax方式提交
+				submitClear : true, //submit之后是否清空数据
+				initClear : true,//form初始化时是否清空数据
+				dataType : 'json',//返回数据方式
+				type : 'post',//提交方式
+				includeHidden : true,//是否包含hidden字段
+				validate : validate_default_settings,//合法验证配置,jquery.validate配置对象
+				fieldOpts:{},//字段初始化对象
+				autoClose : false,//form显示在modal中是否在submit后自动关闭modal
+				rules : null,//字段验证规则
+				formData : null,//form初始化数据，一般为修改form初始化字段值
+				url:_this.attr('action'),//form提交url
+				submitJson : false,//=true则为扁平json方式提交form,针对springmvc使用@RequestBody注解的参数
+				initComplete : null, //form初始化完成后执行
+				beforeInit :  null //form初始化之前执行
+
+			},options);
+
+			if(typeof opts.beforeInit === 'function') opts.beforeInit.call(this,opts);
+			if(opts.initClear)_this.clearForm(true); //静态modal中的form 先清空再初始化
+			_this.find('p.form-control-static').remove();//清空只读字段
+			_this.validate(opts.validate);//.resetForm();//验证规则
+			var isInitValue = !APP.isEmpty(opts.formData);//是否初始化表单值
+			_this.find(opts.fieldSelector).each(function(){
+				var formField = $(this);
+				if(isInitValue){
+					_init_field_value(opts,formField);
 				}else{
-					APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
-					/*针对spring @RequestBody对于form提交的字符解析有问题，使用两种提交方式*/
-					/*使用@RequestBody注解的参数使用json方式  设置opts.submitJson为true*/
-					/*表单中如果有明细对象（表格），也使用json提交*/
-					if(opts.submitJson){
-						//提取表单中的表格数据
-						if(jqForm.find("table.datatable[data-form]").length > 0){
-							require(['app/datatables'],function(DT){
-								jqForm.find("table.datatable[data-form]").each(function(){
-									formData.push({"name":$(this).data('form'),"value":$(this).dataTable().api().tableData()});
-								})
-								_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,false);
-							});
-						}else{
-							_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,false);
-						}
-						return false
-					}
-					return true;
+					formField.removeData("original");
 				}
-			},
-			error:function(error){
-				console.error(error);
-				APP.unblockUI(_in_modal);
-				APP.notice('',"系统错误["+error.status+"] "+error.statusText,'error',_in_modal);
-				if(typeof errorback === 'function')errorback(error);
-				else if(opts.onError) opts.onError(error);
-			},
-			success:function(resp, status){
-				var response = _srv.resp(resp);
-				if(APP.debug)console.log(response);
-				APP.unblockUI(_in_modal);
-				if(API.isError(response)){
-					if(API.isUnAuthorized(response)){
-						if(_srv.useLoginForm) {
-							API.showLogin();
-						}else{
-							API.backLogin(_srv,null,_this.get());
-						}
-						return;
-					}
-					APP.notice('',API.respMsg(response),'warning',_in_modal);
-					if(typeof errorback === 'function')errorback.call(this,response,status);
-					else if(typeof opts.onError  === 'function') opts.onError.call(this,response,status);
-				}else{
-					_form_submit_success(response,opts,_this,_in_modal,callback);
-				}
+				_init_field(opts,_this,formField,isInitValue);
+
+				_toggle_view_form(opts,formField);
+			});
+			//表单显示位置,返回提示使用
+			var _in_modal = (_this.parents('.modal').size() > 0) ? _this.parents('.modal').get(0) : APP.getPageContainer(_this);
+			//表单提交url初始化-
+			var _form_url = opts.url;
+			var _srv,_url;
+			if(!APP.isEmpty(_form_url)) {
+				_srv = API.getServerByUrl(_form_url);
+				_url = _srv.getUrl(_form_url);
+				opts.url = _srv.srvUrl + _url;
 			}
-		},opts);
-		//已初始化标记
-		_this.data("form-init",true);
-		if(form_opt.ajax) _this.ajaxForm(form_opt);
-		//初始化完成回调
-		if(typeof opts.initComplete === 'function') opts.initComplete.call(this,opts);
+			//表单中存在文件控件，如果opts.formData直接使用则会导致jquery.form插件无法识别文件提交失败
+			if($('input[type=file]:enabled', _this).length > 0){
+				opts.formData = null;
+			}
+			//ajax表单初始化
+			var form_opt = $.extend(true,{
+				beforeSend : function(request){
+					if(!opts.headers){
+						return API.createHeader(_srv,_url,request,errorback);
+					}
+				},
+				beforeSubmit : function(formData, jqForm, options){
+					//没有定义url则直接调用回调函数
+					if(APP.isEmpty(opts.url)) {
+						_form_submit_success(_formData2Object(formData),opts,_this,_in_modal,callback);
+						return false;
+					}
+					//本地数据返回不修改任何數據
+					if(_srv.isLocalData){
+						_local_data_submit(opts,_this,_form_url,_in_modal,callback,errorback);
+						return false;
+					}
+					//spring @RequestBody对于form提交的字符解析有问题，暂时使用json提交代替form提交
+					if(opts.queryForm){
+						APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "查询中",gif : 'form-submit'});
+						_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,true);
+						return false;
+					}else{
+						APP.blockUI({target:_in_modal,message:opts.onSubmitMsg || "提交中",gif : 'form-submit'});
+						/*针对spring @RequestBody对于form提交的字符解析有问题，使用两种提交方式*/
+						/*使用@RequestBody注解的参数使用json方式  设置opts.submitJson为true*/
+						/*表单中如果有明细对象（表格），也使用json提交*/
+						if(opts.submitJson){
+							//提取表单中的表格数据
+							if(jqForm.find("table.datatable[data-form]").length > 0){
+								require(['app/datatables'],function(DT){
+									jqForm.find("table.datatable[data-form]").each(function(){
+										formData.push({"name":$(this).data('form'),"value":$(this).dataTable().api().tableData()});
+									})
+									_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,false);
+								});
+							}else{
+								_json_data_submit(opts,_this,_form_url,formData,_in_modal,callback,errorback,false);
+							}
+							return false
+						}
+						return true;
+					}
+				},
+				error:function(error){
+					console.error(error);
+					APP.unblockUI(_in_modal);
+					APP.notice('',"系统错误["+error.status+"] "+error.statusText,'error',_in_modal);
+					if(typeof errorback === 'function')errorback(error);
+					else if(opts.onError) opts.onError(error);
+				},
+				success:function(resp, status){
+					var response = _srv.resp(resp);
+					if(APP.debug)console.log(response);
+					APP.unblockUI(_in_modal);
+					if(API.isError(response)){
+						if(API.isUnAuthorized(response)){
+							if(_srv.useLoginForm) {
+								API.showLogin();
+							}else{
+								API.backLogin(_srv,null,_this.get());
+							}
+							return;
+						}
+						APP.notice('',API.respMsg(response),'warning',_in_modal);
+						if(typeof errorback === 'function')errorback.call(this,response,status);
+						else if(typeof opts.onError  === 'function') opts.onError.call(this,response,status);
+					}else{
+						_form_submit_success(response,opts,_this,_in_modal,callback);
+					}
+				}
+			},opts);
+			//已初始化标记
+			_this.data("form-init",true);
+			if(form_opt.ajax) _this.ajaxForm(form_opt);
+			//初始化完成回调
+			if(typeof opts.initComplete === 'function') opts.initComplete.call(this,opts);
+		});
 	}
 	/*json方式提交form*/
 	function _form_submit_success(response,opts,_form,_in_modal,callback){
@@ -832,9 +842,7 @@ define('app/form',["jquery","app/common","app/api","moment",
 			});
 		}
 		var default_opt = $.extend(true,{},select2_default_opts,opts);
-		require(["jquery/select2"],function(){
-			_select.select2(default_opt);
-		});
+		_select.select2(default_opt);
 		//附加data到select上，方便页面使用
 		_select.data('options',default_opt.data);
 		if(_select.data("original") || _select.data("init")) _select.val((_select.data("original") || _select.data("init"))).trigger("change");
@@ -917,123 +925,120 @@ define('app/form',["jquery","app/common","app/api","moment",
 		var treeSel = $("<ul id='"+treeId+"' class='ztree treeSelect' style='margin-top:0; width:100%;'></ul>");//ztree控件
 		menuContent.append(treeSel);//将树形放入下拉菜单显示层
 		_parent.append(menuContent);//将下拉菜单显示层放入当前节点原父节点
-		require(['app/tree'],function(){
-			var treesel_settings = $.extend(true,{
-				data : {
-					key : {name : _key_name},
-					simpleData: {
-						enable: true,
-						idKey: _key_id,
-						pIdKey: _key_parent
-					}
-				},
-				callback: {
-					onClick: function(e, tree_id, treeNode){//点击时将数据传入显示控件
-						var zTree = $.fn.zTree.getZTreeObj(tree_id),
+		var treesel_settings = $.extend(true,{
+			data : {
+				key : {name : _key_name},
+				simpleData: {
+					enable: true,
+					idKey: _key_id,
+					pIdKey: _key_parent
+				}
+			},
+			callback: {
+				onClick: function(e, tree_id, treeNode){//点击时将数据传入显示控件
+					var zTree = $.fn.zTree.getZTreeObj(tree_id),
 						nodes = zTree.getSelectedNodes(),
 						_name = "",
-						 _id = "";
-						nodes.sort(function compare(a,b){return a[_key_id]-b[_key_id];});
-						for (var i=0, l=nodes.length; i<l; i++) {
-							_name += nodes[i][_key_name] + ",";
-							_id += nodes[i][_key_id] + ",";
-						}
-						if(_tree_filed.length == 1 ){ //如果为单选且页面定义了parentTree隐藏域,则为parentTree赋值
-							var _tree_sort = "";
-							if(!APP.isEmpty(treeNode[_key_sort])) _tree_sort = treeNode[_key_sort] + "-" + treeNode[_key_id];
-							else _tree_sort = "0-" + treeNode[_key_id];
-							
-							if(!APP.isEmpty(treeNode['parentTree'])) _tree_sort = treeNode['parentTree'] + "," + _tree_sort;
-							else if(!APP.isEmpty(treeNode['parent_tree'])) _tree_sort = treeNode['parent_tree'] + "," + _tree_sort;
-							_tree_filed.val(_tree_sort);
-						}
-						if (_name.length > 0 ) _name = _name.substring(0, _name.length-1);
-						if (_id.length > 0 ) _id = _id.substring(0, _id.length-1);
-						_this.val(_name).trigger('change');
-						//validate字段去除
-						_this.closest('.form-group').removeClass('has-error');
-						_this.parent().siblings("span#"+_this.attr("id")+"-error").remove();
-						_this.parent().siblings("i.validate-icon").removeClass("fa-check fa-warning").removeAttr("data-original-title");
-						_id_filed.val(_id);
-						inputIcon.css('color','red');
-						if (settings.onClick) {
-				        	settings.onClick.toFunc().call(this, e, tree_id, treeNode);
-				        }
-					},
-					onAsyncSuccess : function(e, tree_id, treeNode, msg){//数据同步成功后显示默认值
-						if(treeNode === undefined){//根节点同步时显示默认值
-							var zTree = $.fn.zTree.getZTreeObj(tree_id);
-							if(_id_filed.attr('value')){
-								var _selectedNode = zTree.getNodeByParam(_key_id,_id_filed.attr('value'),null);
-								zTree.selectNode(_selectedNode);
-								if(_selectedNode) {
-									_this.val(_selectedNode[_key_name]).trigger('change');
-									inputIcon.css('color','red');
-								}
+						_id = "";
+					nodes.sort(function compare(a,b){return a[_key_id]-b[_key_id];});
+					for (var i=0, l=nodes.length; i<l; i++) {
+						_name += nodes[i][_key_name] + ",";
+						_id += nodes[i][_key_id] + ",";
+					}
+					if(_tree_filed.length == 1 ){ //如果为单选且页面定义了parentTree隐藏域,则为parentTree赋值
+						var _tree_sort = "";
+						if(!APP.isEmpty(treeNode[_key_sort])) _tree_sort = treeNode[_key_sort] + "-" + treeNode[_key_id];
+						else _tree_sort = "0-" + treeNode[_key_id];
+
+						if(!APP.isEmpty(treeNode['parentTree'])) _tree_sort = treeNode['parentTree'] + "," + _tree_sort;
+						else if(!APP.isEmpty(treeNode['parent_tree'])) _tree_sort = treeNode['parent_tree'] + "," + _tree_sort;
+						_tree_filed.val(_tree_sort);
+					}
+					if (_name.length > 0 ) _name = _name.substring(0, _name.length-1);
+					if (_id.length > 0 ) _id = _id.substring(0, _id.length-1);
+					_this.val(_name).trigger('change');
+					//validate字段去除
+					_this.closest('.form-group').removeClass('has-error');
+					_this.parent().siblings("span#"+_this.attr("id")+"-error").remove();
+					_this.parent().siblings("i.validate-icon").removeClass("fa-check fa-warning").removeAttr("data-original-title");
+					_id_filed.val(_id);
+					inputIcon.css('color','red');
+					if (settings.onClick) {
+						settings.onClick.toFunc().call(this, e, tree_id, treeNode);
+					}
+				},
+				onAsyncSuccess : function(e, tree_id, treeNode, msg){//数据同步成功后显示默认值
+					if(treeNode === undefined){//根节点同步时显示默认值
+						var zTree = $.fn.zTree.getZTreeObj(tree_id);
+						if(_id_filed.attr('value')){
+							var _selectedNode = zTree.getNodeByParam(_key_id,_id_filed.attr('value'),null);
+							zTree.selectNode(_selectedNode);
+							if(_selectedNode) {
+								_this.val(_selectedNode[_key_name]).trigger('change');
+								inputIcon.css('color','red');
 							}
 						}
-						if (settings.onAsyncSuccess) {
-				        	settings.onAsyncSuccess.toFunc().call(this, e, tree_id, treeNode,msg);
-				        }
+					}
+					if (settings.onAsyncSuccess) {
+						settings.onAsyncSuccess.toFunc().call(this, e, tree_id, treeNode,msg);
 					}
 				}
-			},settings);
-			
-			/**
-			 * 树形下拉列表隐藏-for-treeSelect
-			 * @param  {String} content 下拉列表显示DIV的ID
-			 */
-			function _treeSelect_hideMenu(content) {
-				$("#"+content).fadeOut("fast");
-				$("body").unbind("mousedown", _treeSelect_onBodyDown);
 			}
-			/**
-			 * 树形下拉列表触发隐藏点击事件-for-treeSelect
-			 * @param  {Object} event 事件对象-传入了menuContentID(下拉列表显示DIV的ID)数据
-			 */
-			function _treeSelect_onBodyDown(event) {
-				if (!(event.target.id == event.data.menuContentID || $(event.target).parents("#"+event.data.menuContentID).length>0)) {
-					_treeSelect_hideMenu(event.data.menuContentID);
-				}
+		},settings);
+
+		/**
+		 * 树形下拉列表隐藏-for-treeSelect
+		 * @param  {String} content 下拉列表显示DIV的ID
+		 */
+		function _treeSelect_hideMenu(content) {
+			$("#"+content).fadeOut("fast");
+			$("body").unbind("mousedown", _treeSelect_onBodyDown);
+		}
+		/**
+		 * 树形下拉列表触发隐藏点击事件-for-treeSelect
+		 * @param  {Object} event 事件对象-传入了menuContentID(下拉列表显示DIV的ID)数据
+		 */
+		function _treeSelect_onBodyDown(event) {
+			if (!(event.target.id == event.data.menuContentID || $(event.target).parents("#"+event.data.menuContentID).length>0)) {
+				_treeSelect_hideMenu(event.data.menuContentID);
 			}
-			//显示树形下拉菜单
-			function _treeSelect_showMenu(){
-				if(menuContent.css("display") == "none"){
-					var offset = _this.offset();
-					menuContent.css({width: + offset.width + "px",left:offset.left + "px", top:offset.top + _this.outerHeight() + "px"}).slideDown("fast");
-					$("body").bind("mousedown",{menuContentID:treeId+"_MenuContent"}, _treeSelect_onBodyDown);
-				}
+		}
+		//显示树形下拉菜单
+		function _treeSelect_showMenu(){
+			if(menuContent.css("display") == "none"){
+				var offset = _this.offset();
+				menuContent.css({width: + offset.width + "px",left:offset.left + "px", top:offset.top + _this.outerHeight() + "px"}).slideDown("fast");
+				$("body").bind("mousedown",{menuContentID:treeId+"_MenuContent"}, _treeSelect_onBodyDown);
 			}
-			//点击显示树形下拉菜单
-			selBtn.click(function() {
-				_treeSelect_showMenu();
-			});
-			//回车显示
-			_this.keypress(function(e){
-				if(e.keyCode == 13) _treeSelect_showMenu();
-			});
-			_this.click(function() {
-				_treeSelect_showMenu();
-			});
-			//删除数据
-			inputIcon.click(function() {
-				_this.val('');
-				_id_filed.val('');
-				if(_tree_filed.length == 1 ){
-					_tree_filed.val('');
-				}
-				$(this).css('color','#ccc');
-			});
-			var _treeObj = treeSel.tree(treesel_settings); 
-			_this.treeObj = _treeObj;
-			
+		}
+		//点击显示树形下拉菜单
+		selBtn.click(function() {
+			_treeSelect_showMenu();
 		});
+		//回车显示
+		_this.keypress(function(e){
+			if(e.keyCode == 13) _treeSelect_showMenu();
+		});
+		_this.click(function() {
+			_treeSelect_showMenu();
+		});
+		//删除数据
+		inputIcon.click(function() {
+			_this.val('');
+			_id_filed.val('');
+			if(_tree_filed.length == 1 ){
+				_tree_filed.val('');
+			}
+			$(this).css('color','#ccc');
+		});
+		var _treeObj = treeSel.tree(treesel_settings);
+		_this.treeObj = _treeObj;
 		return _this;
 	};
 
 	$.fn.typeaHead = function(options){
-		var default_settings = $.extend(true,{autoSelect: true},options);
 		var input_obj = $(this);
+		var default_settings = $.extend(true,{autoSelect: true},options);
 		input_obj.typeahead(default_settings);
 	}
 	/**
@@ -1043,36 +1048,34 @@ define('app/form',["jquery","app/common","app/api","moment",
 	 */
 	$.fn.summerNote = function(options){
 		var _this = $(this);
-		require(["jquery/summernote"],function(){
-			var default_settings = $.extend(true,{
-				toolbar: [
-					['style', ['bold', 'italic', 'underline','color', 'clear','strikethrough', 'superscript', 'subscript','fontsize','height']],
-					['para', ['ul', 'ol', 'paragraph']],
-					['insert', ['picture','link','video','table','hr']],
-					['misc', ['undo','redo','codeview']]
-				],
-				lang : 'zh-CN',
-				placeholder : _this.data('placeholder') || '',
-				minHeight : 200,
-				dialogsFade : true,// Add fade effect on dialogs
-				dialogsInBody : true,// Dialogs can be placed in body, not in
-				disableDragAndDrop : true,// default false You can disable drag
-				callbacks : {
-					onImageUpload : function(files) {
-						var _srv = API.getServerByKey(options.fileServer);
-						var formData = new FormData();
-						formData.append('file',files[0]);
-						API.uploadFile(_srv,formData,{type:'_rich_edit_',ownerid:APP.getUniqueID('565')},function(fileRet){
-							_this.summernote('insertImage', _srv.fileSrvUrl + fileRet.url, function ($image) {
-								$image.css({'width': $image.width() / 3,'height':$image.height() / 3});
-								$image.attr('data-fileid', fileRet.id);
-							});
+		var default_settings = $.extend(true,{
+			toolbar: [
+				['style', ['bold', 'italic', 'underline','color', 'clear','strikethrough', 'superscript', 'subscript','fontsize','height']],
+				['para', ['ul', 'ol', 'paragraph']],
+				['insert', ['picture','link','video','table','hr']],
+				['misc', ['undo','redo','codeview']]
+			],
+			lang : 'zh-CN',
+			placeholder : _this.data('placeholder') || '',
+			minHeight : 200,
+			dialogsFade : true,// Add fade effect on dialogs
+			dialogsInBody : true,// Dialogs can be placed in body, not in
+			disableDragAndDrop : true,// default false You can disable drag
+			callbacks : {
+				onImageUpload : function(files) {
+					var _srv = API.getServerByKey(options.fileServer);
+					var formData = new FormData();
+					formData.append('file',files[0]);
+					API.uploadFile(_srv,formData,{type:'_rich_edit_',ownerid:APP.getUniqueID('565')},function(fileRet){
+						_this.summernote('insertImage', _srv.fileSrvUrl + fileRet.url, function ($image) {
+							$image.css({'width': $image.width() / 3,'height':$image.height() / 3});
+							$image.attr('data-fileid', fileRet.id);
 						});
-					}
+					});
 				}
-			},options);
-			_this.summernote(default_settings);
-		});
+			}
+		},options);
+		_this.summernote(default_settings);
 
 
 	}
@@ -1194,52 +1197,49 @@ define('app/form',["jquery","app/common","app/api","moment",
 			if(!options.savePath) _this.val(ownerid);
 			_file_upload_btn.show();
 		}
-
-		require(['jquery/fileupload'],function(){
-			var _upload_url = _srv.getFileUploadUrl(options.param || {});
-			var _url = _srv.getUrl(_upload_url);
-			var _err_msg = '';
-			var default_settings = $.extend(true,{
-				url: _srv.srvUrl + _url,
-				dataType: 'json',
-				maxFileSize : 4000000, //4 MB
-				paramName : _srv.fileParamName,
-				formData : function(form){
-					var data = new FormData();
-					data.append(_srv.fileParamName, _file);
-					return data;
-				},
-				beforeSend : function(request){
-					return API.createHeader(_srv,_url,request,errorback);
-				},
-				send : function(e,data){
-					_file_upload_btn.hide();
-					if(_files_box.find("[title='"+data.files[0].name+"']").length > 0){
-						_err_msg = '相同名称文件已存在';
-						return false;
-					}
-					return true;
-				},
-				done: function (e, data) {
-					_file_upload_btn.show();
-					var response = _srv.respFile(data.result);
-					_parse_file(response,_srv,_files_box,options,errorback);
-
-				},
-				fail : function(e,data){
-					_file_upload_btn.show();
-					APP.notice('文件上传错误',data.textStatus||_err_msg,'error');
-				},
-				progressall: function (e, data) {
-					var progressBar = APP.progressBar(_files_box);
-					var progress = parseInt(data.loaded / data.total * 100, 10);
-					progressBar.go(progress);
+		var _upload_url = _srv.getFileUploadUrl(options.param || {});
+		var _url = _srv.getUrl(_upload_url);
+		var _err_msg = '';
+		var default_settings = $.extend(true,{
+			url: _srv.srvUrl + _url,
+			dataType: 'json',
+			maxFileSize : 4000000, //4 MB
+			paramName : _srv.fileParamName,
+			formData : function(form){
+				var data = new FormData();
+				data.append(_srv.fileParamName, _file);
+				return data;
+			},
+			beforeSend : function(request){
+				return API.createHeader(_srv,_url,request,errorback);
+			},
+			send : function(e,data){
+				_file_upload_btn.hide();
+				if(_files_box.find("[title='"+data.files[0].name+"']").length > 0){
+					_err_msg = '相同名称文件已存在';
+					return false;
 				}
-			},options);
-			_file.fileupload(default_settings)
-				.prop('disabled', !$.support.fileInput)
-				.parent().addClass($.support.fileInput ? undefined : 'disabled');
-		})
+				return true;
+			},
+			done: function (e, data) {
+				_file_upload_btn.show();
+				var response = _srv.respFile(data.result);
+				_parse_file(response,_srv,_files_box,options,errorback);
+
+			},
+			fail : function(e,data){
+				_file_upload_btn.show();
+				APP.notice('文件上传错误',data.textStatus||_err_msg,'error');
+			},
+			progressall: function (e, data) {
+				var progressBar = APP.progressBar(_files_box);
+				var progress = parseInt(data.loaded / data.total * 100, 10);
+				progressBar.go(progress);
+			}
+		},options);
+		_file.fileupload(default_settings)
+			.prop('disabled', !$.support.fileInput)
+			.parent().addClass($.support.fileInput ? undefined : 'disabled');
 
 	}
 	function _initModalForm(mid,formOtps,submitback,errorback){

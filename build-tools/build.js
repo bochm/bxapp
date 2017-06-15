@@ -4,7 +4,7 @@
 	 */
     appDir: '../source',//应用源文件路径
     baseUrl: '.',//js目录(相对与appDir)
-    dir: '../dist',//目标路径
+    dir: '../deployee/dist',//目标路径
     modules: [
 		/*{
             //单次首页请求数小，但请求达到1.7M

@@ -30,15 +30,26 @@ define('module/system/user',['app/common','app/datatables','app/form'],function(
 			return;
 		}
 		$('#sys-user-password').removeClass('required');//密码不填写视为不修改密码
-		FM.editForm({title:'修改用户',rules : form_rules,fieldOpts : field_opts,submitClear : false,formData : dt.selectedRows()[0],
-			"submitJson" : false,autoClose : true,url : "ADMIN/system/user/edit",editModal:"#system-user-list-edit"},function(data){
+		FM.editForm(
+			{
+				title:'修改用户',
+				rules : form_rules,
+				fieldOpts : field_opts,
+				submitClear : false,
+				formData : dt.selectedRows()[0],
+				submitJson : false,
+				autoClose : true,
+				url : "ADMIN/system/user/edit",
+				editModal:"#system-user-list-edit",
+				initComplete:function(){
+					//修改时密码显示为空
+					$('#sys-user-password').attr('type','text');
+					$('#sys-user-password').val('');
+					$('#sys-user-password').attr('type','password');
+				}
+			},function(data){
 			dt.updateSelectedRow(data);
 		});
-
-		//修改时密码显示为空
-		$('#sys-user-password').attr('type','text');
-		$('#sys-user-password').val('');
-		$('#sys-user-password').attr('type','password');
 	}
 	function inti_table(param){
 		$('table#table-system-user-list').initTable({
