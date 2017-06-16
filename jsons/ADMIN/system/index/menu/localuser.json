@@ -31,6 +31,9 @@
     {"id":"0205","icon":"iconfont icon-lock","name":"角色管理","target":"pages/system/role/role-list","permission":"","type":"0","parent_id":"02"},
     {"id":"0206","icon":"iconfont icon-lock","name":"测试","target":"pages/system/test/testtable","permission":"","type":"0","parent_id":"02"},
 
-    {"id":"04","icon":"iconfont icon-magicwand","name":"礼品管理","target":"pages/weixin/gift/gift-main","permission":"","type":"0","parent_id":"-1"}
+    {"id":"04","icon":"iconfont icon-magicwand","name":"礼品管理","target":"pages/weixin/gift/gift-main","permission":"","type":"0","parent_id":"-1"},
+
+    {"id":"07","icon":"iconfont icon-wenjuan2","name":"问卷管理","target":"","permission":"","type":"0","parent_id":"-1"},
+    {"id":"0701","icon":"iconfont icon-wenjuan1","name":"题库维护","target":"pages/weixin/question/resource-list","permission":"","type":"0","parent_id":"07"}
   ]
 }

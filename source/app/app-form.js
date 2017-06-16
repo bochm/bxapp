@@ -237,7 +237,11 @@ define('app/form',["jquery","app/common","app/api","moment","jquery/validate","j
 			}
 		}
 		if(!APP.isEmpty(p.url)){
-			return API.jsonData(p.url,paramData);
+			var _ret = API.jsonData(p.url,paramData);
+			if(typeof _ret === 'boolean'){
+				return _ret;
+			}
+			return APP.isEmpty(_ret);
 		}else{
 			var stmid = p.stmID || p.stmid || p.stmId;
 			return APP.isEmpty(API.getListByStmId(stmid,paramData));

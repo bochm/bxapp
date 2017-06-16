@@ -2810,6 +2810,8 @@
 
 .icon-chuhao:before { content: "\e6d8"; }
 
+.icon-diaocha:before { content: "\e6f3"; }
+
 .icon-jianhao1:before { content: "\e6d9"; }
 
 .icon-gouwuche:before { content: "\e6da"; }
@@ -2821,6 +2823,8 @@
 .icon-saoyisao:before { content: "\e6dd"; }
 
 .icon-wancheng:before { content: "\e6de"; }
+
+.icon-wenjuan2:before { content: "\e6f5"; }
 
 .icon-yulan:before { content: "\e6ed"; }
 
@@ -2859,3 +2863,5 @@
 .icon-caidan2:before { content: "\e6f1"; }
 
 .icon-chuku:before { content: "\e6eb"; }
+
+.icon-wenjuan1:before { content: "\e6f6"; }

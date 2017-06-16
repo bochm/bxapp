@@ -1,0 +1,118 @@
+<div class="modal fade" id="weixin-question-resource-modal" data-backdrop="static" data-width="800"
+     data-js-module="module/weixin/question/resource" data-js-main="initEdit">
+    <form  role="form" class="form-horizontal" id="weixin-question-resource-form">
+        <input type="hidden" name="id">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="control-label col-md-2">题目<span class="required">*</span></label>
+                    <div class="col-md-10">
+                        <div class="input-icon right"> <i class="fa validate-icon"></i>
+                            <input type="text" name="subject" maxlength="200" class="form-control required">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">分组类型</label>
+                    <div class="col-md-8">
+                        <input type="checkbox" name="groupType" checked data-on-value="background" data-label-width="30"
+                               class="bs-switch form-control" data-off-color="info" data-dict-type="question_group_type">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">是否启用</label>
+                    <div class="col-md-8">
+                        <input type="checkbox" name="status" class="bs-switch form-control" data-on-value="1" data-dict-type="on_off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="control-label col-md-2">控件类型<span class="required">*</span></label>
+                    <div class="col-md-10">
+                        <div class="input-icon left"> <i class="fa validate-icon"></i>
+                            <div class="input-icon select right"> <i class="fa validate-icon"></i>
+                                <select name="type" form-role='select' class="form-control required selectOpt"
+                                        data-dict-type="question_type" data-init="radio">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" data-hide="options">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="control-label col-md-2">选项A</label>
+                    <input type="hidden" name="resourceOpts.id">
+                    <input type="hidden" name="resourceOpts.resourceId">
+                    <input type="hidden" name="resourceOpts.optionCode" value="A">
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <div class="input-icon"> <i class="fa validate-icon"></i>
+                                <input type="text" name="resourceOpts.optionDesc" maxlength="100" class="form-control required">
+                            </div>
+                            <span class="input-group-btn">
+                                <button class="btn btn-success" type="button"><i class="fa fa-plus"/></i></button>
+                                <button class="btn btn-success" type="button"><i class="fa fa-minus"/></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" data-hide="text">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">是否数值</label>
+                    <div class="col-md-8">
+                        <input type="checkbox" name="isNumber" data-on-value="YES" data-off-value="NO"
+                               data-on-text="是" data-off-text="否" class="bs-switch form-control" >
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">文本框提示</label>
+                    <div class="col-md-8"><input type="text" name="textPrompt" maxlength="50" class="form-control"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row" data-hide="fixedSelectType">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="control-label col-md-3">固定值单选数据项</label>
+                    <div class="col-md-9">
+                        <select name="fixedSelectType" form-role='select' class="form-control"
+                                data-dict-type="question_fixed_select_type" data-init="area">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" data-hide="fixedMultiselectType">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="control-label col-md-3">固定值多选数据项</label>
+                    <div class="col-md-9">
+                        <select name="fixedMultiselectType" form-role='select' class="form-control"
+                                data-dict-type="question_fixed_miltiselect_type" data-init="spec">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="hide" data-form-hidden="weixin-question-resource-form">
+
+    </div>
+</div>

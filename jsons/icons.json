@@ -40,5 +40,8 @@
 {"id":"iconfont icon-xiaoshouqushi",	"text":"销售趋势"},
 {"id":"iconfont icon-bell",	"text":"铃铛"},
 {"id":"iconfont icon-qdao",	"text":"签到"},
-{"id":"iconfont icon-construction",	"text":"建设"}
+{"id":"iconfont icon-construction",	"text":"建设"},
+{"id":"iconfont icon-wenjuan2",	"text":"问卷"},
+{"id":"iconfont icon-wenjuan1",	"text":"题库"},
+{"id":"iconfont icon-diaocha",	"text":"调查问卷"}
 ]
