@@ -8,7 +8,7 @@ define('app/servers',['jquery','app/digests'],function($,DIGESTS) {
         "fileParamName" : 'file',//服务端接受文件上传服务参数名称
         "useLoginForm" : true,//会话或者本地缓存失效后是否需要登陆
         "AUTH" : {
-            "rpToken" : "rp_token",//服务端token名称,服务端验证header中的token名称
+            "rpToken" : "rpToken",//服务端token名称,服务端验证header中的token名称
             "userName" : "loginname",//服务端用户登陆名称,header中的名称
             "pwd" : "password",//服务端用户登陆密码,header中的密码
             "usToken" : "rsToken", //服务端返回token名称,user对象的getRsToken

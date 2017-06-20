@@ -16,11 +16,10 @@ require.config({
 		'sweetalert':'lib/bootstrap/sweetalert/sweet-alert',//弹出窗口
 		'switch':'lib/bootstrap/switch/bootstrap-switch',//开关选择
 		'moment':'lib/utils/moment',//时间工具
-		'jquery':'lib/jquery/jquery-1.12.0.min',
+		'jquery':'lib/jquery/jquery-2.2.0.min',
 		'jquery/migrate':'lib/jquery/jquery-migrate-min',//jquery版本迁移插件
 		'jquery/iframe':'lib/jquery/jquery.iframe-transport',//jquery iframe支持插件(文件上传)
 		'jquery/ui/widget':'lib/jquery/jquery.ui.widget',//jquery ui widget(文件上传)
-		'jquery/scrolltotop':'lib/jquery/scrolltotop',//返回顶部
 		'jquery/scrollbar':'lib/jquery/scrollbar/jquery.slimscroll',//滚动条
 		'jquery/blockui':'lib/jquery/blockui/jquery.blockUI',//遮罩
 		'jquery/gritter':'lib/jquery/gritter/jquery.gritter', //弹出提示
@@ -49,7 +48,7 @@ require.config({
     },
 	shim:{
 		'bootstrap':['jquery'],
-		'jquery/scrolltotop' : ['jquery'],
+		'jquery/blockui':['jquery'],
 		'jquery/gritter':['jquery','css!lib/jquery/gritter/jquery.gritter.css'],
 		'jquery/colorbox':['jquery'],
 		'jquery/carousel':['jquery','css!lib/jquery/carousel/owl.carousel.css'],
@@ -62,12 +61,8 @@ require.config({
     }
 });
 
-define(['app/index','moment','jquery/scrolltotop',
-        'css!lib/bootstrap/bootstrap.css',
-        'css!lib/font-awesome/font-awesome.css',
-        'css!app/main.css',
-        'css!app/main-layout.css'],function(APP,moment){
-	var _now_hour = moment().format('H');
+define(['app/index'],function(APP){
+	var _now_hour = APP.formatDate('H');
 	if(_now_hour > 13 || _now_hour < 8){
 		require(['css!app/main-themes-default.css']);
 	}else{

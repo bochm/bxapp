@@ -1,10 +1,7 @@
 /**
  * 通用工具
  */
-define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/blockui',
-	'css!lib/bootstrap/bootstrap.css',
-	'css!lib/font-awesome/font-awesome.css',
-	'css!app/main.css'],function($,API) {
+define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/blockui'],function($,API) {
 
 	var brandColors = {
 		'blue': '#89C4F4',

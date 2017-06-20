@@ -765,10 +765,10 @@ define('app/form',["jquery","app/common","app/api","moment","jquery/validate","j
 			if(_select.attr('placeholder')) _selectOpt.placeholder = JSON.parse(_select.attr('placeholder'));
 		}catch(e){alert("placeholder属性值必须为json字符串");}
 		if(APP.isEmpty(options.data)){
-			if(_select.data('json')) _selectOpt.jsonData = _select.data('json');
-			else if(_select.data('stmid')) _selectOpt.stmID = _select.data('stmid');
-			else if(_select.data('dict-type')){
-				_selectOpt.data = API.getDictByType(_select.data('dict-type'));
+			if(_select.data('json') && APP.isEmpty(_selectOpt.jsonData)) _selectOpt.jsonData = _select.data('json');
+			else if(_select.data('stmid') && APP.isEmpty(_selectOpt.stmID)) _selectOpt.stmID = _select.data('stmid');
+			else if(options.dictType || _select.data('dict-type')){
+				_selectOpt.data = API.getDictByType(options.dictType || _select.data('dict-type'));
 				if($.isArray(_selectOpt.data)){
 					for(var i=0;i<_selectOpt.data.length;i++){//select2使用text显示
 						_selectOpt.data[i].id = _selectOpt.data[i].value;
@@ -849,7 +849,10 @@ define('app/form',["jquery","app/common","app/api","moment","jquery/validate","j
 		_select.select2(default_opt);
 		//附加data到select上，方便页面使用
 		_select.data('options',default_opt.data);
-		if(_select.data("original") || _select.data("init")) _select.val((_select.data("original") || _select.data("init"))).trigger("change");
+		//初始化选项
+		if(_select.data("original") || default_opt.dataInit ||  _select.data("init")) {
+			_select.val((_select.data("original") || default_opt.dataInit || _select.data("init"))).trigger("change");
+		}
 		else _select.val(_select.val()).trigger("change");
 		//避免单页面时重复执行事件
 		if(APP.isEmpty(_select.data("event-init"))){
