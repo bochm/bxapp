@@ -1,38 +1,23 @@
-define('module/weixin/question/resource',['app/common','app/datatables','app/form'],function(APP,DT,FM) {
-    var resourceTableId = "#table-weixin-question-resource";
-    var editPage = "pages/weixin/question/resource-edit";
-    var editModal = "#weixin-question-resource-modal";
+define('module/weixin/research/indexes',['app/common','app/datatables','app/form'],function(APP,DT,FM) {
+    var resourceTableId = "#table-weixin-research-indexes";
+    var editPage = "pages/weixin/research/indexes-edit";
+    var editModal = "#weixin-research-indexes-modal";
     var resource = {
         "table" : {
             "id" : resourceTableId,
             "options" : {
-                "title": "题目表",
-                "dataUrl" : "WEIXIN/questionresource/selectList",
+                "title": "调查指标表",
+                "dataUrl" : "WEIXIN/researchindex/selectList",
                 "columns": [
                     {"data": "id", "title": "id", "visible": false},
-                    {"data": "subject", "title": "题目"},
-                    {"data": "optionNumber", "title": "选项数量"},
-                    {"data": "groupType", "title": "分组类型",
-                        "render": function (data, type, row, meta) {
-                            return data == 'consume' ? "个人消费" : "个人背景"
-                        }
-                    },
-                    {"data": "type", "title": "控件类型",
-                        "render": function (data, type, row, meta) {
-                            switch (data){
-                                case 'radio' : return '单选按钮';
-                                case 'checkbox' : return '复选按钮';
-                                case 'text' : return '文本';
-                                case 'fixedSelect' : return '固定值单选';
-                                case 'fixedMultiselect' : return '固定值多选';
-                            }
-                        }
-                    },
-                    {"data": "status", "title": "是否启用","render": function (data, type, row, meta) {return data == '1' ? "是" : "否"}}
+                    {"data": "indexDesc", "title": "题目名称"},
+                    {"data": "showMode", "title": "分组类型","render" : function(data){return API.getDictName("researchindex_showmode",data);}},
+                    {"data": "status", "title": "是否启用","render": function (data, type, row, meta) {return API.getDictName("on_off",data);}},
+                    {"data": "indexExplain", "title": "题目说明"}
                 ],
                 "ordering": false,
                 "rowOperation" : ["view","edit","delete"],
-                "deleteRecord": {url: 'WEIXIN/questionresource/deleteBatch', row: true, id: "id"},
+                "deleteRecord": {url: 'WEIXIN/researchindex/deleteBatch', row: true, id: "id"},
                 "addEditModal" : {"url" : editPage,"id":editModal,"title":"题目维护"}
             }
         },
@@ -54,7 +39,7 @@ define('module/weixin/question/resource',['app/common','app/datatables','app/for
             var act = param.act;
             var editForm = $('#weixin-question-resource-form');
             var _formInitOpt = {
-                submitClear : true,url:"WEIXIN/questionresource/insert",
+                submitClear : true,url:"WEIXIN/researchindex/insert",
                 fieldOpts : {
                     "type" : {
                         "dictType" : "question_type",
@@ -109,7 +94,7 @@ define('module/weixin/question/resource',['app/common','app/datatables','app/for
             if(act == 'edit'){
                 _formInitOpt.formData = dt.selectedRows()[0];
                 _formInitOpt.submitClear = false;
-                _formInitOpt.url = "WEIXIN/questionresource/update";
+                _formInitOpt.url = "WEIXIN/researchindex/update";
                 _formInitOpt.onSuccess = function(ret){
                     dt.updateSelectedRow(ret);
                 }

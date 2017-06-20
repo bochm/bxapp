@@ -61,7 +61,7 @@ define('module/system/menu',['app/common','app/api','app/treetable','app/form'],
 	function handleEdit(params){
 		var menuTable = params.table;
 		$("#system-menu-edit-form input[name='type']").on("switch:change",function(e,state){
-			if(!state) {
+			if(state) {
 				$("#system-menu-edit-form input[name='permission']").removeClass('required');
 				$("#system-menu-edit-form select[name='icon']").addClass('required selectOpt');
 			}else{

@@ -1106,7 +1106,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 	APP.initImagebox = function (ct) {
 		var _imgBox = _queryContainer(ct).find(".image-box-button");
 		var _videoBox = _queryContainer(ct).find(".video-box-button");
-		if(_imgBox.length == 0 || _videoBox.length == 0) return;
+		if(_imgBox.length == 0 && _videoBox.length == 0) return;
 		require(['jquery/colorbox'],function(){
 			_imgBox.each(function(){
 				var rel = $(this).data('rel');
