@@ -2,6 +2,7 @@
     <div class="form">
         <form id="weixin-research-indexes-form" method="post" role="form">
             <input type="hidden" name="id" >
+            <input type="hidden" name="companyId">
             <div class="form-body">
                 <div class="portlet box green-turquoise" panel-title="调查问题录入" panel-icon="fa fa-pencil">
                     <div class="actions">
@@ -10,7 +11,16 @@
                     </div>
                     <div class="portlet-body">
                         <div class="scroller" data-scroll-height="450">
-                            <div class="col-md-5">
+                            <div class="col-md-5" >
+                                <div class="form-group">
+                                    <label class="control-label">调查对象<span class="required">*</span></label>
+                                    <div class="input-icon left"> <i class="fa validate-icon"></i>
+                                        <div class="input-icon select right"> <i class="fa validate-icon"></i>
+                                            <select name="objectId" form-role='select' class="form-control required selectOpt" >
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label class="control-label">题目名称<span class="required">*</span></label>
                                     <div class="input-icon right"> <i class="fa validate-icon"></i>
@@ -31,12 +41,12 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label">是否启用</label>
+                                    <label class="control-label">是否启用</label><br>
                                     <input type="checkbox" name="status" checked class="bs-switch form-control" data-on-value="1" data-dict-type="on_off">
                                 </div>
                             </div>
 
-                            <div class="col-md-5" >
+                            <div class="col-md-7" >
                                 <span id="table-weixin-research-indexes-items-toolbar" class="hide"><a data-role="addRecord"/></span>
                                 <table id="table-weixin-research-indexes-items" data-form="indexItems" class="table datatable table-striped"
                                        width="100%">
@@ -52,6 +62,7 @@
         <form method="post" role="form" id="weixin-research-indexes-items-form">
             <input type="hidden" name="id" >
             <input type="hidden" name="indexId" >
+            <input type="hidden" name="itemGroupDesc" >
             <div class="row"><div class="col-md-12">
                 <div class="form-group">
                     <label class="control-label">选项描述<span class="required">*</span></label>
@@ -60,27 +71,17 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label">采购数量<span class="required">*</span></label>
-                    <div class="input-icon right"> <i class="fa validate-icon"></i>
-                        <input type="text" name="qtyPurchase"  class="form-control required number">
+                    <label class="control-label">选项分类<span class="required">*</span></label>
+                    <div class="input-icon select right"> <i class="fa validate-icon"></i>
+                        <select name="itemGroupId" form-role='select' class="form-control required selectOpt">
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label">单价</label>
-                    <div class="input-icon right"> <i class="fa validate-icon"></i>
-                        <input type="text" name="price" data-digit="3" class="form-control" readonly>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">单位</label>
-                    <div class="input-icon right"> <i class="fa validate-icon"></i>
-                        <input type="text" name="unit" maxlength="4" class="form-control" readonly>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">金额</label>
-                    <div class="input-icon right"> <i class="fa validate-icon"></i>
-                        <input type="text" name="amount"  class="form-control number">
+                    <label class="control-label">选项值</label>
+                    <div class="input-icon select right"> <i class="fa validate-icon"></i>
+                        <select name="itemId" form-role='select' class="form-control required selectOpt">
+                        </select>
                     </div>
                 </div>
             </div></div>

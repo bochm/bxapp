@@ -1,10 +1,16 @@
 define('module/weixin/research/indexes',['app/common','app/datatables','app/form'],function(APP,DT,FM) {
-    var resourceTableId = "#table-weixin-research-indexes";
+    var indexesTableId = "#table-weixin-research-indexes";
+    var indexItemsTableId = "#table-weixin-research-indexes-items";
+
     var editPage = "pages/weixin/research/indexes-edit";
-    var editModal = "#weixin-research-indexes-modal";
-    var resource = {
+    var editForm = "#weixin-research-indexes-form";
+    var indexItemsModal = "#weixin-research-indexes-items-modal";
+    var indexItemsForm = "#weixin-research-indexes-items-form";
+    var pageContainer = APP.getPageContainer(indexesTableId);
+    var options_prefix = ['A','B','C','D','E','F','G','H','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+    var indexes = {
         "table" : {
-            "id" : resourceTableId,
+            "id" : indexesTableId,
             "options" : {
                 "title": "调查指标表",
                 "dataUrl" : "WEIXIN/researchindex/selectList",
@@ -18,88 +24,149 @@ define('module/weixin/research/indexes',['app/common','app/datatables','app/form
                 "ordering": false,
                 "rowOperation" : ["view","edit","delete"],
                 "deleteRecord": {url: 'WEIXIN/researchindex/deleteBatch', row: true, id: "id"},
-                "addEditModal" : {"url" : editPage,"id":editModal,"title":"题目维护"}
+                "addRecord" : function(dt){
+                    APP.loadInnerPage(pageContainer,editPage,{act:'add'});
+                },
+                "editRecord" : function(dt){
+                    APP.loadInnerPage(pageContainer,editPage,{act:'update',formData:dt.selectedRowsData()[0]});
+                },
+                "viewRecord" : function(dt){
+                    APP.loadInnerPage(pageContainer,editPage,{act:'view',formData:dt.selectedRowsData()[0]});
+                }
             }
         },
         "init" : function(param){
             this.table.options.params = param || {};
-
-            $(resourceTableId).initTable(this.table.options,function(otable){
-                resource.table.obj = otable;
+            $(indexesTableId).initTable(this.table.options,function(otable){
+                indexes.table.obj = otable;
             });
         }
     };
-
-    return {
-        init : function(param){
-            resource.init(param);
-        },
-        initEdit : function(param){
-            var dt = param.table;
-            var act = param.act;
-            var editForm = $('#weixin-question-resource-form');
-            var _formInitOpt = {
-                submitClear : true,url:"WEIXIN/researchindex/insert",
-                fieldOpts : {
-                    "type" : {
-                        "dictType" : "question_type",
-                        "dataInit" : "radio",
-                        "allowClear" : false
+    var indexesEdit = {
+        "table" : {
+            "id" : indexItemsTableId,
+            "options" : {
+                "title": "指标选项",
+                "dataUrl":"WEIXIN/researchindex/selectItems",
+                "columns": [
+                    {"data": "id", "visible": false},
+                    {"data": "indexId", "visible": false},
+                    {"data": "itemGroupId", "visible": false},
+                    {"data": "itemDesc", "title": "选项描述"},
+                    {"data": "itemGroupDesc", "title": "选项分类"},
+                    {"data": "itemId", "title": "选项值"}
+                ],
+                "rowOperation" : ["edit","delete"],
+                "ordering": false,
+                "paging" : false,
+                "addEditForm" : {
+                    "title":"指标选项维护",
+                    "editModal":indexItemsModal,
+                    "id" : indexItemsForm,
+                    "fieldOpts": {
+                        "itemGroupId": {
+                            "dictType": "researchindexitem_type",
+                            "dataInit" : "1",
+                            "allowClear" : false
+                        },
+                        "itemId": {
+                            "allowClear" : false
+                        }
                     }
-                },
-                initComplete : function(opts){
-                    $(" [data-option-add]").click(function(){
-                        $(this).closest(".form-group").after("<div class='form-group' data-option='A'>"+
-                            "<label class='control-label col-md-2'>选项B</label>"+
-                            "<input type='hidden' name='resourceOpts.id'>"+
-                            "<input type='hidden' name='resourceOpts.resourceId'>"+
-                            "<input type='hidden' name='resourceOpts.optionCode' value='B'>"+
-                            "<div class='col-md-10'>"+
-                            "<div class='input-group'>"+
-                            "<div class='input-icon'> <i class='fa validate-icon'></i>"+
-                            "<input type='text' name='resourceOpts.optionDesc' maxlength='100' class='form-control required'>"+
-                            "</div>"+
-                            "<span class='input-group-btn'>"+
-                            "<button class='btn btn-success' type='button' data-option-add='B'><i class='fa fa-minus'/></i></button>"+
-                            "<button class='btn btn-success' type='button' data-option-add='B'><i class='fa fa-plus'/></i></button>"+
-                            "</span></div></div></div>");
-                    });
-                    editForm.field("type").on('change',function(){
-                        var type = $(this).val();
-                        $(editModal + " div.row[data-hide]").each(function(){
-                            var _hide = $(this);
-                            if(_hide.data('hide').indexOf(type) == -1){
-                                 _hide.fadeOut(function(){
-                                     _hide.appendTo("div[data-form-hidden]").attr("data-show",_hide.data('hide')).removeAttr("data-hide");
-                                })
-                            }
-                        });
-                        $(editModal + " div.row[data-show]").each(function(){
-                            var _show = $(this);
-                            if(_show.data('show').indexOf(type) >= 0){
-                                _show.fadeIn(function(){
-                                    _show.appendTo(editForm).attr("data-hide",_show.data('show')).removeAttr("data-show").removeClass('hide');
-                                })
-                            }
-                        });
-                        $(editModal + " div.row[data-hide]").removeClass('hide');
-                    })
-                    editForm.field("type").trigger('change');
-                },
-                onSuccess : function(ret){
-                    dt.addRow(ret);
-                }
-            };
-
-            if(act == 'edit'){
-                _formInitOpt.formData = dt.selectedRows()[0];
-                _formInitOpt.submitClear = false;
-                _formInitOpt.url = "WEIXIN/researchindex/update";
-                _formInitOpt.onSuccess = function(ret){
-                    dt.updateSelectedRow(ret);
                 }
             }
-            $('#weixin-question-resource-form').initForm(_formInitOpt);
+        },
+        "form" : {
+            "id" : editForm,
+            "submitJson" : true,
+            "autoClose" : true,
+            "fieldOpts": {
+                "objectId":{
+                    "dataUrl" : "WEIXIN/researchindex/selectObject",
+                    "allowClear" : false,
+                    "width" : "50%"
+                },
+                "showMode": {
+                    "dictType": "researchindex_showmode",
+                    "dataInit" : "1",
+                    "allowClear" : false,
+                    "width" : "50%"
+                }
+            }
+        },
+        "init" : function(param){
+            if(param.act == 'add'){
+                this.table.options.params = {id:-1};//新增默认查询参数
+                this.form.formData = null;
+                this.form.submitClear = true;
+                this.form.url = "WEIXIN/researchindex/insert";
+            }else if(param.act == 'update'){
+                this.table.options.params = {indexId : param.formData.id};
+                this.form.formData = param.formData;
+                this.form.submitClear = false;
+                this.form.url = "WEIXIN/researchindex/update";
+            }else{
+                this.table.options.params = {indexId : param.formData.id};
+                this.table.options.rowOperation = null;
+                $(indexItemsTableId+'-toolbar').remove();
+                $(editForm+" [data-submit]").remove();
+                this.form.formData = param.formData;
+                this.form.isView = true;
+            }
+            var combobox_data = API.jsonData("WEIXIN/researchindex/selectCombobox");
+            if($.isArray(combobox_data) && combobox_data.length > 0){
+                indexesEdit.table.options.addEditForm.fieldOpts.itemId.data = combobox_data;
+                var combobox_data_map = {};
+                $.each(combobox_data,function(index, obj){
+                    combobox_data_map[obj.id] = obj.text;
+                });
+                indexesEdit.table.options.columns[5].render = function(data, type, row, meta){
+                    return combobox_data_map[data] || '';
+                };
+            }
+
+            var _form = $(editForm);
+            var _addEditForm = $(indexItemsForm);
+            this.form.initComplete = function(opts){
+                _form.field('companyId').val(API.localUser().company_id);
+            }
+            _form.initForm(this.form,function(data){
+                DT.getTable(indexesTableId).query();
+            });
+            indexesEdit.table.options.addEditForm.initComplete = function(opts){
+                var _itemGroupId = _addEditForm.field('itemGroupId').val();
+                if(APP.isEmpty(_itemGroupId))
+                    _addEditForm.field('itemGroupId').val(_form.field('showMode').val()).trigger('change');
+                if(_itemGroupId != '4')
+                    _addEditForm.field("itemId").val(0).trigger('change');
+
+            };
+            $(indexItemsTableId).initTable(this.table.options,function(otable){
+                indexesEdit.table.obj = otable;
+            });
+
+            _addEditForm.on("change","[name='itemGroupId']",function(){
+                var _selected_data = $(this).val();
+                _addEditForm.field('itemGroupDesc').val(($(this).children(":selected").text()));
+                if(_selected_data == '4'){
+                    _addEditForm.field("itemId").closest('.form-group').show();
+                }else{
+                    _addEditForm.field("itemId").closest('.form-group').hide();
+                    _addEditForm.field("itemId").val(0).trigger('change');
+                    if((_selected_data == '1' || _selected_data == '2') && _addEditForm.field('itemDesc').val() == ''){
+                        _addEditForm.field('itemDesc').val(options_prefix[indexesEdit.table.obj.dataCount()] + ".");
+                    }
+                }
+            });
+
+        }
+    };
+    return {
+        init : function(param){
+            indexes.init(param);
+        },
+        initEdit : function(param){
+            indexesEdit.init(param);
         }
     }
 });

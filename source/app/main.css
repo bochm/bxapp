@@ -1647,6 +1647,8 @@ Font Awesome 4.x Demo
 /* Control Label */
 .control-label {
   margin-top: 1px;
+  color: #707070;
+  font-weight: bold;
 }
 .control-label .required {
   color: #e02222;
