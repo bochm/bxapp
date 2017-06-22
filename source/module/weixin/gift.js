@@ -171,12 +171,16 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
                 //修改下拉框请求参数，表格中已存在的礼品，下拉框中disable
                 var selectedGiftIds = DT.getTable(purchaseEdit.table.id).columnData('giftId');
                 var seleData = _addEditForm.field("giftId").data('options');
+                var _giftId = null;
+                if(opts.formData) _giftId = opts.formData.giftId;
+
                 for(var i=0;i<seleData.length;i++){
-                    if($.inArray(seleData[i].id,selectedGiftIds) >= 0 ) seleData[i].disabled = true;
+                    if($.inArray(seleData[i].id,selectedGiftIds) >= 0 && _giftId != seleData[i].id) seleData[i].disabled = true;
                     else seleData[i].disabled = false;
                 }
                 _addEditForm.field("giftId").empty();
                 _addEditForm.field("giftId").select({data:seleData});
+                if(_giftId) _addEditForm.field("giftId").val(_giftId);
             };
             $(this.table.id).initTable(this.table.options,function(otable){
                 purchaseEdit.table.obj = otable;
