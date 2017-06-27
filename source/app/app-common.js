@@ -404,6 +404,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 		//初始化提交按钮
 		page.find(".btn[data-submit]").each(function(){
 			var _submit_btn = $(this);
+			_submit_btn.addClass('click-disable');//点击后禁用1秒
 			_submit_btn.click(function(){
 				$(_submit_btn.data("submit")).submit();
 			});
@@ -714,6 +715,7 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			width: 250,
 			delay: 1500
 		};
+		if(type == 'error') default_options.delay = 3500;
 		default_options.width = $(default_options.ele).width();
 		var $alert, css, offsetAmount;
 		$alert = $("<div class='app-noticeS alert'>");

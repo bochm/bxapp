@@ -11,14 +11,11 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
                     {"data": "price", "title": "单价"},
                     {"data": "unit", "title": "单位"},
                     {"data": "exchangeScore", "title": "兑换积分"},
-                    {"data": "stock", "title": "库存",
-                        "render": function (data, type, row, meta) {
-                            return "<a href='#' data-view='"+meta.row+"'>"+data+"</a>"
-                    }},
+                    {"data": "stock", "title": "库存"},
                     {"data": "sale", "title": "是否上架", "render": function (data, type, row, meta) {return data == '1' ? "是" : "否"}, "width": "12%"}
                 ],
                 "ordering": false,
-                "deleteRecord": {url: 'WEIXIN/gift/deleteBatch', row: true, id: "id"},
+                "rowOperation" : ["view"],
                 "addEditForm" : {
                     "title": "礼品维护",
                     "editModal": "#weixin-gift-edit-modal",
@@ -46,11 +43,6 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
             $(this.table.id).initTable(this.table.options,function(otable){
                 gift.table.obj = otable;
             });
-            $(this.table.id).on('click', "a[data-view]", function () {
-                var data = gift.table.obj.row( $(this).data('view')).data();
-                APP.modal("#weixin-gift-stock-modal",
-                    {url:"pages/weixin/gift/gift-stock",params : {giftId : data.id},title:"礼品购进明细"})
-            } );
         }
     };
     var giftStockView = {
@@ -83,26 +75,48 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
                     {"data": "applyNo", "title": "购进单号"},
                     {"data": "applyDate", "title": "购进日期"},
                     {"data": "amount", "title": "金额"},
-                    {"data": "qtyPurchase", "title": "数量"}
+                    {"data": "qtyPurchase", "title": "数量"},
+                    {"data": "status", "title": "状态","render": function (data, type, row, meta) {return data == '9' ? "作废" : "提交"}}
                 ],
                 "ordering": false,
-                "deleteRecord": {url: 'WEIXIN/giftpurchase/deleteBatch', row: true, id: "id"},
+                "select": {style: 'single'},
+                "rowOperation" : ["view"],
                 "addRecord" : function(dt,node,e){
                     APP.loadInnerPage(APP.getPageContainer("#table-weixin-gift-purchase"),'pages/weixin/gift/gift-purchase-edit',{act:'add'});
                 },
-                "editRecord" : function(dt,node,e){
+                "viewRecord" : function(dt,node,e){
                     APP.loadInnerPage(APP.getPageContainer("#table-weixin-gift-purchase"),
-                        'pages/weixin/gift/gift-purchase-edit',{act:'update',formData:dt.selectedRowsData()[0]});
+                        'pages/weixin/gift/gift-purchase-edit',{act:'view',formData:dt.selectedRowsData()[0]});
                 }
             }
         },
         "init" : function(param){
             this.table.options.params = param || {};
-            this.table.options.deleteRecord.onDeleted = function(){
-                DT.getTable(gift.table.id).query();
-            }
+            this.table.options.cancelRecord = function(dt,node,e){
+                APP.confirm('','是否作废选择的记录?',function(){
+                    var params = dt.selectedRowsData('id')[0];
+                    API.ajax("WEIXIN/giftpurchase/cancelPurchase",params,false,function(ret,status){
+                        if(API.isError(ret)){
+                            APP.error(ret);
+                        }else{
+                            var sel = dt.selectedRowsData()[0];
+                            sel.status = '9';
+                            dt.updateSelectedRow(sel);
+                            APP.success('单据已作废',null,true);
+                            dt.buttons( '.btn-danger' ).disable();
+                            DT.getTable(gift.table.id).query();
+                        }
+                    },function(err){
+                        APP.error(err);
+                    });
+                })
+            };
             $(this.table.id).initTable(this.table.options,function(otable){
                 purchase.table.obj = otable;
+                otable.on( 'select', function ( e, dt, type, indexes ) {
+                    if(dt.rows( indexes ).data()[0].status == '9') dt.buttons( '.btn-danger' ).disable();
+                    else dt.buttons( '.btn-danger' ).enable();
+                });
             });
 
         }
@@ -133,7 +147,7 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
                     "id" : "#weixin-gift-purchase-detail-form",
                     "fieldOpts": {
                         "giftId": {
-                            "dataUrl": "WEIXIN//gift/listGift",
+                            "dataUrl": "WEIXIN/gift/listGift",
                             "textProperty" : "giftName"
                         }
                     }
@@ -150,18 +164,21 @@ define('module/weixin/gift',['app/common','app/datatables','app/form'],function(
                 this.table.options.params = {id:-1};//新增默认查询参数
                 this.form.formData = null;
                 this.form.submitClear = true;
-                this.form.url = "WEIXIN/giftpurchase/insert";
-            }else if(param.act == 'update'){
+                this.form.url = "WEIXIN/giftpurchase/insertPurchase";
+            }else if(param.act == 'view'){
                 this.table.options.params = {applyId : param.formData.id};
                 this.form.formData = param.formData;
-                this.form.submitClear = false;
-                this.form.url = "WEIXIN/giftpurchase/update";
+                this.table.options.rowOperation = null;
+                $(this.table.id+'-toolbar').remove();
+                $(this.form.id+" [data-submit]").remove();
+                this.form.isView = true;
             }
             var _form = $(this.form.id);
             var _addEditForm = $(this.table.options.addEditForm.id);
             this.form.initComplete = function(opts){
                 _form.field('companyId').val(API.localUser().company_id);
                 _form.field('deptId').val(API.localUser().dept_id);
+                if(param.act == 'add') _form.field('applyNo').val(APP.getUniqueID('LPGJ'+APP.formatDate()));
             }
             $(this.form.id).initForm(this.form,function(data){
                 DT.getTable(purchase.table.id).query();

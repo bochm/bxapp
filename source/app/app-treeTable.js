@@ -345,7 +345,7 @@ define('app/treetable',['jquery','app/common','app/datatables'],function($,APP,D
 	      node.row.remove();
 
 	      // Remove node from parent children list
-	      if (node.parentId != null) {
+	      if (node.parentId != null && node.parentNode() != undefined) {
 	        node.parentNode().removeChild(node);
 	        if(node.parentNode().children.length  === 0) node.parentNode().indenter.html("");//父节点没有子节点
 	      }

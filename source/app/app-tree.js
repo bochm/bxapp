@@ -101,8 +101,8 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 			return null;
 		}
 		if(settings){
-			if(settings.stmID && settings.async === undefined && APP.isEmpty(zNodes)){//增加stmID选项获取sqlMapper的sqlID获取数组数据
-				var url = settings.url || API.urls.stmListUrl;
+			if((settings.stmID || settings.dataUrl) && settings.async === undefined && APP.isEmpty(zNodes)){//增加stmID选项获取sqlMapper的sqlID获取数组数据
+				var url = settings.dataUrl || API.urls.stmListUrl;
 				var paramData = {};
 				if(settings.stmID) url += ("/" + settings.stmID+_CONFIG.HTTP.SUFFIX);
 				if(settings.param) paramData.param=settings.param;
@@ -170,7 +170,7 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 			var nodes = [];
 			var queryContent = $("<div class='input-group'>");
 			queryContent.html("<span class='input-group-btn'>"+
-					"<button type='button' class='btn btn-default btn-expand'><i class='fa fa-plus'></i></button></span>"+
+					"<button type='button' class='btn btn-default btn-expand' ><i class='fa fa-plus'></i></button></span>"+
 					"<input type='text' class='form-control'>"+
 					"<span class='input-group-btn'>"+
 					"<button class='btn blue btn-query' type='button'><i class='fa fa-search'></i></button></span>");
@@ -187,12 +187,12 @@ define('app/tree',['jquery','app/common','app/api','jquery/ztree'],function($,AP
 			queryContent.on('click','.btn-expand',function(){
 				$(this).removeClass("btn-expand").addClass("btn-collapse");
 				$(this).children('i').removeClass("fa-plus").addClass("fa-minus");
-				zTree_obj.expandAll(true)
+				zTree_obj.expandAll(true);
 			});
 			queryContent.on('click','.btn-collapse',function(){
 				$(this).removeClass("btn-collapse").addClass("btn-expand");
 				$(this).children('i').removeClass("fa-minus").addClass("fa-plus");
-				zTree_obj.expandAll(false)
+				zTree_obj.expandAll(false);
 			});
 			function updateNodes(highlight) {
 				for( var i=0, l=nodes.length; i<l; i++) {

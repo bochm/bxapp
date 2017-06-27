@@ -3488,7 +3488,7 @@ Portlets
   float: left;
   margin-top: 4px;
   display: inline-block;
-  font-size: 13px;
+  font-size: 15px;
   margin-right: 5px;
   color: #666;
 }
@@ -3516,7 +3516,7 @@ Portlets
 .portlet > .portlet-title > .actions > .btn-group > .btn,
 .portlet > .portlet-title > .actions > .btn-group > .btn.btn-sm {
   padding: 4px 10px;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.5;
 }
 .portlet > .portlet-title > .actions > .btn.btn-default,
@@ -5609,7 +5609,13 @@ Bootstrap Daterangepicker
   white-space: pre-wrap;
   font-size: small;
 }
-
+.wrap-left-box {
+  background: #fff;
+  display: block;
+  -webkit-box-shadow: 6px 0 2px -6px #777;
+  -moz-box-shadow: 6px 0 2px -6px #777;
+  box-shadow: 6px 0 2px -6px #777;
+}
 /*********************************************************************************************************************************************************************
 **********************************************************************************************************************************************************************
 **********************************************************************************************************************************************************************

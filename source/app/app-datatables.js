@@ -7,7 +7,7 @@ define('app/datatables',['jquery','app/common','app/api',
         "datatables.net",
         "datatables/buttons/flash",
         "datatables/buttons/print","datatables/select",
-        "datatables/responsive","datatables/fixedHeader",
+        "datatables/responsive","datatables/fixedHeader","datatables/fixedColumns",
         "css!lib/jquery/datatables/dataTables.bootstrap.css"],function($,APP,API,DataTable) {
 	//-------------------默认参数初始化及修改----------------------------------
 	
@@ -330,7 +330,7 @@ define('app/datatables',['jquery','app/common','app/api',
      */
 	$.fn.dataTable.ext.buttons.addRecord = {
 		text: "<i class='fa fa-copy'></i> 新增",
-		className: 'btn btn-sm btn-primary',
+		className: 'btn btn-sm btn-primary click-disable',
 		action: function ( e, dt, node, config ) {
 			_addEditRecord(e,dt, node,'add');
 		}
@@ -340,7 +340,7 @@ define('app/datatables',['jquery','app/common','app/api',
      */
 	$.fn.dataTable.ext.buttons.editRecord = {
 		text: "<i class='fa fa-edit'></i> 修改",
-		className: 'btn btn-sm btn-primary btn-selectOne',
+		className: 'btn btn-sm btn-primary btn-selectOne click-disable',
 		action: function ( e, dt, node, config ) {
 			if(dt.selectedCount() != 1){
 				APP.info('请选择一条需要修改的记录');
@@ -354,7 +354,7 @@ define('app/datatables',['jquery','app/common','app/api',
 	 */
 	$.fn.dataTable.ext.buttons.viewRecord = {
 		text: "<i class='fa fa-eye'></i> 查看",
-		className: 'btn btn-sm btn-primary btn-selectOne',
+		className: 'btn btn-sm btn-primary btn-selectOne click-disable',
 		action: function ( e, dt, node, config ) {
 			if(dt.selectedCount() != 1){
 				APP.info('请选择一条需要查看的记录');
@@ -404,6 +404,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			"autoWidth": true,
 			"permission" : true, //检测权限,buttons按页面toolbar中的按钮显示
 			"scrollCollapse": true,
+			"searching": true,
 			"select": {style: 'os',info:false},
 			"scrollY": "",
 			"scrollX" : false,
@@ -466,20 +467,29 @@ define('app/datatables',['jquery','app/common','app/api',
 	        	APP.unblockUI(_table.get());
 				var api = _table.dataTable().api();
 				//搜索控件初始化
-	        	if(oSettings.searching == undefined || oSettings.searching){ //未定义则为默认启用
-	        		var searchHTML = "<label><div class='input-icon left'>" +
-	        				"<input type='search' class='form-control input-sm' placeholder='请输入搜索内容' aria-controls='"+tableid+"'>" +
-	        				"<i class='iconfont icon-search'></i></div></label>";
-	        		var _filter = $("div#"+tableid+"_wrapper .dataTables_filter");
-	        		_filter.html(searchHTML);
+	        	if(opts.searching == undefined || opts.searching){ //未定义则为默认启用
+	        		var _filter;
+					if(opts.portlet){//在portlet中显示的table将搜索控件移至title
+						_filter = $(opts.portlet).find('.actions');
+						_filter.prepend("<div class='portlet-input input-inline input-small'>"+
+							"<div class='input-icon left'><i class='iconfont icon-search'></i>"+
+							"<input type='text' class='form-control search' placeholder='请输入搜索内容...'></div></div>");
+					}else{
+						_filter = $("div#"+tableid+"_wrapper .dataTables_filter");
+						var searchHTML = "<label><div class='input-icon left'>" +
+							"<input type='search' class='form-control input-sm search' placeholder='请输入搜索内容' aria-controls='"+tableid+"'>" +
+							"<i class='iconfont icon-search'></i></div></label>";
+						_filter.html(searchHTML);
+					}
+
 		            //搜索事件
-	        		_filter.on('keyup','input',function(e) {
+	        		_filter.on('keyup','input.search',function(e) {
 		                if (e.keyCode == 13 || (e.keyCode == 8 && (this.value.length == 0))) {
 		                	api.search(this.value).draw();
 		                }
 		            });
 	        		_filter.on('click','.icon-search',function(e) {
-		            	var _input = $(this).prev('input');
+		            	var _input = $(this).siblings('input.search');
 		                if (_input.val().length > 0) {
 		                	api.search(_input.val()).draw();
 		                }
@@ -561,7 +571,7 @@ define('app/datatables',['jquery','app/common','app/api',
 						else if(_btn_type == 'editRecord') _addEditRecord(e,dt, node,'edit');
 						else if(_btn_type == 'viewRecord') _addEditRecord(e,dt, node,'view');
 						else if(_btn_type == 'deleteRecord') _deleteRecord(e,dt, node);
-						else if(typeof default_opt[_btn.data("role")] === 'function') default_opt[_btn.data("role")].call(this,dt, node,e);
+						else if(typeof default_opt[_btn_type] === 'function') default_opt[_btn_type].call(this,dt, node,e);
 					}
 				});
 			}else{
@@ -593,6 +603,24 @@ define('app/datatables',['jquery','app/common','app/api',
 				pageToolbar.prepend(_export_btn_group);
 			}*/
 			var toolbar = $("div#"+tableid+"_wrapper>div.dt-buttons");
+			if(default_opt.portlet){//在portlet中显示的table将按钮控件移至title
+				toolbar = $(default_opt.portlet).find('.actions');
+
+				toolbar.children('.btn[data-role]').each(function(){
+					var _btn = $(this);
+					var _btn_type = _btn.data('role');
+					_btn.click(function(e){
+						if(_btn_type == 'addRecord') _addEditRecord(e,otable, _btn.get(),'add');
+						else if(_btn_type == 'editRecord') _addEditRecord(e,otable,  _btn.get(),'edit');
+						else if(_btn_type == 'viewRecord') _addEditRecord(e,otable,  _btn.get(),'view');
+						else if(_btn_type == 'deleteRecord') _deleteRecord(e,otable,  _btn.get());
+						else if(typeof default_opt[_btn_type] === 'function') default_opt[_btn_type].call(this,otable,  _btn.get(),e);
+					})
+
+				});
+			}
+
+
 			//表格选择一条和多条记录(如新增、删除等必须要选择记录才能启用)按钮禁用约束
 			var _one_btn = toolbar.children('.btn-selectOne');
 			var _more_btn = toolbar.children('.btn-selectMore');

@@ -1,0 +1,77 @@
+<div class="loading-page" data-js-module="module/weixin/research/scenario" data-js-main="init">
+    <div class="row" >
+        <div class="col-md-5 ">
+            <div class="portlet box green-turquoise" panel-title="调查方案 " panel-icon="iconfont icon-diaocha"
+                 id="weixin-research-scenario-portlet">
+                <div class="actions">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default" data-role="addScenario"><i class="fa fa-copy"></i> 新增方案</button>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-angle-down"></i>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#"> <i class="fa fa-edit"></i> 修改方案 </a></li>
+                            <li><a href="#"> <i class="fa fa-trash-o"></i> 删除方案 </a> </li>
+                            <li class="divider"></li>
+                            <li><a href="#"> <i class="fa fa-copy"></i> 新增指标分类 </a></li>
+                            <li><a href="#"> <i class="fa fa-edit"></i> 修改指标分类 </a></li>
+                            <li><a href="#"> <i class="fa fa-trash-o"></i> 删除指标分类 </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="scroller" data-scroll-height="450">
+                        <div><ul id="tree-weixin-research-scenario" class="ztree"></ul></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7" >
+            <div class="portlet box green-turquoise" panel-title="方案指标" panel-icon="iconfont icon-wenjuan1"
+                 id="weixin-research-scenario-index-portlet">
+                <div class="actions">
+                    <a href="#" class="btn btn-default" data-role="addRecord"><i class="fa fa-copy"></i> 新增 </a>
+                    <a href="#" class="btn btn-default btn-selectOne" data-role="editRecord"><i class="fa fa-edit"></i> 修改 </a>
+                    <a href="#" class="btn btn-default btn-selectMore" data-role="deleteRecord"><i class="fa fa-trash-o"></i> 删除 </a>
+                </div>
+                <div class="portlet-body">
+                    <div class="scroller" data-scroll-height="470">
+                    <table id="table-weixin-research-scenario-index" class="table table-bordered"  width="100%">
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="weixin-research-scenario-modal" data-backdrop="static" data-width="500" >
+        <form method="post" role="form" id=weixin-research-scenario-form">
+            <input type="hidden" name="id" >
+            <div class="row"><div class="col-md-12">
+                <div class="form-group">
+                    <label class="control-label">方案名称<span class="required">*</span></label>
+                    <div class="input-icon right"> <i class="fa validate-icon"></i>
+                        <input type="text" name="scenarioDesc" maxlength="200" class="form-control required">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">调查对象<span class="required">*</span></label>
+                    <div class="input-icon left"> <i class="fa validate-icon"></i>
+                        <div class="input-icon select right"> <i class="fa validate-icon"></i>
+                            <select name="objectId" form-role='select' class="form-control required selectOpt" ></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">调查积分</label>
+                    <div class="input-icon right"> <i class="fa validate-icon"></i>
+                        <input type="text" name="integral"  class="form-control number">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">是否启用</label><br>
+                    <input type="checkbox" name="status" checked class="bs-switch form-control" data-on-value="1" data-dict-type="on_off">
+                </div>
+            </div></div>
+        </form>
+    </div>
+</div>

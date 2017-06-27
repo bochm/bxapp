@@ -34,6 +34,7 @@
     {"id":"04","icon":"iconfont icon-magicwand","name":"礼品管理","target":"pages/weixin/gift/gift-main","permission":"","type":"0","parent_id":"-1"},
 
     {"id":"07","icon":"iconfont icon-wenjuan2","name":"问卷管理","target":"","permission":"","type":"0","parent_id":"-1"},
-    {"id":"0701","icon":"iconfont icon-wenjuan1","name":"题库维护","target":"pages/weixin/question/resource-list","permission":"","type":"0","parent_id":"07"}
+    {"id":"0701","icon":"iconfont icon-wenjuan1","name":"题库维护","target":"pages/weixin/research/indexes-list","permission":"","type":"0","parent_id":"07"},
+    {"id":"0701","icon":"iconfont icon-diaocha","name":"调查方案","target":"pages/weixin/research/scenario-list","permission":"","type":"0","parent_id":"07"}
   ]
 }
