@@ -1438,7 +1438,7 @@ Font Awesome 4.x Demo
 .dropdown-submenu > a:after {
   position: absolute;
   display: inline-block;
-  font-size: 14px;
+  font-size: 16px;
   right: 7px;
   top: 7px;
   font-family: FontAwesome;

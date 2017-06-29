@@ -715,12 +715,12 @@ define('app/common',['jquery','app/api','numeral','bootstrap','moment','jquery/b
 			width: 250,
 			delay: 1500
 		};
-		if(type == 'error') default_options.delay = 3500;
+		if(default_options.type == 'error' || default_options.type == 'warning') default_options.delay = 3500;
 		default_options.width = $(default_options.ele).width();
 		var $alert, css, offsetAmount;
 		$alert = $("<div class='app-noticeS alert'>");
 		if (default_options.type) {
-			$alert.addClass("alert-" + (default_options.type == 'error' ? 'danger' : default_options.type));
+			$alert.addClass("alert-" + ((default_options.type == 'error' || default_options.type == 'warning') ? 'danger' : default_options.type));
 		}
 		if(!APP.isEmpty(title))$alert.append("<h4 class='alert-heading'>"+title+"</h4>");
 		$alert.append("<p>"+message+"</p>");

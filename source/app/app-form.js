@@ -288,7 +288,7 @@ define('app/form',["jquery","app/common","app/api","moment","jquery/validate","j
 			}
 			//date控件需要重新初始化值
 			if(_fieldRole == 'date'){
-				formField.datepicker('update',APP.formatDate(formField.data('format'),
+				formField.datepicker('update',APP.formatDate(formField.data('format') ? formField.data('format') : 'YYYY-MM-DD',
 					isInitValue ? formField.data('original') : APP.formatDate('YYYY-MM-DD')));
 			}
 			return;

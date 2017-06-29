@@ -16,7 +16,9 @@ define('app/datatables',['jquery','app/common','app/api',
 			"pdf": {"icon":"<i class='fa fa-file-pdf-o'></i> ","text":"导出PDF"},
 			"copy":{"icon":"<i class='fa fa-copy'></i> ","text":"复制"},
 			"excel":{"icon":"<i class='fa fa-file-excel-o'></i> ","text":"导出"},
-			"print":{"icon":"<i class='fa fa-print'></i> ","text":"打印"}
+			"print":{"icon":"<i class='fa fa-print'></i> ","text":"打印"},
+			"selectAll":{"icon":"<i class='fa fa-check-square-o'></i> ","text":"全选"},
+			"selectNone":{"icon":"<i class='fa fa-square-o'></i> ","text":"不选"}
 	}
 	/**
      * 默认参数设置
@@ -43,7 +45,9 @@ define('app/datatables',['jquery','app/common','app/api',
 						"copyTitle":"复制到剪贴板",
 						"copyInfo":{_: '以复制 %d 行到剪贴板',1: '复制 1 行到剪贴板'},
 						"excel":btn_opts.excel.icon+btn_opts.excel.text,
-						"print":btn_opts.print.icon+btn_opts.print.text
+						"print":btn_opts.print.icon+btn_opts.print.text,
+						"selectAll":"<i class='fa fa-check-square-o'></i> 全选",
+						"selectNone":"<i class='fa fa-square-o'></i> 不选"
 				},
 				"oPaginate":{
 					"sNext":">",
@@ -947,7 +951,12 @@ define('app/datatables',['jquery','app/common','app/api',
 		}
 		return newRow;
 	} );
-	
+	/**
+	 * 增加多行数据
+	 */
+	DataTable.Api.register( 'addRows()', function (rows) {
+		return this.rows.add(rows).draw();
+	} );
 	/**
      * 修改已选择行数据
      */

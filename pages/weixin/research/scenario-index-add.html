@@ -1,0 +1,18 @@
+<div class="modal fade" id="weixin-research-scenario-index-add-modal" data-backdrop="static" data-width="600"
+     data-js-module="module/weixin/research/scenario" data-js-main="initIndexAdd">
+    <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button><h4 class="modal-title">选择指标</h4></div>
+    <div class="modal-body">
+        <label class="control-label">方案：</label><span data-for="scenario"></span>
+        <label class="control-label">分组：</label><span data-for="group"></span>
+        <span id="table-weixin-research-scenario-indexes-toolbar" class="hide">
+        <a data-role="selectAll"/>
+        <a data-role="selectNone"/>
+        </span>
+        <table id="table-weixin-research-scenario-indexes" class="table datatable table-bordered"  width="100%">
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary click-disable" data-act="choose">选择</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+    </div>
+</div>

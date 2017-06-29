@@ -567,7 +567,7 @@ define(['jquery','app/common'],function($,APP) {
                 $('.page-content .btn-group.pull-right>.dropdown-menu').append(view_link);
                 $('.page-content .btn-group.pull-right>.dropdown-menu').append(remove_local_store);
                 //防止双击按钮造成重复提交
-                $('.page-content').on('click','.btn.click-disable',function(){
+                $('body').on('click','.btn.click-disable',function(){
                     var _btn = $(this);
                     APP.disableBtn(_btn);
                     setTimeout(function(){
