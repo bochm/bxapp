@@ -6,6 +6,7 @@ define('module/weixin/research/scenario',['app/common','app/datatables','app/for
     var scenarioGroupForm = "#weixin-research-scenario-group-form";
     var scenarioIndexPortal = "#weixin-research-scenario-index-portlet";
     var scenarioIndexTable = "#table-weixin-research-scenario-index";
+    var scenarioIndexViewTable = "#table-weixin-research-scenario-index-view";
     var scenarioIndexAddModal= "#weixin-research-scenario-index-add-modal";
 
     function _check_tree_select(treeNode,msg,type){
@@ -168,18 +169,19 @@ define('module/weixin/research/scenario',['app/common','app/datatables','app/for
                 "title": "调查指标表",
                 "dataUrl" : "WEIXIN/researchscenario/selectIndexes",
                 "columns": [
-                    {"data": "seqNum", "title": "序号","width":"5%" ,"orderable" : false},
-                    {"data": "indexDesc", "title": "题目名称","orderable" : false},
-                    {"data": "showMode", "title": "类型","render" : function(data){return API.getDictName("researchindex_showmode",data);},"orderable" : false},
-                    {"data": "id", "title": "id", "visible": false},
-                    {"data" : "indexId", "visible": false },
-                    {"data" : "companyId", "visible": false },
-                    {"data" : "scenarioId", "visible": false },
-                    {"data" : "groupId", "visible": false }
+                    {"data": "seqNum", "title": "序号","width":"5%" },
+                    {"data": "indexDesc", "title": "题目名称"},
+                    {"data": "showMode", "title": "类型","render" : function(data){return API.getDictName("researchindex_showmode",data);}}
                 ],
-                "order": [0,'asc'],
+                "rowReorder" : {dataSrc: 'seqNum'},
+                "columnDefs": [
+                    { orderable: true, className: 'reorder', targets: 0 },
+                    { orderable: false, targets: '_all' }
+                ],
                 "portlet": scenarioIndexPortal,
-                "deleteRecord": {url: 'WEIXIN/researchscenario/deleteBatch', row: true, id: "id"},
+                "deleteRecord": {url: 'WEIXIN/researchscenario/deleteIndexes', row: true, id: ["id","groupId"],onDeleted:function(ret){
+                    DT.getTable(scenarioIndexTable).query();
+                }},
                 "addRecord" : function(dt){
                     var selectedScenarioGroup = scenario.treeObj.getSelectedNodes()[0];
                     if(!_check_tree_select(selectedScenarioGroup,'请选择树形中需要新增指标的分组','group')) return;
@@ -192,16 +194,35 @@ define('module/weixin/research/scenario',['app/common','app/datatables','app/for
                         $(scenarioIndexAddModal+" span[data-for='scenario']").html(selectedScenarioGroup.getParentNode().name);
                         $(scenarioIndexAddModal+" span[data-for='group']").html(selectedScenarioGroup.name);
                     });
-                },
-                "editRecord" : function(dt){
-
                 }
+            }
+        },
+        "viewTable" : {
+            "id" : scenarioIndexViewTable,
+            "options" : {
+                "title": "调查指标表",
+                "dataUrl" : "WEIXIN/researchscenario/selectIndexes",
+                "columns": [
+                    {"data": "seqNum", "title": "序号","width":"5%" },
+                    {"data": "indexDesc", "title": "题目名称"},
+                    {"data": "showMode", "title": "类型","render" : function(data){return API.getDictName("researchindex_showmode",data);}},
+                    {"data": "groupId", "title": "分组","visible":false}
+
+                ]
             }
         },
         "init" : function(param){
             this.table.options.params = param || {scenarioId : '-1'};
             $(scenarioIndexTable).initTable(this.table.options,function(otable){
                 scenario_index.table.obj = otable;
+                otable.on( 'row-reordered', function ( e, diff, edit ) {
+                    var changeArray = new Array();
+                    for ( var i=0, ien=diff.length ; i<ien ; i++ ) {
+                        var rowData = otable.row( diff[i].node ).data();
+                        changeArray.push({"id":rowData.id,"seqNum" : rowData.seqNum});
+                    }
+                    API.ajax("WEIXIN/researchscenario/updateIndexesSeq",changeArray);
+                });
             });
         }
     };
@@ -245,7 +266,7 @@ define('module/weixin/research/scenario',['app/common','app/datatables','app/for
                         APP.error(ret,scenarioIndexAddModal);
                     }else{
                         APP.success(ret,scenarioIndexAddModal,true);
-                        DT.getTable(scenarioIndexTable).addRows(addData);
+                        DT.getTable(scenarioIndexTable).query();
                     }
                 });
             })
@@ -259,7 +280,6 @@ define('module/weixin/research/scenario',['app/common','app/datatables','app/for
         initIndexAdd : function(param){
             scenario_index_add.init(param);
             $(scenarioIndexAddModal).css('top','18%');
-
         }
     }
 });

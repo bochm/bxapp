@@ -7,7 +7,7 @@ define('app/datatables',['jquery','app/common','app/api',
         "datatables.net",
         "datatables/buttons/flash",
         "datatables/buttons/print","datatables/select",
-        "datatables/responsive","datatables/fixedHeader","datatables/fixedColumns",
+        "datatables/responsive","datatables/fixedHeader","datatables/fixedColumns","datatables/rowReorder",
         "css!lib/jquery/datatables/dataTables.bootstrap.css"],function($,APP,API,DataTable) {
 	//-------------------默认参数初始化及修改----------------------------------
 	
@@ -413,6 +413,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			"scrollY": "",
 			"scrollX" : false,
 			"buttons": [],
+			"rowReorder": false,
 			//"buttons":[{extend: 'collection',text: '导出', buttons : ['selectAll','selectNone','print']},"addRecord","deleteRecord"],
 			"createdRow": function (nRow, aData, iDataIndex) {},
 			"footerCallback": function( tfoot, data, start, end, display ) {
@@ -878,7 +879,14 @@ define('app/datatables',['jquery','app/common','app/api',
 				listData.push(selectedData[i]);
 			else{
 				var d = {};
-				d[col] = selectedData[i][col];
+				if($.isArray(col)){//多列数据
+					for(var j=0;j<col.length;j++){
+						d[col[j]] = selectedData[i][col[j]];
+					}
+				}else{//单列数据
+					d[col] = selectedData[i][col];
+				}
+
 				listData.push(d);
 			}
 		}
