@@ -2,11 +2,14 @@ define('module/weixin/research/scenario',['app/common','app/datatables','app/for
     var _companyId = API.localUser().company_id;
     var scenarioPortal = "#weixin-research-scenario-portlet";
     var scenarioTree = "#tree-weixin-research-scenario";
+    var scenarioTable = "#table-weixin-research-scenario";
+    var scenarioEditPortal = "#weixin-research-scenario-edit-portlet";
     var scenarioForm = "#weixin-research-scenario-form";
     var scenarioGroupForm = "#weixin-research-scenario-group-form";
+    var scenarioGroupTable = "#table-weixin-research-scenario-group";
+    var scenarioGroupPortal = "#weixin-research-scenario-group-portlet";
     var scenarioIndexPortal = "#weixin-research-scenario-index-portlet";
     var scenarioIndexTable = "#table-weixin-research-scenario-index";
-    var scenarioIndexViewTable = "#table-weixin-research-scenario-index-view";
     var scenarioIndexAddModal= "#weixin-research-scenario-index-add-modal";
 
     function _check_tree_select(treeNode,msg,type){
@@ -35,138 +38,181 @@ define('module/weixin/research/scenario',['app/common','app/datatables','app/for
                 $('#'+ treeNode.tId +'_a').css('color',treeNode.status == '0' ? 'red' : 'blue');
             }
         },
-        form:{
-            "id" : scenarioForm,
-            "submitJson" : true,
-            "editModal" : "#weixin-research-scenario-modal",
-            "autoClose" : true,
-            "fieldOpts": {
-                "objectId":{
-                    "dataUrl" : "WEIXIN/researchindex/selectObject",
-                    "allowClear" : false
+        table : {
+            "id" : scenarioTable,
+            "options" : {
+                "title": "调查方案表",
+                "scrollY": "380px",
+                "dataUrl" : "WEIXIN/researchscenario/selectList",
+                "select": {style: 'single'},
+                "columns": [
+                    {"data": "scenarioDesc", "title": "方案名称"},
+                    {"data": "integral", "title": "积分"},
+                    {"data": "status", "title": "是否启用","render": function (data, type, row, meta) {return API.getDictName("on_off",data);}}
+                ],
+                "portlet": scenarioEditPortal,
+                "deleteRecord": {url: 'WEIXIN/researchscenario/delete', row: true, id: "id",onDeleted:function(ret,params){
+                    var selectedScenario = scenario.treeObj.getNodeByParam("id", params.id, null);
+                    scenario.treeObj.removeNode(selectedScenario);
+                }},
+                "addEditForm" : {
+                    "title":"调查方案维护",
+                    "id" : scenarioForm,
+                    "submitJson" : true,
+                    "editModal" : "#weixin-research-scenario-modal",
+                    "autoClose" : true,
+                    "addUrl": "WEIXIN/researchscenario/insert",
+                    "editUrl": "WEIXIN/researchscenario/update",
+                    "fieldOpts": {
+                        "objectId":{
+                            "dataUrl" : "WEIXIN/researchindex/selectObject",
+                            "allowClear" : false
+                        }
+                    }
                 }
             }
         },
-        groupForm : {
-            "id" : scenarioGroupForm,
-            "submitJson" : true,
-            "editModal" : "#weixin-research-scenario-group-modal",
-            "autoClose" : true
-        },
         init : function(param){
-            var _scenarioPortal = $(scenarioPortal);
             var _form = $(scenarioForm);
-            var _groupForm = $(scenarioGroupForm);
 
             scenario.options.callback.onClick = function(event, treeId, treeNode){
                 if(treeNode.type == 'scenario') {
-                    scenario_index.table.obj.query({scenarioId: treeNode.id});
+                    if(scenario_group.table.obj == undefined) {
+                        scenario_group.init({scenarioId: treeNode.id});
+                    }else {
+                        scenario_group.table.obj.query({scenarioId: treeNode.id});
+                    }
+                    $('#weixin-research-scenario-edit-portlet').hide();
+                    $('#weixin-research-scenario-group-portlet').show();
+                    $('#weixin-research-scenario-index-portlet').hide();
                 }else if(treeNode.type == 'group') {
-                    scenario_index.table.obj.query({scenarioId: treeNode.pId, groupId: treeNode.id});
+                    if(scenario_index.table.obj == undefined) {
+                        scenario_index.init({scenarioId: treeNode.pId, groupId: treeNode.id});
+                    }else {
+                        scenario_index.table.obj.query({scenarioId: treeNode.pId, groupId: treeNode.id});
+                    }
+                    $('#weixin-research-scenario-edit-portlet').hide();
+                    $('#weixin-research-scenario-group-portlet').hide();
+                    $('#weixin-research-scenario-index-portlet').show();
+
                 }else if(treeNode.type == 'object'){
-                    scenario_index.table.obj.query({scenarioId: '-1'});
+                    scenario.table.obj.query({objectId : treeNode.id});
+                    $('#weixin-research-scenario-edit-portlet').show();
+                    $('#weixin-research-scenario-group-portlet').hide();
+                    $('#weixin-research-scenario-index-portlet').hide();
                 }
             }
-            scenario.form.initComplete = function(opts){
+            scenario.table.options.addEditForm.initComplete = function(opts){
                 _form.field('companyId').val(_companyId);
             }
+            scenario.table.options.addEditForm.submitCallback = function(data){
+                var selectedObject = scenario.treeObj.getSelectedNodes()[0];
+                scenario.table.obj.query({objectId : selectedObject.id});
+                scenario.treeObj.reAsyncChildNodes(null, "refresh");
+                scenario.treeObj.selectNode(scenario.treeObj.getNodeByParam("id", selectedObject.id, null));
+            };
             this.treeObj = $(scenarioTree).tree(this.options);
-            _scenarioPortal.on('click',"[data-role='addScenario']",function(){
-                scenario.form.url = "WEIXIN/researchscenario/insert";
-                scenario.form.title = "新增方案";
-                FM.editForm(scenario.form,function(ret){
-                    scenario.treeObj.reAsyncChildNodes(null, "refresh");
-                });
-            });
-            _scenarioPortal.on('click',"[data-role='editScenario']",function(){
-                var selectedScenario = scenario.treeObj.getSelectedNodes()[0];
-                if(!_check_tree_select(selectedScenario,'请选择树形中需要修改的方案','scenario')) return;
-                scenario.form.url = "WEIXIN/researchscenario/update";
-                scenario.form.title = "修改方案";
-                scenario.form.formData = {id:selectedScenario.id,scenarioDesc:selectedScenario.name,objectId:selectedScenario.pid,
-                    integral:selectedScenario.integral,status : selectedScenario.status};
-                FM.editForm(scenario.form,function(ret){
-                    scenario.treeObj.reAsyncChildNodes(null, "refresh");
-                    scenario.treeObj.selectNode(scenario.treeObj.getNodeByParam("id", selectedScenario.id, null));
-
-                });
-            });
-            _scenarioPortal.on('click',"[data-role='deleteScenario']",function(){
-                var selectedScenario = scenario.treeObj.getSelectedNodes()[0];
-                if(!_check_tree_select(selectedScenario,'请选择树形中需要删除的方案','scenario')) return;
-                APP.confirm('','是否删除所选方案（同时会删除方案的分类和指标）?',function(){
-                    API.ajax("WEIXIN/researchscenario/delete",{"id":selectedScenario.id},false,function(ret,status){
-                        if(API.isError(ret)){
-                            APP.error(ret);
-                        }else{
-                            APP.success('方案已删除',null,true);
-                            scenario.treeObj.removeNode(selectedScenario);
-                        }
-                    },function(err){
-                        APP.error(err);
-                    });
-                })
-            });
-            //方案分组信息
-            scenario.groupForm.initComplete = function(opts){
-                var selectedScenario = scenario.treeObj.getSelectedNodes()[0];
-                _groupForm.field('companyId').val(_companyId);
-                if(selectedScenario.type == 'scenario'){
-                    _groupForm.field('scenarioId').val(selectedScenario.id);
-                    _groupForm.find("[data-for='scenarioName']").html(selectedScenario.name);
-                }else if(selectedScenario.type == 'group'){
-                    _groupForm.field('scenarioId').val(selectedScenario.getParentNode().id);
-                    _groupForm.find("[data-for='scenarioName']").html(selectedScenario.getParentNode().name);
-                }
-
+            var objectNodes = this.treeObj.getNodesByParam("type", "object", null);
+            if(objectNodes && objectNodes.length > 0){
+                this.treeObj.selectNode(objectNodes[0]);
+                this.table.options.params = {objectId : objectNodes[0].id};
+            }else{
+                this.table.options.params = {objectId : '-1'};
             }
-            _scenarioPortal.on('click',"[data-role='addScenarioGroup']",function(){
-                var selectedScenario = scenario.treeObj.getSelectedNodes()[0];
-                if(!_check_tree_select(selectedScenario,'请选择树形中需要新增分组的方案','scenario')) return;
-                scenario.groupForm.url = "WEIXIN/researchscenario/insertGroup";
-                scenario.groupForm.title = "新增分组";
-                FM.editForm(scenario.groupForm,function(ret){
-                    scenario.treeObj.reAsyncChildNodes(null, "refresh");
-                    scenario.treeObj.selectNode(scenario.treeObj.getNodeByParam("id", selectedScenario.id, null));
-                    scenario.treeObj.expandNode(scenario.treeObj.getNodeByParam("id", selectedScenario.id, null), true, true, true);
-                });
-            });
-            _scenarioPortal.on('click',"[data-role='editScenarioGroup']",function(){
-                var selectedScenarioGroup = scenario.treeObj.getSelectedNodes()[0];
-                if(!_check_tree_select(selectedScenarioGroup,'请选择树形中需要修改的分组','group')) return;
-                scenario.groupForm.url = "WEIXIN/researchscenario/updateGroup";
-                scenario.groupForm.title = "修改分组";
-                scenario.groupForm.formData = {id:selectedScenarioGroup.id,groupDesc:selectedScenarioGroup.name,
-                    seqNum:selectedScenarioGroup.seqnum, status : selectedScenarioGroup.status};
-                FM.editForm(scenario.groupForm,function(ret){
-                    scenario.treeObj.reAsyncChildNodes(null, "refresh");
-                    scenario.treeObj.selectNode(scenario.treeObj.getNodeByParam("id", selectedScenarioGroup.id, null));
-                    scenario.treeObj.expandNode(scenario.treeObj.getNodeByParam("id", selectedScenarioGroup.pid, null), true, true, true);
-                });
-            });
-            _scenarioPortal.on('click',"[data-role='deleteScenarioGroup']",function(){
-                var selectedScenarioGroup = scenario.treeObj.getSelectedNodes()[0];
-                if(!_check_tree_select(selectedScenarioGroup,'请选择树形中需要删除的分组','group')) return;
-                APP.confirm('','是否删除所选分组（同时会删除分组中的指标）?',function(){
-                    API.ajax("WEIXIN/researchscenario/deleteGroup",{"id":selectedScenarioGroup.id},false,function(ret,status){
-                        if(API.isError(ret)){
-                            APP.error(ret);
-                        }else{
-                            APP.success('分组已删除',null,true);
-                            scenario.treeObj.removeNode(selectedScenarioGroup);
-                        }
-                    },function(err){
-                        APP.error(err);
-                    });
-                })
+
+            $(scenarioTable).initTable(this.table.options,function(otable){
+                scenario.table.obj = otable;
             });
         }
     };
+
+    var scenario_group = {
+        "table" : {
+            "id" : scenarioGroupTable,
+            "options" : {
+                "title": "调查方案分组表",
+                "scrollY": "380px",
+                "dataUrl" : "WEIXIN/researchscenario/selectGroups",
+                "select": {style: 'single'},
+                "order": [[ 2, 'asc' ]],
+                "columns": [
+                    {
+                        "className":      'details-control',
+                        "orderable":      false,
+                        "data":           null,
+                        "defaultContent": ''
+                    },
+                    {"data": "groupDesc", "title": "分组名称"},
+                    {"data": "seqNum", "title": "序号","width":"5%" },
+                    {"data": "status", "title": "是否启用","render": function (data, type, row, meta) {return API.getDictName("on_off",data);}}
+                ],
+                "portlet": scenarioGroupPortal,
+                "deleteRecord": {url: 'WEIXIN/researchscenario/deleteGroup', row: true, id: "id",onDeleted:function(ret,params){
+                    var selectedGroup = scenario.treeObj.getNodeByParam("id", params.id, null);
+                    scenario.treeObj.removeNode(selectedGroup);
+                }},
+                "addEditForm" : {
+                    "title":"方案分组维护",
+                    "id" : scenarioGroupForm,
+                    "addUrl": "WEIXIN/researchscenario/insertGroup",
+                    "editUrl": "WEIXIN/researchscenario/updateGroup",
+                    "submitJson" : true,
+                    "editModal" : "#weixin-research-scenario-group-modal",
+                    "autoClose" : true
+                }
+            }
+        },
+        formatIndex : function ( d ) {
+            var detail_table = '<table class="table table-striped table-hover" style="width:50%"><thead><tr><td>序号</td><td>指标名称</td></tr></thead><tbody>';
+            var indexes = API.jsonData('WEIXIN/researchscenario/selectIndexes',{scenarioId: d.scenarioId, groupId: d.id});
+            for(var i=0;i<indexes.length;i++){
+                detail_table += "<tr><td>"+indexes[i].seqNum+"</td><td>"+indexes[i].indexDesc+"</td></tr>";
+            }
+            detail_table += '</tbody></table>';
+            return detail_table;
+        },
+        "init" : function(param){
+            this.table.options.params = param || {scenarioId : '-1'};
+            var _groupForm = $(scenarioGroupForm);
+            scenario_group.table.options.addEditForm.initComplete = function(opts){
+                _groupForm.field('companyId').val(_companyId);
+                _groupForm.field('scenarioId').val(param.scenarioId);
+                _groupForm.find("[data-for='scenarioName']").html(scenario.treeObj.getNodeByParam("id",param.scenarioId,null).name);
+            }
+            scenario_group.table.options.addEditForm.submitCallback = function(data){
+                scenario_group.table.obj.query(param);
+                scenario.treeObj.reAsyncChildNodes(null, "refresh");
+                scenario.treeObj.selectNode(scenario.treeObj.getNodeByParam("id", param.scenarioId, null));
+                scenario.treeObj.expandNode(scenario.treeObj.getNodeByParam("id", param.scenarioId, null), true, true, true);
+            };
+            $(scenarioGroupTable).initTable(this.table.options,function(otable){
+                scenario_group.table.obj = otable;
+                $(scenarioGroupTable).on('click', 'td.details-control', function () {
+                    var tr = $(this).closest('tr');
+                    var row = otable.row( tr );
+
+                    if ( row.child.isShown() ) {
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    }
+                    else {
+                        row.child( scenario_group.formatIndex(row.data()) ).show();
+                        tr.addClass('shown');
+                    }
+                } );
+            });
+
+        }
+    };
+
+
     var scenario_index = {
         "table" : {
             "id" : scenarioIndexTable,
             "options" : {
                 "title": "调查指标表",
+                "scrollY": "380px",
+                "scrollX": true,
                 "dataUrl" : "WEIXIN/researchscenario/selectIndexes",
                 "columns": [
                     {"data": "seqNum", "title": "序号","width":"5%" },
@@ -195,20 +241,6 @@ define('module/weixin/research/scenario',['app/common','app/datatables','app/for
                         $(scenarioIndexAddModal+" span[data-for='group']").html(selectedScenarioGroup.name);
                     });
                 }
-            }
-        },
-        "viewTable" : {
-            "id" : scenarioIndexViewTable,
-            "options" : {
-                "title": "调查指标表",
-                "dataUrl" : "WEIXIN/researchscenario/selectIndexes",
-                "columns": [
-                    {"data": "seqNum", "title": "序号","width":"5%" },
-                    {"data": "indexDesc", "title": "题目名称"},
-                    {"data": "showMode", "title": "类型","render" : function(data){return API.getDictName("researchindex_showmode",data);}},
-                    {"data": "groupId", "title": "分组","visible":false}
-
-                ]
             }
         },
         "init" : function(param){
@@ -274,8 +306,11 @@ define('module/weixin/research/scenario',['app/common','app/datatables','app/for
     };
     return {
         init : function(param){
+            $(scenarioEditPortal).removeClass('hide').show();
+            $(scenarioGroupPortal).removeClass('hide').hide();
+            $(scenarioIndexPortal).removeClass('hide').hide();
             scenario.init(param);
-            scenario_index.init();
+
         },
         initIndexAdd : function(param){
             scenario_index_add.init(param);

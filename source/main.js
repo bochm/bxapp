@@ -41,6 +41,7 @@ require.config({
 		'datatables/fixedHeader':'lib/jquery/datatables/dataTables.fixedHeader',
 		'datatables/fixedColumns':'lib/jquery/datatables/dataTables.fixedColumns',
 		'datatables/rowReorder' : 'lib/jquery/datatables/dataTables.rowReorder',
+		'datatables/rowGroup' : 'lib/jquery/datatables/dataTables.rowGroup',
 		'echarts':'lib/echarts/echarts',
 		'store' : 'lib/ie-need/store.everything.min',
 		'numeral' : 'lib/utils/numeral'

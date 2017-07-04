@@ -3,22 +3,6 @@
         <div class="col-md-5 ">
             <div class="portlet box green-turquoise" panel-title="调查方案 " panel-icon="iconfont icon-diaocha"
                  id="weixin-research-scenario-portlet">
-                <div class="actions">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default" data-role="addScenario"><i class="fa fa-copy"></i> 新增方案</button>
-                        <button type="button" data-title="更多操作" class="btn btn-default dropdown-toggle tooltips" data-toggle="dropdown">
-                            <i class="fa fa-angle-down"></i>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a class="btn tooltips" data-role="editScenario"> <i class="fa fa-edit"></i> 修改方案 </a></li>
-                            <li><a class="btn" data-role="deleteScenario"> <i class="fa fa-trash-o"></i> 删除方案 </a> </li>
-                            <li class="divider"></li>
-                            <li><a class="btn" data-role="addScenarioGroup"> <i class="fa fa-copy"></i> 新增指标分类 </a></li>
-                            <li><a class="btn" data-role="editScenarioGroup"> <i class="fa fa-edit"></i> 修改指标分类 </a></li>
-                            <li><a  class="btn" data-role="deleteScenarioGroup"> <i class="fa fa-trash-o"></i> 删除指标分类 </a></li>
-                        </ul>
-                    </div>
-                </div>
                 <div class="portlet-body">
                     <div class="scroller" data-scroll-height="450">
                         <div><ul id="tree-weixin-research-scenario" class="ztree"></ul></div>
@@ -27,19 +11,42 @@
             </div>
         </div>
         <div class="col-md-7" >
-            <div class="portlet box green-turquoise" panel-title="方案指标" panel-icon="iconfont icon-wenjuan1"
-                 id="weixin-research-scenario-index-portlet">
+            <div class="portlet box green-turquoise hide" panel-title="方案维护" panel-icon="iconfont icon-wenjuan1"
+                 id="weixin-research-scenario-edit-portlet">
                 <div class="actions">
-                    <a href="#" class="btn btn-default" data-role="addRecord"><i class="fa fa-copy"></i> 新增 </a>
-                    <a href="#" class="btn btn-default btn-selectMore" data-role="deleteRecord"><i class="fa fa-trash-o"></i> 删除 </a>
+                    <a href="#" class="btn btn-default click-disable" data-role="addRecord"><i class="fa fa-copy"></i> 新增 </a>
+                    <a href="#" class="btn btn-default btn-selectOne click-disable" data-role="editRecord"><i class="fa fa-edit"></i> 修改 </a>
+                    <a href="#" class="btn btn-default btn-selectMore click-disable" data-role="deleteRecord"><i class="fa fa-trash-o"></i> 删除 </a>
                 </div>
                 <div class="portlet-body">
-                    <div class="scroller" data-scroll-height="470">
-                    <table id="table-weixin-research-scenario-index" class="table table-bordered"  width="100%">
+                    <table id="table-weixin-research-scenario" class="table table-bordered"  width="100%">
                     </table>
-                    </div>
                 </div>
             </div>
+            <div class="portlet box green-turquoise hide" panel-title="分组维护" panel-icon="iconfont icon-wenjuan1"
+                 id="weixin-research-scenario-group-portlet">
+                <div class="actions">
+                    <a href="#" class="btn btn-default click-disable" data-role="addRecord"><i class="fa fa-copy"></i> 新增 </a>
+                    <a href="#" class="btn btn-default btn-selectOne click-disable" data-role="editRecord"><i class="fa fa-edit"></i> 修改 </a>
+                    <a href="#" class="btn btn-default btn-selectMore click-disable" data-role="deleteRecord"><i class="fa fa-trash-o"></i> 删除 </a>
+                </div>
+                <div class="portlet-body">
+                    <table id="table-weixin-research-scenario-group" class="table table-bordered"  width="100%">
+                    </table>
+                </div>
+            </div>
+            <div class="portlet box green-turquoise hide" panel-title="指标维护" panel-icon="iconfont icon-wenjuan1"
+                 id="weixin-research-scenario-index-portlet">
+                <div class="actions">
+                    <a href="#" class="btn btn-default click-disable" data-role="addRecord"><i class="fa fa-copy"></i> 新增 </a>
+                    <a href="#" class="btn btn-default btn-selectMore click-disable" data-role="deleteRecord"><i class="fa fa-trash-o"></i> 删除 </a>
+                </div>
+                <div class="portlet-body">
+                    <table id="table-weixin-research-scenario-index" class="table table-bordered"  width="100%">
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
     <div class="modal fade" id="weixin-research-scenario-modal" data-backdrop="static" data-width="500" >

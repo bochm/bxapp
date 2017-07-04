@@ -813,8 +813,30 @@ table.dataTable td.reorder {
     text-align: center;
     cursor: move;
 }
+/* -------------------------------------------------- */
+/* RowGroup */
+table.dataTable tr.group td {
+    font-weight: bold;
+    background-color: #e0e0e0;
+}
 /*防止thead换行*/
 thead th { white-space: nowrap; }
+/*明细记录按钮*/
+td.details-control {
+    cursor: pointer;
+}
+td.details-control:after {
+    color: #31b9ff;
+    content: "\f0fe";
+    font-family: "FontAwesome";
+    font-size: 18px;
+}
+tr.shown td.details-control:after {
+    color: #31b9ff;
+    content: "\f146";
+    font-family: "FontAwesome";
+    font-size: 18px;
+}
 /*--------------------------------treetable-------------------------*/
 /* Ϊͼ��Ԥ�������ռ� */
 table.treetable span.indenter {

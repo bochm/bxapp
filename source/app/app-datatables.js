@@ -7,7 +7,8 @@ define('app/datatables',['jquery','app/common','app/api',
         "datatables.net",
         "datatables/buttons/flash",
         "datatables/buttons/print","datatables/select",
-        "datatables/responsive","datatables/fixedHeader","datatables/fixedColumns","datatables/rowReorder",
+        "datatables/responsive","datatables/fixedHeader",
+		"datatables/fixedColumns","datatables/rowReorder","datatables/rowGroup",
         "css!lib/jquery/datatables/dataTables.bootstrap.css"],function($,APP,API,DataTable) {
 	//-------------------默认参数初始化及修改----------------------------------
 	
@@ -311,6 +312,9 @@ define('app/datatables',['jquery','app/common','app/api',
 				//按选定行的id列删除（_options.deleteRecord.id），或者按选择的行数据删除（_options.deleteRecord.row=id）
 					var id_col = _options.deleteRecord.id ? _options.deleteRecord.id : 'id';
 					var params = _options.deleteRecord.row ? dt.selectedRowsData(id_col) : dt.selectedColumnData(id_col);
+					if(_options.select && _options.select.style == 'single' && params.length == 1){//单选时提交json对象而非数组
+						params = params[0];
+					}
 					API.ajax(_options.deleteRecord.url,params,false,function(ret,status){
 						if(API.isError(ret)){
 							APP.error(ret);
@@ -318,7 +322,7 @@ define('app/datatables',['jquery','app/common','app/api',
 							dt.deleteSelectedRow();
 							APP.success(API.respMsg(ret),null,true);
 						}
-						if(typeof _options.deleteRecord.onDeleted === 'function') _options.deleteRecord.onDeleted.call(this,ret);
+						if(typeof _options.deleteRecord.onDeleted === 'function') _options.deleteRecord.onDeleted.call(this,ret,params);
 					},function(err){
 						APP.error(err);
 					});
@@ -414,6 +418,7 @@ define('app/datatables',['jquery','app/common','app/api',
 			"scrollX" : false,
 			"buttons": [],
 			"rowReorder": false,
+			"rowGroup" : undefined,
 			//"buttons":[{extend: 'collection',text: '导出', buttons : ['selectAll','selectNone','print']},"addRecord","deleteRecord"],
 			"createdRow": function (nRow, aData, iDataIndex) {},
 			"footerCallback": function( tfoot, data, start, end, display ) {
