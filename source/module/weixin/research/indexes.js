@@ -7,7 +7,7 @@ define('module/weixin/research/indexes',['app/common','app/datatables','app/form
     var indexItemsModal = "#weixin-research-indexes-items-modal";
     var indexItemsForm = "#weixin-research-indexes-items-form";
     var pageContainer = APP.getPageContainer(indexesTableId);
-    var options_prefix = ['A','B','C','D','E','F','G','H','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+    var options_prefix = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
     var indexes = {
         "table" : {
             "id" : indexesTableId,
@@ -54,7 +54,8 @@ define('module/weixin/research/indexes',['app/common','app/datatables','app/form
                     {"data": "itemGroupId", "visible": false},
                     {"data": "itemDesc", "title": "选项描述"},
                     {"data": "itemGroupDesc", "title": "选项分类"},
-                    {"data": "itemId", "title": "选项值"}
+                    {"data": "itemId", "title": "选项值"},
+                    {"data": "seqId", "title": "排序"}
                 ],
                 "rowOperation" : ["edit","delete"],
                 "ordering": false,
