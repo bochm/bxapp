@@ -11,7 +11,7 @@
                     </div>
                     <div class="portlet-body">
                         <div class="scroller" data-scroll-height="450">
-                            <div class="col-md-5 wrap-left-box" >
+                            <div class="col-md-5" >
                                 <div class="form-group">
                                     <label class="control-label">调查对象<span class="required">*</span></label>
                                     <div class="input-icon left"> <i class="fa validate-icon"></i>
@@ -47,10 +47,17 @@
                             </div>
 
                             <div class="col-md-7" >
-                                <span id="table-weixin-research-indexes-items-toolbar" class="hide"><a data-role="addRecord"/></span>
-                                <table id="table-weixin-research-indexes-items" data-form="indexItems" class="table datatable table-striped"
-                                       width="100%">
-                                </table>
+                                <div class="portlet box grey-cascade" panel-title="指标" panel-icon="iconfont icon-wenjuan1"
+                                     id="weixin-research-indexes-items-portlet">
+                                    <div class="actions">
+                                        <a href="#" class="btn btn-default click-disable" data-role="addRecord"><i class="fa fa-copy"></i> 新增 </a>
+                                    </div>
+                                    <div class="portlet-body">
+                                        <table id="table-weixin-research-indexes-items" data-form="indexItems" class="table datatable table-striped"
+                                               width="100%">
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

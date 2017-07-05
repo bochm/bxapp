@@ -5956,21 +5956,6 @@ Green Turquoise
 .portlet.solid.green-turquoise > .portlet-title > .caption > i {
   color: #FFFFFF;
 }
-.portlet.solid.green-turquoise > .portlet-title > .tools > a.remove {
-  background-image: url(../img/portlet-remove-icon-white.png);
-}
-.portlet.solid.green-turquoise > .portlet-title > .tools > a.config {
-  background-image: url(../img/portlet-config-icon-white.png);
-}
-.portlet.solid.green-turquoise > .portlet-title > .tools > a.reload {
-  background-image: url(../img/portlet-reload-icon-white.png);
-}
-.portlet.solid.green-turquoise > .portlet-title > .tools > a.expand {
-  background-image: url(../img/portlet-expand-icon-white.png);
-}
-.portlet.solid.green-turquoise > .portlet-title > .tools > a.collapse {
-  background-image: url(../img/portlet-collapse-icon-white.png);
-}
 .portlet.solid.green-turquoise > .portlet-title > .tools > a.fullscreen {
   color: #fdfdfd;
 }
@@ -6299,4 +6284,136 @@ Yellow Default
   background: #FFB848 !important;
   color: #FFFFFF !important;
 }
+
+
+/***********
+Grey Colors
+************/
+/***
+grey-cascade
+***/
+.grey-cascade.btn {
+  color: #FFFFFF;
+  background-color: #95A5A6;
+  border-color: "";
+}
+.grey-cascade.btn:hover, .grey-cascade.btn:focus, .grey-cascade.btn:active, .grey-cascade.btn.active {
+  color: #FFFFFF;
+  background-color: #829596;
+}
+.open .grey-cascade.btn.dropdown-toggle {
+  color: #FFFFFF;
+  background-color: #829596;
+}
+.grey-cascade.btn:active, .grey-cascade.btn.active {
+  background-image: none;
+  background-color: #74898a;
+}
+.grey-cascade.btn:active:hover, .grey-cascade.btn.active:hover {
+  background-color: #798d8f;
+}
+.open .grey-cascade.btn.dropdown-toggle {
+  background-image: none;
+}
+.grey-cascade.btn.disabled, .grey-cascade.btn.disabled:hover, .grey-cascade.btn.disabled:focus, .grey-cascade.btn.disabled:active, .grey-cascade.btn.disabled.active, .grey-cascade.btn[disabled], .grey-cascade.btn[disabled]:hover, .grey-cascade.btn[disabled]:focus, .grey-cascade.btn[disabled]:active, .grey-cascade.btn[disabled].active, fieldset[disabled] .grey-cascade.btn, fieldset[disabled] .grey-cascade.btn:hover, fieldset[disabled] .grey-cascade.btn:focus, fieldset[disabled] .grey-cascade.btn:active, fieldset[disabled] .grey-cascade.btn.active {
+  background-color: #95A5A6;
+}
+.grey-cascade.btn .badge {
+  color: #95A5A6;
+  background-color: #FFFFFF;
+}
+
+/* Button Strip */
+.btn.grey-cascade-stripe {
+  border-left: 3px solid #95A5A6;
+}
+
+/* Portlet */
+.portlet > .portlet-body.grey-cascade,
+.portlet.grey-cascade {
+  background-color: #95A5A6;
+}
+
+.portlet.solid.grey-cascade > .portlet-title,
+.portlet.solid.grey-cascade > .portlet-body {
+  border: 0;
+  color: #FFFFFF;
+}
+.portlet.solid.grey-cascade > .portlet-title > .caption > i {
+  color: #FFFFFF;
+}
+.portlet.solid.grey-cascade > .portlet-title > .tools > a.fullscreen {
+  color: #fdfdfd;
+}
+
+.portlet.box.grey-cascade {
+  border: 1px solid #b1bdbd;
+  border-top: 0;
+}
+.portlet.box.grey-cascade > .portlet-title {
+  background-color: #95A5A6;
+}
+.portlet.box.grey-cascade > .portlet-title > .caption {
+  color: #FFFFFF;
+}
+.portlet.box.grey-cascade > .portlet-title > .caption > i {
+  color: #FFFFFF;
+}
+.portlet.box.grey-cascade > .portlet-title > .actions .btn-default {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 1px solid #d2d9d9;
+  color: #e0e5e5;
+}
+.portlet.box.grey-cascade > .portlet-title > .actions .btn-default > i {
+  color: #e8ecec;
+}
+.portlet.box.grey-cascade > .portlet-title > .actions .btn-default:hover, .portlet.box.grey-cascade > .portlet-title > .actions .btn-default:focus, .portlet.box.grey-cascade > .portlet-title > .actions .btn-default:active, .portlet.box.grey-cascade > .portlet-title > .actions .btn-default.active {
+  border: 1px solid #eef0f0;
+  color: #fcfcfc;
+}
+
+/* Statistic Block */
+.dashboard-stat.grey-cascade {
+  background-color: #95A5A6;
+}
+.dashboard-stat.grey-cascade.dashboard-stat-light:hover {
+  background-color: #8a9c9d;
+}
+.dashboard-stat.grey-cascade .visual > i {
+  color: #FFFFFF;
+  opacity: 0.1;
+  filter: alpha(opacity=10);
+}
+.dashboard-stat.grey-cascade .details .number {
+  color: #FFFFFF;
+}
+.dashboard-stat.grey-cascade .details .desc {
+  color: #FFFFFF;
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+.dashboard-stat.grey-cascade .more {
+  color: #FFFFFF;
+  background-color: #8a9c9d;
+}
+
+/* General Element */
+.bg-grey-cascade {
+  border-color: #95A5A6 !important;
+  background-image: none !important;
+  background-color: #95A5A6 !important;
+  color: #FFFFFF !important;
+}
+
+/* General Text & Icon Font Colors */
+.font-grey-cascade {
+  color: #95A5A6 !important;
+}
+
+.progress-bar.grey-cascade {
+  background: #95A5A6 !important;
+  color: #FFFFFF !important;
+}
+
 

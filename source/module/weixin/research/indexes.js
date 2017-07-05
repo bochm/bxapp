@@ -59,6 +59,7 @@ define('module/weixin/research/indexes',['app/common','app/datatables','app/form
                 "rowOperation" : ["edit","delete"],
                 "ordering": false,
                 "paging" : false,
+                "portlet" : "#weixin-research-indexes-items-portlet",
                 "addEditForm" : {
                     "title":"指标选项维护",
                     "editModal":indexItemsModal,

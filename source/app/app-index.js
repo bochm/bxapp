@@ -180,7 +180,7 @@ define(['jquery','app/common'],function($,APP) {
 
         if(tabs_ul.children('li').length > 4){
             $('#sys-close-tab-act').parents('.gritter-item-wrapper').remove();
-            APP.notice("系统警告","打开页面不能超过5个,是否<a href='#' id='sys-close-tab-act'>关闭上个</a>页面?",'warning','','',function(){
+            APP.notice("系统警告","打开页面不能超过5个,是否<a href='#' id='sys-close-tab-act'>关闭上个</a>页面?",'light','','',function(){
                 $('#sys-close-tab-act').click(function(){
                     $('div.page-tab>ul.nav-tabs>li:eq(1)').remove();
                     $('div.page-tab>.tab-content>.tab-pane:eq(1)').remove();
