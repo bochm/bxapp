@@ -35,6 +35,7 @@
 
     {"id":"07","icon":"iconfont icon-wenjuan2","name":"问卷管理","target":"","permission":"","type":"0","parent_id":"-1"},
     {"id":"0701","icon":"iconfont icon-wenjuan1","name":"题库维护","target":"pages/weixin/research/indexes-list","permission":"","type":"0","parent_id":"07"},
-    {"id":"0701","icon":"iconfont icon-diaocha","name":"调查方案","target":"pages/weixin/research/scenario-list","permission":"","type":"0","parent_id":"07"}
+    {"id":"0702","icon":"iconfont icon-diaocha","name":"调查方案","target":"pages/weixin/research/scenario-list","permission":"","type":"0","parent_id":"07"},
+    {"id":"0703","icon":"iconfont icon-diaocha","name":"问卷查询","target":"pages/weixin/research/questionary-list","permission":"","type":"0","parent_id":"07"}
   ]
 }

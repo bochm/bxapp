@@ -487,7 +487,7 @@ define('app/datatables',['jquery','app/common','app/api',
 					}else{
 						_filter = $("div#"+tableid+"_wrapper .dataTables_filter");
 						var searchHTML = "<label><div class='input-icon left'>" +
-							"<input type='search' class='form-control input-sm search' placeholder='请输入搜索内容' aria-controls='"+tableid+"'>" +
+							"<input type='text' class='form-control search' placeholder='请输入搜索内容' aria-controls='"+tableid+"'>" +
 							"<i class='iconfont icon-search'></i></div></label>";
 						_filter.html(searchHTML);
 					}
@@ -505,25 +505,42 @@ define('app/datatables',['jquery','app/common','app/api',
 		                }
 		            });
 		            //自定义查询表单
-		            if(opts.queryModal){
+		            if(opts.queryModal || opts.queryForm){
 		            	require(['app/form'],function(FM){
-		            		var queryBtn = $("<button class='btn btn-sm green' style='margin-bottom: 2px;'>" +
-		            				"<i class='fa fa-ellipsis-h fa-lg'/></i></button>");
-		            		var modalId = opts.queryModal;
-		            		if(typeof opts.queryModal === 'object') modalId = opts.queryModal.id;
+							if(opts.queryModal){
+								var queryBtn = $("<button class='btn btn-sm green' style='margin-bottom: 2px;'>" +
+									"<i class='fa fa-ellipsis-h fa-lg'/></i></button>");
+								var modalId = opts.queryModal;
+								if(typeof opts.queryModal === 'object') modalId = opts.queryModal.id;
 
-		            		FM.queryForm({url:_table.data('url'),queryModal : opts.queryModal},function(data,done){
-		            			api.clear().draw();
-            					api.rows.add(data).draw();
-            					if(typeof done === 'function') done();
-		            		});
+								FM.queryForm({url:_table.data('url'),queryModal : opts.queryModal},function(data,done){
+									api.clear().draw();
+									api.rows.add(data).draw();
+									_filter.find(".icon-search").click();
+									if(typeof done === 'function') done();
+								});
 
-		            		queryBtn.on('click',function(){
-		            			$(modalId).modal('show');
-			            	})
+								queryBtn.on('click',function(){
+									$(modalId).modal('show');
+								})
 
-			            	_filter.find('.input-icon').append(queryBtn);
-							queryBtn.tooltip({"title":"更多查询条件","placement":"auto left"});
+								_filter.find('.input-icon').append(queryBtn);
+								queryBtn.tooltip({"title":"更多查询条件","placement":"auto left"});
+							}
+							if(opts.queryForm){
+								$(opts.queryForm.id).append(_filter.find("label").wrap("<div class='form-group'>").parent());
+								_filter.append($(opts.queryForm.id));
+								FM.queryForm($.extend(true,{url:_table.data('url')},opts.queryForm),function(data,done){
+									api.clear().draw();
+									api.rows.add(data).draw();
+									_filter.find(".icon-search").click();
+									if(typeof done === 'function') done();
+								});
+								$(opts.queryForm.id).on('keydown',function(e){
+									if(event.keyCode==13){return false;}
+								});
+								_filter.css('margin-right','0');
+							}
 		            	})
 		            	
 		            }else{

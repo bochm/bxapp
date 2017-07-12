@@ -64,7 +64,7 @@ div.dataTables_filter input {
 	display: inline-block;
 }
 div.dataTables_filter .icon-search {
-	margin-top: -1.3em;/*bx add ͼ��λ������ */
+	margin-top: -1.45em;/*bx add 搜索图标位置 */
 	cursor: pointer;
 }
 

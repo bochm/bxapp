@@ -1260,9 +1260,9 @@ define('app/form',["jquery","app/common","app/api","moment","jquery/validate","j
 		});
 	}
 	FORM.queryForm = function(opts,queryback){
-		var queryOtps = {"queryForm" : true,"url" : opts.url};
-		if(opts.queryForm){
-			$(opts.queryForm).initForm(queryOtps,function(data){
+		var queryOtps = $.extend(true,{"queryForm" : true},opts);
+		if(opts.id){
+			$(opts.id).initForm(queryOtps,function(data){
 				if(typeof queryback === 'function') queryback.call(this,data);
 			});
 		}else if(opts.queryModal){
